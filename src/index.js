@@ -19,6 +19,12 @@ function base64ToBytes(value) {
 function toHex(bytes) {
   return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
 }
+function constantTimeEqual(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return mismatch === 0;
+}
 function randomToken(size = 32) {
   const bytes = crypto.getRandomValues(new Uint8Array(size));
   return bytesToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -174,7 +180,7 @@ async function authApi(request, env, url) {
         iterations: row.password_iterations,
         hash: "SHA-256"
       }, key, 256);
-      valid = bytesToBase64(new Uint8Array(bits)) === row.password_hash;
+      valid = constantTimeEqual(bytesToBase64(new Uint8Array(bits)), row.password_hash);
     } else {
       // Comparable password-hash work for unknown phone numbers.
       await passwordHash(password, crypto.getRandomValues(new Uint8Array(16)));
