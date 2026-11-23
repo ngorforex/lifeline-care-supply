@@ -1,60 +1,61 @@
-# Lifeline Care Supply — Architecture Foundation
+# Lifeline Care Supply — Cloudflare Architecture
 
 ## Product scope
-
-Lifeline Care Supply is an investment platform for **individual investors only**. It offers fixed investment packages and has a separate administrator portal. Business investor accounts and organization management are out of scope.
+Lifeline Care Supply supports individual investors only. Business and organization investor accounts are out of scope.
 
 ## Applications
-
-1. Public website: platform information, package disclosures, FAQs, legal disclosures and access entry points.
-2. Investor portal: personal profile, verification, dashboard, packages, investments, wallet activity, transactions and account security.
+1. Public website: platform information, package disclosures, FAQs and legal disclosures.
+2. Investor portal: personal profile, verification, dashboard, packages, investments, transactions, referrals and account security.
 3. Administrator portal: investor administration, package administration, investment operations, deposit and withdrawal review, reports, staff permissions and audit logs.
 
-## Runtime
-
-- Cloudflare Worker: API and request handling.
-- Cloudflare Workers Static Assets: public frontend delivery.
-- PostgreSQL: authoritative relational and financial data store (proposed; not provisioned).
-- Cloudflare R2: private identity and supporting document storage (proposed; not provisioned).
-- Cloudflare Queues and scheduled Worker tasks: asynchronous notifications and controlled scheduled processing (proposed; not provisioned).
-- GitHub: source control on the main branch.
+## Cloudflare runtime
+- Cloudflare Worker: API, authentication, authorization and business logic.
+- Workers Static Assets: public website and investor/admin interfaces.
+- D1: authoritative relational application database. Production database is `lifeline-care-supply-db`, EU jurisdiction, bound as `DB`.
+- R2: candidate private object storage for identity and supporting documents; not provisioned yet.
+- Queues / Workflows: candidate asynchronous processing; not enabled.
+- Turnstile and rate limiting: candidate abuse controls; not yet configured.
+- GitHub: source control on `main`.
 - Cloudflare Workers Builds: production deployment workflow.
 
-## Security boundaries
+## Identity model
+- Investors: phone number + password. Registration collects first name, optional middle name, last name, phone number and password; no email.
+- Administrator accounts are provisioned separately and never through public investor registration.
+- Session credentials must be opaque, random, stored only as hashes, delivered in Secure, HttpOnly, SameSite cookies, and expire/revoke server-side.
+- Passwords must be stored using a modern password hashing scheme with unique salts and server-side parameters; never store plaintext passwords.
+- Public registration must never accept a role or administrator flag.
+- Phone normalization uses E.164. SMS-based verification or recovery requires an explicitly configured SMS provider; do not claim phone ownership is verified without it.
 
-- Investor and administrator authentication must be separate in authorization policy.
-- Investor routes must only expose the authenticated investor's own records.
-- Administrative permissions must be role-based and least-privilege.
-- Financial changes must be recorded in an append-only ledger.
-- Every money-moving command must be idempotent and auditable.
-- Uploaded identity documents must be private and served only through authorized, short-lived access.
-- Secrets must be stored in the deployment secret manager, never committed to Git.
+## Security boundaries
+- All database access goes through the Worker API and parameterized D1 statements.
+- Investor routes only expose the authenticated investor's own records.
+- Administrator permissions are role-based and least-privilege.
+- Admin provisioning is controlled and audited.
+- Financial changes are recorded in an append-only double-entry ledger.
+- Every money-moving command is idempotent and auditable.
+- Payout details and identity documents are private and encrypted/restricted.
+- Secrets are stored in Cloudflare's secret manager, never committed to Git.
 
 ## Financial invariants
-
-- A pending deposit is not spendable balance.
-- A withdrawal cannot exceed available, settled funds.
+- Pending deposits are not spendable balance.
+- Withdrawals cannot exceed available, settled funds.
 - Ledger transactions must balance before commit.
 - Reversals are compensating entries; historical financial records are not deleted.
-- Investment purchases retain a snapshot of the terms accepted at purchase time.
+- Investment purchases retain a snapshot of terms accepted at purchase time.
 - Package edits do not silently alter existing investments.
-- All persisted timestamps use timezone-aware database types. User-facing business times are displayed in East Africa Time (EAT).
-- Currency, package prices, duration, return formulas, taxes, fees and eligibility rules remain unconfigured until approved.
+- Timestamps are persisted as UTC ISO-8601 and displayed in East Africa Time (EAT).
+- Currency, package prices, duration, return formulas, taxes, fees, eligibility rules and referral rewards remain unconfigured until approved.
 
-## Not enabled in this foundation
+## Current status
+- Dedicated EU-jurisdiction D1 database created and initial schema applied.
+- Worker source still needs API/auth implementation and runtime tests before investor/admin portals can be connected.
+- Neon is not used by the intended Cloudflare architecture. The existing Neon project is retained temporarily as a rollback/reference resource; it has not been deleted.
+- No investor financial records have been migrated; no live money movement is enabled.
 
-- No live deposit or payout integration.
-- No real investor accounts or authentication provider.
-- No real wallet balances or investment activation.
-- No return calculation or scheduled earnings.
-- No referral commission logic.
-- No production database or document storage has been provisioned.
-
-## Initial release sequence
-
-1. Approve the product terms, legal disclosures and operating model.
-2. Provision database and authentication.
-3. Implement and test the investor portal.
-4. Implement administrator access and review workflows.
-5. Implement the ledger and payment adapters.
-6. Complete security, reconciliation and recovery tests before enabling real-money activity.
+## Release sequence
+1. Implement and test phone/password investor authentication and separate admin authentication.
+2. Add strict role and ownership authorization to API routes.
+3. Implement investor and admin read APIs.
+4. Implement approved operational workflows and balanced ledger posting.
+5. Add abuse controls, backup/restore drills, audit-integrity and security testing.
+6. Enable real-money activity only after formal approval and end-to-end verification.
