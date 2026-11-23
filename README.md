@@ -2,25 +2,37 @@
 
 Individual-investor fixed-package investment platform.
 
-## Current foundation
+## Current infrastructure
 
-- Cloudflare Worker with static asset delivery.
-- Responsive public landing page.
-- PostgreSQL schema draft for individual investors, fixed packages, investments, ledger records, deposits, withdrawals, verification and audit logs.
-- Architecture and security notes in \`docs/architecture.md\`.
+- Cloudflare Worker serves the application and will host the API.
+- Cloudflare Workers Static Assets serves the public and portal interfaces.
+- Cloudflare D1 is the dedicated relational database, created in the EU jurisdiction.
+- D1 schema is versioned in `db/d1/0001_initial.sql`.
+- Worker binding: `DB` → `lifeline-care-supply-db`.
+- GitHub `main` is connected to Cloudflare Workers Builds for deployment.
+
+## Investor identity
+
+Individual investors register with first name, optional middle name, last name, phone number and password. Investor email is not collected or required. Administrator identities are provisioned separately.
 
 ## Local preview
 
-The public site is served from \`public/\`. For a local Cloudflare Worker preview, install Wrangler and run:
+Install dependencies using the repository lockfile, then run:
 
-\`\`\`sh
+```sh
 npx wrangler dev
-\`\`\`
+```
 
 ## Deployment
 
-Production deployments are managed through Cloudflare Workers Builds from the GitHub \`main\` branch. Do not deploy through a separate API workflow.
+Production deployments are managed through Cloudflare Workers Builds from GitHub `main`. Do not deploy through a separate API workflow.
 
-## Important
+## Important operational boundaries
 
-This repository currently contains a foundation only. No production database, authentication provider, payment integration, live balances, investment activation or earnings calculation is enabled. Investment terms and regulatory requirements must be approved before real-money activity is implemented.
+- D1 currently contains the foundational schema only. Authentication and application API routes must be implemented and tested before the portal is connected.
+- No real investor accounts or financial records have been migrated.
+- No package amounts, return rates, taxes, fees, eligibility conditions or referral rewards are configured.
+- No live deposits, payouts, wallet balances, investment activation or earnings calculation are enabled.
+- Do not enable real-money operations until ledger balancing, idempotency, access control, audit integrity, security review and recovery testing are complete.
+- Persist timestamps in UTC ISO-8601 form and display operational time in East Africa Time (EAT).
+- Never commit credentials or secrets.
