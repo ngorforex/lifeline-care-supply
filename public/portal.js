@@ -1,31 +1,25 @@
 const body = document.body;
 const title = document.getElementById("page-title");
 const crumb = document.getElementById("crumb");
+const isAdmin = body.dataset.portal === "admin";
 const titles = {
-  overview: body.dataset.portal === "admin" ? "Administrator overview" : "Good day, Investor",
-  investments: "My investments",
-  packages: "Investment packages",
-  transactions: "Transactions",
-  referrals: "Referrals",
-  profile: "My profile",
-  investors: "Individual investors",
-  deposits: "Deposit management",
-  withdrawals: "Withdrawal management",
-  reports: "Reports",
-  staff: "Staff & permissions",
-  audit: "Audit log"
+  overview: isAdmin ? "Administrator overview" : "Good day, Investor",
+  investments: "My investments", packages: "Investment packages", transactions: "Transactions",
+  referrals: "Referrals", profile: "My profile", investors: "Individual investors",
+  deposits: "Deposit management", withdrawals: "Withdrawal management", reports: "Reports",
+  staff: "Staff & permissions", audit: "Audit log"
 };
 function activateTab(tab) {
   const panel = document.getElementById("panel-" + tab);
   if (!panel) return;
-  document.querySelectorAll(".tab-panel").forEach((item) => item.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(item => item.classList.remove("active"));
   panel.classList.add("active");
-  document.querySelectorAll(".side-nav a[data-tab]").forEach((item) => item.classList.toggle("active", item.dataset.tab === tab));
+  document.querySelectorAll(".side-nav a[data-tab]").forEach(item => item.classList.toggle("active", item.dataset.tab === tab));
   if (title) title.textContent = titles[tab] || "Workspace";
   if (crumb) crumb.textContent = titles[tab] || "Workspace";
 }
-document.querySelectorAll("[data-tab]").forEach((link) => {
-  link.addEventListener("click", (event) => {
+document.querySelectorAll("[data-tab]").forEach(link => {
+  link.addEventListener("click", event => {
     const tab = link.dataset.tab;
     if (!document.getElementById("panel-" + tab)) return;
     event.preventDefault();
@@ -35,4 +29,28 @@ document.querySelectorAll("[data-tab]").forEach((link) => {
 });
 const initialTab = location.hash.slice(1);
 if (initialTab && document.getElementById("panel-" + initialTab)) activateTab(initialTab);
-document.querySelectorAll(".year").forEach((item) => item.textContent = String(new Date().getFullYear()));
+document.querySelectorAll(".year").forEach(item => item.textContent = String(new Date().getFullYear()));
+
+if (!isAdmin) {
+  fetch("/api/auth/me", { credentials: "same-origin", cache: "no-store" })
+    .then(async response => {
+      if (!response.ok) { location.replace("/login/"); return null; }
+      return response.json();
+    })
+    .then(data => {
+      if (!data?.authenticated) return;
+      const name = data.investor.firstName;
+      if (title && (!location.hash || location.hash === "#overview")) title.textContent = "Good day, " + name;
+      const crumbText = document.getElementById("crumb");
+      if (crumbText && (!location.hash || location.hash === "#overview")) crumbText.textContent = "Overview";
+      const avatar = document.querySelector(".top-actions .avatar");
+      if (avatar) avatar.textContent = name.slice(0, 1).toUpperCase();
+    })
+    .catch(() => location.replace("/login/"));
+
+  document.querySelector("[data-logout]")?.addEventListener("click", async event => {
+    event.preventDefault();
+    try { await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }); }
+    finally { location.replace("/login/"); }
+  });
+}
