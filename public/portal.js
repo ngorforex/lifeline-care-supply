@@ -6,6 +6,7 @@ const titles = {
   investments: "My investments",
   packages: "Investment packages",
   transactions: "Transactions",
+  referrals: "Referrals",
   profile: "My profile",
   investors: "Individual investors",
   deposits: "Deposit management",
