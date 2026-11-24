@@ -466,3 +466,14 @@ body[data-portal="investor"] .profile-hero-details .ui-icon{fill:none!important;
  body[data-portal="investor"] .profile-upload-button{font-size:9px;padding:6px 8px}
  body[data-portal="investor"] .profile-photo-hint{font-size:7px}
 }
+
+/* Mobile navigation drawer: avoid repeating the project brand already centered in the header */
+body[data-portal="investor"] .sidebar-drawer-head{display:flex;align-items:center;justify-content:space-between;min-height:44px;margin:0 0 12px}
+body[data-portal="investor"] .sidebar-drawer-head .side-label{padding:0;margin:0}
+body[data-portal="investor"] .sidebar-close{width:38px;height:38px;display:grid;place-items:center;border:1px solid #dcebe5;border-radius:12px;background:#f3f8f5;color:#52736b;cursor:pointer}
+body[data-portal="investor"] .sidebar-close .ui-icon{width:20px;height:20px}
+@media(max-width:700px){
+ body[data-portal="investor"].investor-menu-open .sidebar{inset:0 auto 0 0!important;height:100dvh!important;padding:20px 18px!important}
+ body[data-portal="investor"].investor-menu-open:after{inset:0!important}
+ body[data-portal="investor"] .sidebar-drawer-head{margin-bottom:15px}
+}
