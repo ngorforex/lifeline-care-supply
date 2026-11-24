@@ -135,7 +135,7 @@ async function authApi(request, env, url) {
       await env.DB.batch([
         env.DB.prepare("INSERT INTO users (id, phone_e164, status, created_at, updated_at) VALUES (?, ?, 'active', ?, ?)")
           .bind(userId, phone, now, now),
-        env.DB.prepare("INSERT INTO investor_profiles (user_id, verification_state, created_at, updated_at) VALUES (?, 'not_started', ?, ?)")
+        env.DB.prepare("INSERT INTO investor_profiles (user_id, first_name, middle_name, last_name, verification_state, created_at, updated_at) VALUES (?, 'Investor', NULL, 'Account', 'not_started', ?, ?)")
           .bind(userId, now, now),
         env.DB.prepare("INSERT INTO user_credentials (user_id, password_hash, password_salt, password_iterations, password_changed_at) VALUES (?, ?, ?, ?, ?)")
           .bind(userId, hash, bytesToBase64(salt), PASSWORD_ITERATIONS, now),
