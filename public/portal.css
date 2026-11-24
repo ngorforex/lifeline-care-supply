@@ -339,3 +339,39 @@ body[data-portal="investor"] #panel-overview .home-balance-card>small{
  body[data-portal="investor"] #panel-overview .home-balance-card{min-height:126px;padding:12px}
  body[data-portal="investor"] #panel-overview .home-balance-card>b{font-size:18px}
 }
+
+
+/* Investor profile — streamlined layout; intentionally excludes summary tiles and phone verification */
+body[data-portal="investor"] .profile-hero{display:flex;align-items:center;gap:18px;padding:23px;background:linear-gradient(112deg,#064d47,#087c70);border:0;border-radius:20px;color:#fff;overflow:hidden;position:relative}
+body[data-portal="investor"] .profile-hero:after{content:"";position:absolute;width:190px;height:190px;border:1px solid rgba(255,255,255,.12);border-radius:50%;right:-65px;top:-90px;box-shadow:0 0 0 25px rgba(255,255,255,.035),0 0 0 55px rgba(255,255,255,.025)}
+body[data-portal="investor"] .profile-hero-avatar{width:76px;height:76px;flex:0 0 76px;border-radius:50%;display:grid;place-items:center;background:#e6f8f0;color:#078b79;border:4px solid #8bea8a;font-size:30px;font-weight:800}
+body[data-portal="investor"] .profile-hero-details{min-width:0;position:relative;z-index:1}
+body[data-portal="investor"] .profile-hero-details h3{font-size:21px;margin:8px 0;color:#fff}
+body[data-portal="investor"] .profile-hero-details p{display:flex;align-items:center;gap:8px;margin:7px 0;color:#e0f3ed;font-size:12px;overflow-wrap:anywhere}
+body[data-portal="investor"] .profile-hero-details .ui-icon{width:16px;height:16px;flex:0 0 16px}
+body[data-portal="investor"] .profile-status{display:inline-flex;background:#e5fff3;color:#087c69;border-radius:99px;padding:6px 10px;font-size:9px;font-weight:800;letter-spacing:.07em}
+body[data-portal="investor"] .profile-group{margin-top:23px}
+body[data-portal="investor"] .profile-group>h3{font-size:16px;margin:0 0 11px;letter-spacing:-.025em}
+body[data-portal="investor"] .profile-menu{padding:0;overflow:hidden}
+body[data-portal="investor"] .profile-menu-item{width:100%;min-height:70px;padding:12px 15px;display:flex;align-items:center;gap:13px;text-align:left;text-decoration:none;color:#173e3b;background:#fff;border:0;border-bottom:1px solid #edf2ef;font:inherit;cursor:pointer}
+body[data-portal="investor"] .profile-menu-item:last-child{border-bottom:0}
+body[data-portal="investor"] .profile-menu-item:active{background:#f4faf7}
+body[data-portal="investor"] .profile-menu-icon{width:43px;height:43px;flex:0 0 43px;border-radius:50%;display:grid;place-items:center;background:#eaf7f1;color:#0b927e}
+body[data-portal="investor"] .profile-menu-icon .ui-icon{width:21px;height:21px}
+body[data-portal="investor"] .profile-menu-item>span:nth-child(2){display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+body[data-portal="investor"] .profile-menu-item b{font-size:13px;font-weight:750}
+body[data-portal="investor"] .profile-menu-item small{font-size:10px;color:#7c8f88;line-height:1.4}
+body[data-portal="investor"] .profile-chevron{font-size:25px;color:#84958f;line-height:1}
+body[data-portal="investor"] .profile-logout{width:100%;min-height:58px;margin:28px 0 8px;border:1.5px solid #e34a4a;border-radius:16px;background:#fff5f4;color:#c62828;display:flex;align-items:center;justify-content:center;gap:11px;font:750 15px "DM Sans",Arial,sans-serif}
+body[data-portal="investor"] .profile-logout .ui-icon{width:21px;height:21px}
+body[data-portal="investor"] [data-support-placeholder]{cursor:pointer}
+@media(max-width:700px){
+ body[data-portal="investor"] .profile-hero{padding:19px 16px;border-radius:18px;gap:14px}
+ body[data-portal="investor"] .profile-hero-avatar{width:66px;height:66px;flex-basis:66px;font-size:26px}
+ body[data-portal="investor"] .profile-hero-details h3{font-size:18px}
+ body[data-portal="investor"] .profile-hero-details p{font-size:11px}
+ body[data-portal="investor"] .profile-group{margin-top:21px}
+ body[data-portal="investor"] .profile-menu-item{min-height:68px;padding:10px 12px;gap:11px}
+ body[data-portal="investor"] .profile-menu-icon{width:40px;height:40px;flex-basis:40px}
+ body[data-portal="investor"] .profile-logout{margin-top:24px}
+}
