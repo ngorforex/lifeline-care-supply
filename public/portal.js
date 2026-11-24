@@ -192,12 +192,21 @@ if(!isAdmin){
 });
 
  const menuToggle=document.querySelector("[data-menu-toggle]");
+ const closeMenu=()=>{
+  document.body.classList.remove("investor-menu-open");
+  menuToggle?.setAttribute("aria-expanded","false");
+  menuToggle?.setAttribute("aria-label","Open navigation menu");
+ };
  menuToggle?.addEventListener("click",()=>{
   const open=document.body.classList.toggle("investor-menu-open");
   menuToggle.setAttribute("aria-expanded",String(open));
   menuToggle.setAttribute("aria-label",open?"Close navigation menu":"Open navigation menu");
  });
- document.querySelectorAll(".side-nav a[data-tab]").forEach(link=>link.addEventListener("click",()=>{document.body.classList.remove("investor-menu-open");menuToggle?.setAttribute("aria-expanded","false");}));
+ document.querySelector("[data-menu-close]")?.addEventListener("click",closeMenu);
+ document.querySelector("body[data-portal=investor]")?.addEventListener("click",event=>{
+  if(document.body.classList.contains("investor-menu-open") && event.target===document.body)closeMenu();
+ });
+ document.querySelectorAll(".side-nav a[data-tab]").forEach(link=>link.addEventListener("click",closeMenu));
  document.querySelector("[data-open-profile]")?.addEventListener("click",()=>{activateTab("profile");history.replaceState(null,"","#profile");window.scrollTo({top:0,behavior:"smooth"});});
  const applyPhoto=src=>{
   const photo=document.querySelector("[data-profile-photo]");
