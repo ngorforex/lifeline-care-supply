@@ -7,13 +7,13 @@ Individual-investor fixed-package investment platform.
 - Cloudflare Worker serves the application and will host the API.
 - Cloudflare Workers Static Assets serves the public and portal interfaces.
 - Cloudflare D1 is the dedicated relational database, created in the EU jurisdiction.
-- D1 schema is versioned in `db/d1/0001_initial.sql`.
+- D1 schema is versioned in `db/d1/0001_initial.sql` and `db/d1/0002_auth_support.sql`.
 - Worker binding: `DB` → `lifeline-care-supply-db`.
 - GitHub `main` is connected to Cloudflare Workers Builds for deployment.
 
 ## Investor identity
 
-Individual investors register with first name, optional middle name, last name, phone number and password. Investor email is not collected or required. Administrator identities are provisioned separately.
+Individual investors register with an international-format phone number and password; registration includes a confirm-password check. Investor names and email addresses are not collected. Password recovery must verify ownership of the registered phone number before allowing a reset. Administrator identities are provisioned separately.
 
 ## Local preview
 
@@ -29,8 +29,8 @@ Production deployments are managed through Cloudflare Workers Builds from GitHub
 
 ## Important operational boundaries
 
-- D1 currently contains the foundational schema only. Authentication and application API routes must be implemented and tested before the portal is connected.
-- No real investor accounts or financial records have been migrated.
+- Investor registration, login, logout, session validation and a read-only investor dashboard API are implemented. Dashboard data is loaded from the authenticated investor's D1 records.
+- No legacy investor accounts or financial records have been migrated. New registrations are stored in D1.
 - No package amounts, return rates, taxes, fees, eligibility conditions or referral rewards are configured.
 - No live deposits, payouts, wallet balances, investment activation or earnings calculation are enabled.
 - Do not enable real-money operations until ledger balancing, idempotency, access control, audit integrity, security review and recovery testing are complete.
