@@ -205,5 +205,5 @@ body[data-portal="investor"] .profile-placeholder p{line-height:1.8;color:#71847
 }
 
 /* Home dashboard hero artwork */
-body[data-portal="investor"] .home-hero-image{display:block;width:100%;aspect-ratio:16/7;object-fit:cover;object-position:center;border-radius:20px;margin:0 0 22px;border:1px solid #d8ebe3;box-shadow:0 14px 34px rgba(20,83,70,.09)}
-@media(max-width:700px){body[data-portal="investor"] .home-hero-image{aspect-ratio:4/3;object-position:center;border-radius:16px;margin-bottom:18px}}
+body[data-portal="investor"] .home-hero-image{display:block;width:100%;height:auto;max-height:none;aspect-ratio:auto;object-fit:contain;object-position:center;background:#fff;border-radius:20px;margin:0 0 22px;border:1px solid #d8ebe3;box-shadow:0 14px 34px rgba(20,83,70,.09)}
+@media(max-width:700px){body[data-portal="investor"] .home-hero-image{height:auto;max-height:none;aspect-ratio:auto;object-fit:contain;border-radius:16px;margin-bottom:18px}}
