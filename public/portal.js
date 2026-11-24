@@ -157,11 +157,20 @@ if(!isAdmin){
    showLoadError("Your account information could not be loaded: "+(error.message||"Unknown error")+". Refresh the page to try again.");
   });
  
+ document.querySelector("[data-history-toggle]")?.addEventListener("click",event=>{
+  const button=event.currentTarget;
+  const content=document.querySelector("[data-history-content]");
+  if(!content)return;
+  const expanded=button.getAttribute("aria-expanded")==="true";
+  button.setAttribute("aria-expanded",String(!expanded));
+  content.hidden=expanded;
+  const chevron=button.querySelector(".profile-chevron");
+  if(chevron)chevron.textContent=expanded?"⌄":"⌃";
+ });
  document.querySelectorAll("[data-profile-action]").forEach(button=>button.addEventListener("click",()=>{
   const action=button.dataset.profileAction;
   const messages={
    password:"Password management is not available yet. The secure password-change service must be implemented before this control can update credentials.",
-   personal:"Your registered name and mobile number are shown in the profile header. Profile editing is not enabled yet.",
    help:"Help articles are being prepared. For assistance, use the official support channel once its link is configured.",
    terms:"The platform Terms & Conditions will be published here before investment transactions are enabled.",
    privacy:"The platform Privacy Policy will be published here before personal-data workflows are enabled.",
