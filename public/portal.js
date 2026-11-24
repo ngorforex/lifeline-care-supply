@@ -78,8 +78,33 @@ function renderDashboard(data){
  const link=document.querySelector("[data-referral-link]");const refStatus=document.querySelector("[data-referral-status]");
  if(data.referralCode?.code&&data.referralCode.is_active){if(link)link.textContent=data.referralCode.code;if(refStatus)refStatus.textContent="Active code";}
  const packages=document.querySelector("[data-packages]");
- if(packages){packages.replaceChildren();if(!data.packages?.length){const empty=document.createElement("div");empty.className="empty-state";empty.textContent="There are currently no published investment packages.";packages.append(empty);}
- else for(const p of data.packages){const card=document.createElement("article");card.className="panel package-card";const h=document.createElement("h3");h.textContent=p.name;const d=document.createElement("p");d.textContent=p.description||"Review the full terms before making a decision.";const meta=document.createElement("small");meta.textContent=[p.currency,p.investment_amount,p.duration_days?(p.duration_days+" days"):null].filter(Boolean).join(" · ");card.append(h,d,meta);packages.append(card);}}
+ const catalogue=[
+  {name:"Product 1",price:10000,daily:2000,duration:90,image:"/product-01.jpg"},
+  {name:"Product 2",price:15000,daily:3000,duration:90,image:"/product-02.jpg"},
+  {name:"Product 3",price:20000,daily:4000,duration:90,image:"/product-03.jpg"},
+  {name:"Product 4",price:30000,daily:6000,duration:90,image:"/product-04.jpg"},
+  {name:"Product 5",price:50000,daily:8000,duration:90,image:"/product-05.jpg"},
+  {name:"Product 6",price:80000,daily:11000,duration:90,image:"/product-06.jpg"},
+  {name:"Product 7",price:100000,daily:20000,duration:90,image:"/product-07.jpg"},
+  {name:"Product 8",price:150000,daily:30000,duration:90,image:"/product-08.jpg"},
+  {name:"Product 9",price:200000,daily:40000,duration:90,image:"/product-09.jpg"},
+  {name:"Product 10",price:250000,daily:48000,duration:90,image:"/product-10.jpg"}
+ ];
+ if(packages){
+  packages.replaceChildren();
+  const items=catalogue;
+  for(const p of items){
+   const card=document.createElement("article");card.className="panel package-card";
+   const image=document.createElement("img");image.className="package-image";image.src=p.image;image.alt="Medical equipment";image.loading="lazy";image.decoding="async";
+   const body=document.createElement("div");body.className="package-card-body";
+   const heading=document.createElement("h3");heading.textContent=p.name;
+   const details=document.createElement("div");details.className="package-details";
+   const fields=[["Purchase price",p.price],["Daily income",p.daily],["Duration",p.duration+" days"],["Total projected return",p.daily*p.duration]];
+   for(const [label,value] of fields){const item=document.createElement("div");item.className="package-detail";const caption=document.createElement("span");caption.textContent=label;const amount=document.createElement("b");amount.textContent=typeof value==="number"?new Intl.NumberFormat("en-UG").format(value)+" UGX":value;item.append(caption,amount);details.append(item);}
+   const note=document.createElement("p");note.className="package-risk-note";note.textContent="Catalogue figures only. Projected returns are not guaranteed. Investment activation and earnings are not yet enabled.";
+   body.append(heading,details,note);card.append(image,body);packages.append(card);
+  }
+ }
  const recent=document.querySelector("[data-recent-activity]");
  if(recent){recent.replaceChildren();const span=document.createElement("span");span.textContent="⌁";const b=document.createElement("b");b.textContent=data.investments?.length?data.investments.length+" investment record(s)":"No investment activity yet";const small=document.createElement("small");small.textContent="Account records are up to date";recent.append(span,b,small);}
  const recentTx=document.querySelector("[data-recent-transactions]");
