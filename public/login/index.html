@@ -4,61 +4,56 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#071f25">
-  <title>Investor sign in | Lifeline Care Supply</title>
+  <meta name="theme-color" content="#e9eee8">
+  <title>Sign in | Lifeline Care Supply</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/auth.css">
   <script src="/auth.js" defer></script>
 </head>
-<body class="auth-page login-page">
-  <main class="login-shell">
-    <section class="login-art" aria-label="Lifeline Care Supply investor portal">
-      <a class="login-brand" href="/login/" aria-label="Lifeline Care Supply">
-        <span class="login-brand-symbol">L<span>+</span></span>
-        <span class="login-brand-name">LIFELINE <b>CARE SUPPLY</b></span>
+<body class="auth-page">
+  <main class="access-page">
+    <header class="access-header">
+      <a class="access-brand" href="/login/" aria-label="Lifeline Care Supply home">
+        <span class="access-logo"><i></i><i></i><i></i><i></i></span>
+        <span class="access-brand-text">Lifeline <b>Care Supply</b></span>
       </a>
-      <div class="art-core" aria-hidden="true">
-        <div class="art-ring ring-one"></div><div class="art-ring ring-two"></div><div class="art-ring ring-three"></div>
-        <div class="art-center"><span class="center-cross">✳</span><span class="center-caption">YOUR<br>FUTURE, IN VIEW</span></div>
-        <span class="orbit-dot dot-one"></span><span class="orbit-dot dot-two"></span><span class="orbit-dot dot-three"></span>
+      <div class="access-header-right"><span class="access-live"><i></i> INVESTOR ACCESS</span><span class="access-header-rule"></span><span class="access-region">UGANDA · EAT</span></div>
+    </header>
+    <section class="access-content">
+      <div class="access-intro">
+        <div class="access-overline"><span>01</span> / PERSONAL ACCOUNT</div>
+        <h1>Make room for<br><em>what’s next.</em></h1>
+        <p>One secure place to access your Lifeline Care Supply investor account.</p>
       </div>
-      <div class="art-copy">
-        <span class="art-index">LCS / INVESTOR ACCESS</span>
-        <h1>Your next chapter<br>starts with <em>clarity.</em></h1>
-        <p>A dedicated space for your account, investment information and activity.</p>
-      </div>
-      <div class="art-bottom"><span>PERSONAL INVESTOR PORTAL</span><span>EST. 2026</span></div>
-    </section>
-
-    <section class="login-panel">
-      <div class="login-panel-top">
-        <span class="panel-label">INVESTOR ACCOUNT</span>
-        <span class="new-here">New here? <a href="/register/">Create account <b>↗</b></a></span>
-      </div>
-      <div class="login-form-wrap">
-        <div class="login-welcome-mark"><span>↗</span></div>
-        <div class="login-eyebrow">WELCOME BACK</div>
-        <h2>Good to see you.</h2>
-        <p class="login-intro">Sign in with the mobile number and password connected to your account.</p>
-        <form data-auth-form="login" class="login-form">
-          <div class="login-field">
+      <section class="access-card">
+        <div class="card-topline"><span>ACCOUNT PORTAL</span><span class="card-topline-mark">LCS<span>®</span></span></div>
+        <div class="access-tabs"><a class="selected" aria-current="page" href="/login/">Sign in</a><a  href="/register/">Create account</a></div>
+        <div class="form-heading">
+          <span class="form-kicker">WELCOME BACK</span>
+          <h2>Sign in to your account<span>.</span></h2>
+          <p>Enter your registered mobile number and password.</p>
+        </div>
+        <form data-auth-form="login" class="access-form">
+          <div class="access-field">
             <label for="phone">MOBILE NUMBER</label>
-            <div class="login-input-wrap"><span class="input-prefix">＋</span><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="256 7XX XXX XXX" required pattern="\+[1-9][0-9]{7,14}" aria-describedby="phone-hint"></div>
-            <span class="login-field-hint" id="phone-hint">Include your country code, e.g. +256.</span>
+            <div class="access-input"><span class="field-prefix">+ </span><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="256 7XX XXX XXX" required pattern="\+[1-9][0-9]{7,14}"></div>
+            <small>Use international format, including +256.</small>
           </div>
-          <div class="login-field">
-            <div class="login-label-row"><label for="password">PASSWORD</label></div>
-            <div class="login-input-wrap password-wrap"><span class="input-lock">⌑</span><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="password-toggle" type="button" data-password-toggle aria-label="Show password">Show</button></div>
+          <div class="access-field">
+            <div class="field-label-line"><label for="password">PASSWORD</label></div>
+            <div class="access-input"><span class="field-symbol">⌑</span><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="reveal-password" type="button" data-password-toggle aria-label="Show password">SHOW</button></div>
           </div>
-          <button class="login-submit" type="submit"><span>Enter my account</span><b>↗</b></button>
+          <button class="access-submit" type="submit"><span>Continue to account</span><b>↗</b></button>
           <div class="message" role="status" aria-live="polite"></div>
         </form>
-        <div class="login-security"><span class="security-icon">◈</span><p><b>Private account access</b><br>Your sign-in is protected by an encrypted session.</p></div>
-      </div>
-      <div class="login-panel-footer"><span>© 2026 Lifeline Care Supply</span><span>ACCESS FOR INDIVIDUAL INVESTORS</span></div>
+        <div class="access-assist"><span class="assist-icon">i</span><p><b>Having trouble signing in?</b><br>Password recovery will verify your registered mobile number.</p></div>
+        <div class="access-card-bottom"><span class="bottom-mark">✳</span><span>YOUR ACCOUNT. YOUR ACCESS.</span><span>01 — 01</span></div>
+      </section>
     </section>
+    <footer class="access-footer"><span>© 2026 Lifeline Care Supply</span><span>BUILT FOR INDIVIDUAL INVESTORS</span><a href="/register/">Need an account? <b>Get started ↗</b></a></footer>
+    <div class="background-stamp" aria-hidden="true">L</div>
   </main>
 </body>
 </html>
