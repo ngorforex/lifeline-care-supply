@@ -176,3 +176,30 @@ body[data-portal="investor"] .package-detail b{font-size:13px;color:#173e3b;over
 body[data-portal="investor"] .package-risk-note{font-size:10px;line-height:1.55;color:#8a6d58;margin:12px 0 0}
 body[data-portal="investor"] .referral-hero-image{display:block;width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:12px;margin:0 0 18px}
 @media(max-width:700px){body[data-portal="investor"] .package-grid{grid-template-columns:1fr}body[data-portal="investor"] .package-card-body{padding:14px}body[data-portal="investor"] .referral-hero-image{aspect-ratio:16/8}}
+
+/* Referral and Profile workspace refinements */
+body[data-portal="investor"] .referral-code-row{display:flex;align-items:center;gap:10px;margin:14px 0}
+body[data-portal="investor"] .referral-link-placeholder{flex:1;min-width:0;overflow-wrap:anywhere;padding:13px 14px;border:1px solid #dce9e4;border-radius:12px;background:#f5faf7;color:#173e3b;font-weight:700;letter-spacing:.04em}
+body[data-portal="investor"] .secondary-action{border:0;border-radius:11px;background:#138f86;color:#fff;font-weight:700;padding:13px 16px;min-height:44px}
+body[data-portal="investor"] .secondary-action:disabled{opacity:.45}
+body[data-portal="investor"] .referral-copy-feedback{min-height:18px;font-size:12px;color:#168477;margin:7px 0 0}
+body[data-portal="investor"] .referral-rules{margin-top:16px;padding:20px}
+body[data-portal="investor"] .referral-levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+body[data-portal="investor"] .referral-levels>div{display:flex;flex-direction:column;gap:5px;padding:15px;border-radius:13px;background:#eff8f3;border:1px solid #dceee5}
+body[data-portal="investor"] .referral-levels span{font-size:11px;color:#6f8980;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+body[data-portal="investor"] .referral-levels b{font-size:27px;color:#138f86}
+body[data-portal="investor"] .referral-levels small{font-size:10px;color:#7c8e87}
+body[data-portal="investor"] .referral-rules>p{font-size:12px;line-height:1.6;color:#71847d}
+body[data-portal="investor"] .profile-history-section{margin-top:24px}
+body[data-portal="investor"] .profile-history-section .section-heading{margin-bottom:13px}
+body[data-portal="investor"] .profile-history-section .section-heading p{font-size:12px;color:#778a83;margin:5px 0 0}
+body[data-portal="investor"] .profile-placeholder{display:flex;align-items:center;gap:17px;padding:20px}
+body[data-portal="investor"] .profile-placeholder h3{margin:0 0 8px}
+body[data-portal="investor"] .profile-placeholder p{line-height:1.8;color:#71847d}
+@media(max-width:700px){
+ body[data-portal="investor"] .referral-code-row{align-items:stretch;flex-direction:column}
+ body[data-portal="investor"] .referral-levels{gap:7px}
+ body[data-portal="investor"] .referral-levels>div{padding:11px 8px}
+ body[data-portal="investor"] .referral-levels b{font-size:22px}
+ body[data-portal="investor"] .profile-placeholder{align-items:flex-start}
+}
