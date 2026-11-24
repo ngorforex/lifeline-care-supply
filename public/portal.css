@@ -375,3 +375,19 @@ body[data-portal="investor"] [data-support-placeholder]{cursor:pointer}
  body[data-portal="investor"] .profile-menu-icon{width:40px;height:40px;flex-basis:40px}
  body[data-portal="investor"] .profile-logout{margin-top:24px}
 }
+
+
+/* Profile icon system: explicit outline strokes prevent browser-default black fills */
+body[data-portal="investor"] .profile-menu-icon .ui-icon,
+body[data-portal="investor"] .profile-hero-details>.ui-icon,
+body[data-portal="investor"] .profile-logout .ui-icon{
+ fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important;
+}
+body[data-portal="investor"] .profile-menu-icon{color:#108d79}
+body[data-portal="investor"] .profile-menu-item[aria-expanded="true"] .profile-chevron{color:#108d79}
+body[data-portal="investor"] .profile-history-inline{padding:14px 12px 16px;background:#fbfdfc;border-bottom:1px solid #edf2ef}
+body[data-portal="investor"] .profile-history-inline[hidden]{display:none}
+body[data-portal="investor"] .profile-history-inline .table-scroll{overflow-x:auto}
+body[data-portal="investor"] .profile-history-inline table{min-width:560px;width:100%}
+body[data-portal="investor"] .profile-history-inline th{font-size:10px;letter-spacing:.06em;color:#81928c;padding:10px 8px;text-align:left}
+body[data-portal="investor"] .profile-history-inline td{font-size:12px;padding:12px 8px;color:#51645d;border-top:1px solid #edf2ef}
