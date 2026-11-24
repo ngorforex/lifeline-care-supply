@@ -298,7 +298,7 @@ async function authApi(request, env, url) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname.startsWith("/api/auth/")) {
+    if (url.pathname.startsWith("/api/")) {
       try {
         return await authApi(request, env, url);
       } catch (error) {
