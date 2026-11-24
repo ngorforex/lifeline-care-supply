@@ -199,16 +199,22 @@ if(!isAdmin){
  });
  document.querySelectorAll(".side-nav a[data-tab]").forEach(link=>link.addEventListener("click",()=>{document.body.classList.remove("investor-menu-open");menuToggle?.setAttribute("aria-expanded","false");}));
  document.querySelector("[data-open-profile]")?.addEventListener("click",()=>{activateTab("profile");history.replaceState(null,"","#profile");window.scrollTo({top:0,behavior:"smooth"});});
- const photoKey="lcs-investor-profile-photo-v1";
  const applyPhoto=src=>{
   const photo=document.querySelector("[data-profile-photo]");
   const fallback=document.querySelector("[data-profile-initial]");
   const top=document.querySelector("[data-top-profile-avatar]");
-  if(photo){photo.src=src;photo.hidden=!src;}
+  if(photo){photo.src=src||"";photo.hidden=!src;}
   if(fallback)fallback.hidden=!!src;
   if(top){top.style.backgroundImage=src?'url("'+src+'")':"";top.classList.toggle("has-photo",!!src);top.textContent=src?"":(document.querySelector("[data-profile-name]")?.textContent||"I").slice(0,1).toUpperCase();}
  };
- try{const saved=localStorage.getItem(photoKey);if(saved)applyPhoto(saved);}catch{}
+ const loadProfilePhoto=async()=>{
+  try{const response=await fetch("/api/investor/profile-photo",{credentials:"same-origin",cache:"no-store"});
+   if(response.status===401){location.replace("/login/");return;}
+   if(!response.ok)return;
+   const data=await response.json();applyPhoto(data.photo||"");
+  }catch(error){console.warn("Profile photo could not be loaded:",error);}
+ };
+ loadProfilePhoto();
  document.querySelector("[data-profile-photo-input]")?.addEventListener("change",event=>{
   const file=event.target.files?.[0];if(!file)return;
   if(!["image/jpeg","image/png","image/webp"].includes(file.type)){alert("Choose a JPG, PNG or WebP image.");event.target.value="";return;}
@@ -217,12 +223,17 @@ if(!isAdmin){
   reader.onload=()=>{
    const img=new Image();
    img.onload=()=>{
-    const canvas=document.createElement("canvas");const side=512;canvas.width=side;canvas.height=side;
+    const side=512,canvas=document.createElement("canvas");canvas.width=side;canvas.height=side;
     const scale=Math.max(side/img.width,side/img.height),w=img.width*scale,h=img.height*scale;
     canvas.getContext("2d").drawImage(img,(side-w)/2,(side-h)/2,w,h);
-    const data=canvas.toDataURL("image/jpeg",.82);
-    try{localStorage.setItem(photoKey,data);applyPhoto(data);}
-    catch{alert("This browser could not save the photo. Try a smaller image.");}
+    const data=canvas.toDataURL("image/jpeg",.78);
+    if(data.length>350000){alert("This image is too detailed to store. Choose a smaller photo.");return;}
+    const button=document.querySelector(".profile-upload-button");
+    if(button){button.style.opacity=".6";button.style.pointerEvents="none";}
+    fetch("/api/investor/profile-photo",{method:"PUT",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({photo:data})})
+     .then(async response=>{const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Photo upload failed.");applyPhoto(data);})
+     .catch(error=>alert(error.message||"Photo upload failed. Please try again."))
+     .finally(()=>{if(button){button.style.opacity="";button.style.pointerEvents="";}event.target.value="";});
    };
    img.onerror=()=>alert("The selected image could not be opened.");
    img.src=reader.result;
