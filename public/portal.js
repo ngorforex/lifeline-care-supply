@@ -58,9 +58,31 @@ function renderDashboard(data){
  if(recentTx)recentTx.textContent=data.transactions?.length?data.transactions.length+" transaction record(s) are available in your history.":"No transaction activity has been recorded yet.";
 }
 if(!isAdmin){
- fetch("/api/investor/dashboard",{credentials:"same-origin",cache:"no-store"})
-  .then(async response=>{if(response.status===401){location.replace("/login/");return null;}const data=await response.json();if(!response.ok)throw new Error(data.error||"Unable to load your account.");return data;})
-  .then(data=>{if(data?.authenticated)renderDashboard(data);})
-  .catch(error=>{console.error("Investor dashboard load failed:",error);const content=document.querySelector(".content");if(content){const note=document.createElement("div");note.className="notice";note.textContent="Your account information could not be loaded. Refresh the page to try again.";content.prepend(note);}});
+ const showLoadError=message=>{
+  const content=document.querySelector(".content");if(!content)return;
+  let note=document.querySelector("[data-dashboard-error]");
+  if(!note){note=document.createElement("div");note.className="notice";note.dataset.dashboardError="true";content.prepend(note);}
+  note.textContent=message;
+ };
+ fetch("/api/investor/dashboard",{credentials:"same-origin",cache:"no-store",headers:{"Accept":"application/json"}})
+  .then(async response=>{
+   const contentType=response.headers.get("content-type")||"";
+   const raw=await response.text();
+   if(response.status===401){location.replace("/login/");return null;}
+   if(!contentType.includes("application/json"))throw new Error("Dashboard API returned "+response.status+" with "+(contentType||"an unknown content type")+".");
+   let data;try{data=JSON.parse(raw);}catch{throw new Error("Dashboard API response was not valid JSON.");}
+   if(!response.ok)throw new Error(data.error||("Dashboard API returned "+response.status+"."));
+   if(data.authenticated!==true)throw new Error("The dashboard could not confirm your investor session.");
+   return data;
+  })
+  .then(data=>{
+   if(!data)return;
+   try{renderDashboard(data);document.querySelector("[data-dashboard-error]")?.remove();}
+   catch(error){console.error("Investor dashboard rendering failed:",error);showLoadError("Your account data was received, but the dashboard could not display it: "+(error.message||"Unknown display error"));}
+  })
+  .catch(error=>{
+   console.error("Investor dashboard load failed:",error);
+   showLoadError("Your account information could not be loaded: "+(error.message||"Unknown error")+". Refresh the page to try again.");
+  });
  document.querySelector("[data-logout]")?.addEventListener("click",async event=>{event.preventDefault();try{await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin"});}finally{location.replace("/login/");}});
 }
