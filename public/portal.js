@@ -39,7 +39,7 @@ function renderDashboard(data){
  const name=profile.displayName||"Investor";
  if(title&&(!location.hash||location.hash==="#overview"))title.textContent="Dashboard";
  if(crumb&&(!location.hash||location.hash==="#overview"))crumb.textContent="Dashboard";
- const avatar=document.querySelector(".top-actions .avatar");if(avatar)avatar.textContent=name.slice(0,1).toUpperCase();setText("[data-greeting-name]",name);
+ const avatar=document.querySelector(".top-actions .avatar");if(avatar)avatar.textContent=name.slice(0,1).toUpperCase();
  setText("[data-profile-name]",name);setText("[data-profile-phone]",profile.phone||"—");
  setText("[data-profile-created]",dateEAT(profile.createdAt));
  setText("[data-profile-verification]",profile.phoneVerified?"Verified":"Not verified");
