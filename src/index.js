@@ -96,7 +96,7 @@ async function currentInvestor(request, env) {
   const tokenHash = await sha256(token);
   const now = new Date().toISOString();
   const session = await env.DB.prepare(`
-    SELECT u.id, u.phone_e164, u.status, u.phone_verified_at,
+    SELECT u.id, u.phone_e164, u.status, u.phone_verified_at, u.created_at,
            p.first_name, p.middle_name, p.last_name
     FROM auth_sessions s
     JOIN users u ON u.id = s.user_id
@@ -185,6 +185,90 @@ async function authApi(request, env, url) {
     if (!row || !valid || row.status !== "active") return json({ error: "Invalid phone number or password." }, 401);
     const sessionToken = await createSession(env, row.id);
     return json({ ok: true }, 200, { "set-cookie": cookie(sessionToken) });
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/investor/dashboard") {
+    const investor = await currentInvestor(request, env);
+    if (!investor) return json({ error: "Authentication required." }, 401);
+
+    const investorId = investor.id;
+    const [investmentsResult, depositsResult, withdrawalsResult, referralsResult, referralCode, packagesResult] = await Promise.all([
+      env.DB.prepare(`
+        SELECT i.id, i.reference, i.principal_amount, i.currency, i.status,
+               i.terms_version, i.terms_accepted_at, i.started_at, i.matures_at,
+               i.created_at, p.name AS package_name
+        FROM investments i
+        LEFT JOIN investment_packages p ON p.id = i.package_id
+        WHERE i.investor_id = ?
+        ORDER BY i.created_at DESC LIMIT 50
+      `).bind(investorId).all(),
+      env.DB.prepare(`
+        SELECT id, reference, amount_minor, currency, payment_method, status, created_at, updated_at
+        FROM deposit_requests WHERE investor_id = ?
+        ORDER BY created_at DESC LIMIT 50
+      `).bind(investorId).all(),
+      env.DB.prepare(`
+        SELECT id, reference, amount_minor, currency, payout_method, status, created_at, updated_at
+        FROM withdrawal_requests WHERE investor_id = ?
+        ORDER BY created_at DESC LIMIT 50
+      `).bind(investorId).all(),
+      env.DB.prepare(`
+        SELECT r.id, r.status, r.registered_at, r.qualified_at, u.phone_e164
+        FROM referrals r
+        JOIN users u ON u.id = r.referred_user_id
+        WHERE r.referrer_user_id = ?
+        ORDER BY r.registered_at DESC LIMIT 50
+      `).bind(investorId).all(),
+      env.DB.prepare("SELECT code, is_active, created_at FROM referral_codes WHERE owner_user_id = ? LIMIT 1")
+        .bind(investorId).first(),
+      env.DB.prepare(`
+        SELECT id, code, name, description, currency, investment_amount,
+               duration_days, return_structure, risk_disclosure, terms_version
+        FROM investment_packages WHERE status = 'published'
+        ORDER BY created_at DESC LIMIT 50
+      `).all()
+    ]);
+
+    const investments = investmentsResult.results || [];
+    const deposits = depositsResult.results || [];
+    const withdrawals = withdrawalsResult.results || [];
+    const referrals = referralsResult.results || [];
+    const activeInvestments = investments.filter(item => item.status === "active").length;
+    const depositCount = deposits.length;
+    const withdrawalCount = withdrawals.length;
+    const qualifiedReferrals = referrals.filter(item => item.status === "qualified").length;
+    const transactions = [
+      ...deposits.map(item => ({ id: item.id, reference: item.reference, type: "Deposit", amountMinor: item.amount_minor, currency: item.currency, status: item.status, createdAt: item.created_at })),
+      ...withdrawals.map(item => ({ id: item.id, reference: item.reference, type: "Withdrawal", amountMinor: item.amount_minor, currency: item.currency, status: item.status, createdAt: item.created_at }))
+    ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 50);
+
+    return json({
+      authenticated: true,
+      profile: {
+        id: investor.id,
+        phone: investor.phone_e164,
+        status: investor.status,
+        createdAt: investor.created_at,
+        phoneVerified: Boolean(investor.phone_verified_at),
+        displayName: [investor.first_name, investor.middle_name, investor.last_name]
+          .filter(Boolean).join(" ").replace(/^Investor Account$/, "Investor") || "Investor"
+      },
+      metrics: {
+        activeInvestments,
+        totalInvestments: investments.length,
+        depositRequests: depositCount,
+        withdrawalRequests: withdrawalCount,
+        referrals: referrals.length,
+        qualifiedReferrals
+      },
+      investments,
+      deposits,
+      withdrawals,
+      transactions,
+      referrals,
+      referralCode: referralCode || null,
+      packages: packagesResult.results || []
+    });
   }
 
   if (request.method === "POST" && url.pathname === "/api/auth/logout") {
