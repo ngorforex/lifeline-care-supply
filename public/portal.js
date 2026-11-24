@@ -2,7 +2,7 @@ const body=document.body;
 const title=document.getElementById("page-title");
 const crumb=document.getElementById("crumb");
 const isAdmin=body.dataset.portal==="admin";
-const titles={overview:isAdmin?"Administrator overview":"Dashboard",investments:"My Investments",packages:"Investment Plans",wallet:"Wallet",earnings:"Earnings",transactions:"Transactions",referrals:"Referrals",profile:"Account",investors:"Individual investors",deposits:"Deposit management",withdrawals:"Withdrawal management",reports:"Reports",staff:"Staff & permissions",audit:"Audit log"};
+const titles={overview:isAdmin?"Administrator overview":"Dashboard",investments:"My Investments",packages:"Investment Plans",wallet:"Wallet",earnings:"Earnings",transactions:"History",referrals:"Referral",profile:"Profile",investors:"Individual investors",deposits:"Deposit management",withdrawals:"Withdrawal management",reports:"Reports",staff:"Staff & permissions",audit:"Audit log"};
 function activateTab(tab){
  const panel=document.getElementById("panel-"+tab);if(!panel)return;
  document.querySelectorAll(".tab-panel").forEach(item=>item.classList.remove("active"));
@@ -76,7 +76,16 @@ function renderDashboard(data){
  fillTable("[data-transactions]",data.transactions||[],[x=>x.reference,x=>x.type,x=>dateEAT(x.createdAt),x=>amountMinor(x.amountMinor,x.currency),x=>x.status],"No transactions have been recorded.");
  fillTable("[data-referrals]",data.referrals||[],[x=>x.phone_e164,x=>dateEAT(x.registered_at),x=>x.status],"No referrals are linked to this account.");
  const link=document.querySelector("[data-referral-link]");const refStatus=document.querySelector("[data-referral-status]");
- if(data.referralCode?.code&&data.referralCode.is_active){if(link)link.textContent=data.referralCode.code;if(refStatus)refStatus.textContent="Active code";}
+ const copyButton=document.querySelector("[data-copy-referral]");
+ if(data.referralCode?.code&&data.referralCode.is_active){
+  if(link)link.textContent=data.referralCode.code;
+  if(refStatus)refStatus.textContent="Active referral code";
+  if(copyButton){copyButton.disabled=false;copyButton.dataset.code=data.referralCode.code;}
+ }else{
+  if(link)link.textContent="Referral code has not been issued";
+  if(refStatus)refStatus.textContent="Code not issued";
+  if(copyButton)copyButton.disabled=true;
+ }
  const packages=document.querySelector("[data-packages]");
  const catalogue=[
   {name:"Product 1",price:10000,daily:2000,duration:90,image:"/product-01.jpg"},
@@ -147,5 +156,12 @@ if(!isAdmin){
    console.error("Investor dashboard load failed:",error);
    showLoadError("Your account information could not be loaded: "+(error.message||"Unknown error")+". Refresh the page to try again.");
   });
- document.querySelector("[data-logout]")?.addEventListener("click",async event=>{event.preventDefault();try{await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin"});}finally{location.replace("/login/");}});
+ document.querySelector("[data-copy-referral]")?.addEventListener("click",async event=>{
+ const button=event.currentTarget;const code=button.dataset.code;
+ if(!code)return;
+ const feedback=document.querySelector("[data-referral-feedback]");
+ try{await navigator.clipboard.writeText(code);if(feedback)feedback.textContent="Referral code copied.";}
+ catch{if(feedback)feedback.textContent="Copy is unavailable in this browser. Select and copy the code above.";}
+});
+document.querySelector("[data-logout]")?.addEventListener("click",async event=>{event.preventDefault();try{await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin"});}finally{location.replace("/login/");}});
 }
