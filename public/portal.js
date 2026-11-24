@@ -2,7 +2,7 @@ const body=document.body;
 const title=document.getElementById("page-title");
 const crumb=document.getElementById("crumb");
 const isAdmin=body.dataset.portal==="admin";
-const titles={overview:isAdmin?"Administrator overview":"Good day, Investor",investments:"My investments",packages:"Investment packages",transactions:"Transactions",referrals:"Referrals",profile:"My profile",investors:"Individual investors",deposits:"Deposit management",withdrawals:"Withdrawal management",reports:"Reports",staff:"Staff & permissions",audit:"Audit log"};
+const titles={overview:isAdmin?"Administrator overview":"Dashboard",investments:"My Investments",packages:"Investment Plans",wallet:"Wallet",earnings:"Earnings",transactions:"Transactions",referrals:"Referrals",profile:"Account",investors:"Individual investors",deposits:"Deposit management",withdrawals:"Withdrawal management",reports:"Reports",staff:"Staff & permissions",audit:"Audit log"};
 function activateTab(tab){
  const panel=document.getElementById("panel-"+tab);if(!panel)return;
  document.querySelectorAll(".tab-panel").forEach(item=>item.classList.remove("active"));
@@ -37,8 +37,8 @@ function renderDashboard(data){
  const status=profile.status||"unknown";
  setText("[data-account-status]",status.toUpperCase());setText("[data-profile-status]",status.toUpperCase());
  const name=profile.displayName||"Investor";
- if(title&&(!location.hash||location.hash==="#overview"))title.textContent="Good day, "+name;
- if(crumb&&(!location.hash||location.hash==="#overview"))crumb.textContent="Overview";
+ if(title&&(!location.hash||location.hash==="#overview"))title.textContent="Dashboard";
+ if(crumb&&(!location.hash||location.hash==="#overview"))crumb.textContent="Dashboard";
  const avatar=document.querySelector(".top-actions .avatar");if(avatar)avatar.textContent=name.slice(0,1).toUpperCase();setText("[data-greeting-name]",name);
  setText("[data-profile-name]",name);setText("[data-profile-phone]",profile.phone||"—");
  setText("[data-profile-created]",dateEAT(profile.createdAt));
@@ -53,7 +53,7 @@ function renderDashboard(data){
  setText('[data-metric="totalEarnings"]',"Not available");
  setText('[data-metric="availableBalance"]',"Not available");
  setText('[data-metric="portfolioValue"]',"Not available");
- setText("[data-portfolio-note]","Portfolio valuation and withdrawable balance will appear when ledger reporting is configured.");
+ setText("[data-portfolio-note]","Portfolio valuation will appear when ledger reporting is configured.");
  const activeTarget=document.querySelector("[data-active-investments]");
  if(activeTarget){
   activeTarget.replaceChildren();
