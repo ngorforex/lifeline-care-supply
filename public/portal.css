@@ -221,3 +221,121 @@ body[data-portal="investor"] .home-balance-card>div span{font-size:11px;color:#7
 body[data-portal="investor"] .home-balance-card>b{display:block;margin-top:10px;font-size:21px;line-height:1.2;overflow-wrap:anywhere}
 body[data-portal="investor"] .home-balance-card>small{display:block;margin-top:7px;font-size:10px;line-height:1.45;color:#82958e}
 @media(max-width:380px){body[data-portal="investor"] .home-action-grid,body[data-portal="investor"] .home-balance-grid{gap:8px}body[data-portal="investor"] .home-action-card{padding:12px;font-size:12px}body[data-portal="investor"] .home-balance-card{padding:12px}body[data-portal="investor"] .home-balance-card>b{font-size:18px}}
+
+
+/* Refined compact home cards: explicit grid sizing and deliberate icon alignment */
+body[data-portal="investor"] #panel-overview .home-action-grid{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ align-items:stretch;
+ gap:12px!important;
+ width:100%;
+ margin:0 0 14px!important;
+}
+body[data-portal="investor"] #panel-overview .home-action-card{
+ appearance:none;
+ -webkit-appearance:none;
+ box-sizing:border-box;
+ width:100%;
+ min-width:0;
+ min-height:76px;
+ margin:0;
+ padding:14px 16px;
+ border:1px solid #dcebe5;
+ border-radius:16px;
+ background:linear-gradient(145deg,#ffffff 0%,#f5fbf8 100%);
+ color:#168b83;
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center;
+ justify-content:center;
+ gap:11px;
+ font-family:"DM Sans",Arial,sans-serif;
+ font-size:14px;
+ font-weight:750;
+ line-height:1.2;
+ box-shadow:0 5px 16px rgba(33,105,86,.055);
+ opacity:1!important;
+}
+body[data-portal="investor"] #panel-overview .home-action-card:disabled{
+ color:#168b83;
+ background:linear-gradient(145deg,#ffffff 0%,#f5fbf8 100%);
+ opacity:1!important;
+}
+body[data-portal="investor"] #panel-overview .home-action-card .ui-icon{
+ display:block;
+ width:24px;
+ height:24px;
+ flex:0 0 24px;
+ padding:7px;
+ box-sizing:content-box;
+ border-radius:11px;
+ background:#e5f4ee;
+ color:#138f86;
+}
+body[data-portal="investor"] #panel-overview .home-balance-grid{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ align-items:stretch;
+ gap:12px!important;
+ width:100%;
+ margin:0 0 22px!important;
+}
+body[data-portal="investor"] #panel-overview .home-balance-card{
+ box-sizing:border-box;
+ display:block!important;
+ width:100%;
+ min-width:0;
+ min-height:132px;
+ margin:0;
+ padding:16px;
+ border:1px solid #e1ebe6;
+ border-radius:17px;
+ background:#fff;
+ box-shadow:0 5px 18px rgba(28,75,63,.035);
+}
+body[data-portal="investor"] #panel-overview .home-balance-card>div{
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center;
+ justify-content:space-between;
+ gap:8px;
+}
+body[data-portal="investor"] #panel-overview .home-balance-card>div span{
+ font-size:11px;
+ font-weight:600;
+ line-height:1.35;
+ color:#718580;
+}
+body[data-portal="investor"] #panel-overview .home-balance-card>div .ui-icon{
+ display:block;
+ width:20px;
+ height:20px;
+ flex:0 0 20px;
+ color:#159b92;
+}
+body[data-portal="investor"] #panel-overview .home-balance-card>b{
+ display:block!important;
+ margin:15px 0 0;
+ color:#173e3b;
+ font-size:21px;
+ font-weight:800;
+ line-height:1.2;
+ letter-spacing:-.035em;
+ overflow-wrap:anywhere;
+}
+body[data-portal="investor"] #panel-overview .home-balance-card>small{
+ display:block!important;
+ margin:8px 0 0;
+ color:#82958e;
+ font-size:10px;
+ line-height:1.45;
+}
+@media(max-width:380px){
+ body[data-portal="investor"] #panel-overview .home-action-grid,
+ body[data-portal="investor"] #panel-overview .home-balance-grid{gap:9px!important}
+ body[data-portal="investor"] #panel-overview .home-action-card{min-height:70px;padding:11px 8px;font-size:12px;gap:8px}
+ body[data-portal="investor"] #panel-overview .home-action-card .ui-icon{width:20px;height:20px;padding:6px}
+ body[data-portal="investor"] #panel-overview .home-balance-card{min-height:126px;padding:12px}
+ body[data-portal="investor"] #panel-overview .home-balance-card>b{font-size:18px}
+}
