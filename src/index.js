@@ -214,6 +214,8 @@ async function authApi(request, env, url) {
         env.DB.prepare("INSERT INTO user_credentials (user_id, password_hash, password_salt, password_iterations, password_changed_at) VALUES (?, ?, ?, ?, ?)")
           .bind(userId, hash, bytesToBase64(salt), PASSWORD_ITERATIONS, now),
         env.DB.prepare("INSERT INTO ledger_accounts (id, owner_user_id, account_code, currency, account_name, created_at) VALUES (?, ?, 'WALLET_AVAILABLE', 'UGX', 'Available wallet balance', ?)").bind("wallet-" + userId, userId, now),
+        env.DB.prepare("INSERT INTO ledger_transactions (id, reference, idempotency_key, transaction_type, status, currency, related_entity_type, related_entity_id, description, created_by_user_id, posted_at, created_at) VALUES (?, ?, ?, 'welcome_bonus', 'posted', 'UGX', 'user', ?, 'Registration welcome bonus', ?, ?, ?)").bind("welcome-" + userId, "WEL-" + userId, "welcome-bonus:" + userId, userId, "Welcome bonus", userId, now, now),
+        env.DB.prepare("INSERT INTO ledger_entries (id, transaction_id, account_id, side, amount_minor, currency, created_at) VALUES (?, ?, 'platform-welcome-bonus-ugx', 'debit', 2000, 'UGX', ?), (?, ?, ?, 'credit', 2000, 'UGX', ?)").bind(crypto.randomUUID(), "welcome-" + userId, now, crypto.randomUUID(), "welcome-" + userId, "wallet-" + userId, now),
         env.DB.prepare("INSERT INTO audit_logs (id, actor_user_id, action, entity_type, entity_id, metadata, created_at) VALUES (?, ?, 'investor.registered', 'user', ?, ?, ?)")
           .bind(crypto.randomUUID(), userId, userId, JSON.stringify({ channel: "phone_password" }), now)
       ]);
