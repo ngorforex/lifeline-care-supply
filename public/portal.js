@@ -126,6 +126,12 @@ function renderDashboard(data){
   }
  }
 }
+if(isAdmin){
+ fetch("/api/admin/auth/me",{credentials:"same-origin",cache:"no-store",headers:{"Accept":"application/json"}})
+  .then(response=>{if(response.status===401){location.replace("/admin/login/");return null;}if(!response.ok)throw new Error("Administrator session check failed.");return response.json();})
+  .then(data=>{if(data?.authenticated){const badge=document.querySelector(".preview-pill");if(badge)badge.textContent=data.admin.role.replaceAll("_"," ").toUpperCase();}})
+  .catch(error=>{console.error(error);location.replace("/admin/login/");});
+}
 if(!isAdmin){
  const showLoadError=message=>{
   const content=document.querySelector(".content");if(!content)return;
