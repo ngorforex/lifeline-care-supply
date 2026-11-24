@@ -39,7 +39,7 @@ if (!isAdmin) {
     })
     .then(data => {
       if (!data?.authenticated) return;
-      const name = data.investor.firstName;
+      const name = data.investor.firstName || "Investor";
       if (title && (!location.hash || location.hash === "#overview")) title.textContent = "Good day, " + name;
       const crumbText = document.getElementById("crumb");
       if (crumbText && (!location.hash || location.hash === "#overview")) crumbText.textContent = "Overview";
