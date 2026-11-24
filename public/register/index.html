@@ -37,6 +37,18 @@
         </div>
         <form data-auth-form="register" class="access-form">
           <div class="access-field">
+            <label for="firstName">FIRST NAME</label>
+            <div class="access-input"><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1.5a8 8 0 0 1 16 0V21Z"/></svg><input id="firstName" name="firstName" type="text" autocomplete="given-name" placeholder="Your first name" maxlength="80" required></div>
+          </div>
+          <div class="access-field">
+            <label for="middleName">MIDDLE NAME <span>(OPTIONAL)</span></label>
+            <div class="access-input"><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1.5a8 8 0 0 1 16 0V21Z"/></svg><input id="middleName" name="middleName" type="text" autocomplete="additional-name" placeholder="Your middle name" maxlength="80"></div>
+          </div>
+          <div class="access-field">
+            <label for="lastName">LAST NAME</label>
+            <div class="access-input"><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1.5a8 8 0 0 1 16 0V21Z"/></svg><input id="lastName" name="lastName" type="text" autocomplete="family-name" placeholder="Your last name" maxlength="80" required></div>
+          </div>
+          <div class="access-field">
             <label for="phone">MOBILE NUMBER</label>
             <div class="access-input"><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.2"/><path d="M10 5h4M11 18.5h2"/></svg><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="256 7XX XXX XXX" required pattern="\+[1-9][0-9]{7,14}"></div>
             <small>Use international format, including +256.</small>
