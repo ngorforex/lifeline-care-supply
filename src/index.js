@@ -223,7 +223,7 @@ async function authApi(request, env, url) {
     if (!investor) return json({ error: "Authentication required." }, 401);
 
     const investorId = investor.id;
-    const [investmentsResult, depositsResult, withdrawalsResult, referralsResult, referralCode, packagesResult] = await Promise.all([
+    const [investmentsResult, depositsResult, withdrawalsResult, referralsResult, referralCode, packagesResult, walletBalance] = await Promise.all([
       env.DB.prepare(`
         SELECT i.id, i.reference, i.principal_amount, i.currency, i.status,
                i.terms_version, i.terms_accepted_at, i.started_at, i.matures_at,
@@ -256,8 +256,14 @@ async function authApi(request, env, url) {
         SELECT id, code, name, description, currency, investment_amount,
                duration_days, return_structure, risk_disclosure, terms_version
         FROM investment_packages WHERE status = 'published'
-        ORDER BY created_at DESC LIMIT 50
-      `).all()
+        ORDER BY created_at ASC LIMIT 50
+      `).all(),
+      env.DB.prepare(`
+        SELECT COALESCE(SUM(CASE WHEN e.side = 'credit' THEN e.amount_minor ELSE -e.amount_minor END), 0) AS balance_minor
+        FROM ledger_accounts a
+        LEFT JOIN ledger_entries e ON e.account_id = a.id AND e.currency = a.currency
+        WHERE a.owner_user_id = ? AND a.account_code = 'WALLET_AVAILABLE' AND a.currency = 'UGX'
+      `).bind(investorId).first()
     ]);
 
     const investments = investmentsResult.results || [];
@@ -290,7 +296,9 @@ async function authApi(request, env, url) {
         depositRequests: depositCount,
         withdrawalRequests: withdrawalCount,
         referrals: referrals.length,
-        qualifiedReferrals
+        qualifiedReferrals,
+        walletBalanceMinor: Number(walletBalance?.balance_minor || 0),
+        walletCurrency: "UGX"
       },
       investments,
       deposits,
