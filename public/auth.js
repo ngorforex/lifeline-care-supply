@@ -20,3 +20,14 @@ if(form){
   }catch(error){message.textContent=error.message;button.disabled=false;button.textContent=mode==="register"?"Create investor account →":"Sign in to your account →";}
  });
 }
+
+document.querySelectorAll("[data-password-toggle]").forEach(toggle=>{
+ toggle.addEventListener("click",()=>{
+  const field=document.getElementById("password");
+  if(!field)return;
+  const reveal=field.type==="password";
+  field.type=reveal?"text":"password";
+  toggle.textContent=reveal?"Hide":"Show";
+  toggle.setAttribute("aria-label",reveal?"Hide password":"Show password");
+ });
+});
