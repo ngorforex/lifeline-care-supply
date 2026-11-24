@@ -432,3 +432,37 @@ body[data-portal="investor"] .profile-detail-icon{fill:none!important;stroke:cur
  body[data-portal="investor"] .profile-hero-avatar,body[data-portal="investor"] .profile-photo{width:82px;height:82px;flex-basis:82px}
  body[data-portal="investor"] .profile-upload-button{font-size:10px;padding:7px 9px}
 }
+
+/* Investor header: centered brand, left navigation menu, right profile-photo shortcut */
+body[data-portal="investor"] .topbar{position:relative;justify-content:center;min-height:82px;padding:12px 68px}
+body[data-portal="investor"] .topbar-brand-mark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;gap:10px;white-space:nowrap}
+body[data-portal="investor"] .topbar-brand-mark .header-heart-logo{width:42px;height:42px}
+body[data-portal="investor"] .topbar-project-name{font-size:16px;font-weight:800;letter-spacing:-.04em}
+body[data-portal="investor"] .mobile-menu-toggle{left:15px}
+body[data-portal="investor"] .top-actions{position:absolute;right:16px;top:50%;transform:translateY(-50%)}
+body[data-portal="investor"] .top-profile-button{width:44px;height:44px;border-radius:50%;border:1px solid #dcebe5;background:#e7f5ef;padding:3px;overflow:hidden}
+body[data-portal="investor"] .top-profile-avatar{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:#e2f5ed center/cover no-repeat;color:#168e86;font-weight:800}
+body[data-portal="investor"] .top-profile-avatar.has-photo{color:transparent}
+body[data-portal="investor"] .profile-photo-wrap{flex:0 0 132px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:1}
+body[data-portal="investor"] .profile-avatar-frame{width:100px;height:100px;border-radius:50%;overflow:hidden;position:relative;border:4px solid #8bea8a;background:#e6f8f0;display:grid;place-items:center}
+body[data-portal="investor"] .profile-hero-avatar{width:100%;height:100%;border:0;border-radius:50%;display:grid;place-items:center}
+body[data-portal="investor"] .profile-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0;border-radius:50%;box-shadow:none}
+body[data-portal="investor"] .profile-upload-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 10px;border:1px solid rgba(255,255,255,.5);border-radius:99px;background:rgba(255,255,255,.14);color:#fff;font-size:10px;font-weight:750;cursor:pointer;white-space:nowrap}
+body[data-portal="investor"] .profile-upload-button .ui-icon{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9}
+body[data-portal="investor"] .profile-photo-hint{color:rgba(255,255,255,.78);font-size:8px;text-align:center}
+body[data-portal="investor"] .profile-detail-icon{fill:none!important;stroke:currentColor!important;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body[data-portal="investor"] .profile-hero-details .ui-icon{fill:none!important;stroke:currentColor!important}
+@media(max-width:700px){
+ body[data-portal="investor"] .topbar{min-height:78px;padding:10px 62px}
+ body[data-portal="investor"] .topbar-brand-mark{gap:7px}
+ body[data-portal="investor"] .topbar-brand-mark .header-heart-logo{width:36px;height:36px}
+ body[data-portal="investor"] .topbar-project-name{font-size:13px}
+ body[data-portal="investor"] .mobile-menu-toggle{left:10px;width:39px;height:39px}
+ body[data-portal="investor"] .top-actions{right:10px}
+ body[data-portal="investor"] .top-profile-button{width:40px;height:40px}
+ body[data-portal="investor"] .profile-hero{gap:12px;padding:18px 13px}
+ body[data-portal="investor"] .profile-photo-wrap{flex-basis:104px}
+ body[data-portal="investor"] .profile-avatar-frame{width:82px;height:82px}
+ body[data-portal="investor"] .profile-upload-button{font-size:9px;padding:6px 8px}
+ body[data-portal="investor"] .profile-photo-hint{font-size:7px}
+}
