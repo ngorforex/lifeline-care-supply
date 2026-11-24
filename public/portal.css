@@ -149,3 +149,16 @@ body[data-portal="investor"] .investor-greeting h2{font-size:27px;letter-spacing
  body[data-portal="investor"] .topbar-brand-mark .header-heart-logo{width:43px;height:43px}
  body[data-portal="investor"] .investor-greeting h2{font-size:25px}
 }
+
+/* Investor header: project wordmark beside heart logo; notification is the sole right-side icon */
+body[data-portal="investor"] .topbar-brand-mark{display:flex;align-items:center;gap:12px;min-width:0}
+body[data-portal="investor"] .topbar-project-name{font-size:17px;font-weight:750;letter-spacing:-.035em;color:#173e3b;white-space:nowrap}
+body[data-portal="investor"] .top-actions{display:flex;align-items:center;gap:10px}
+body[data-portal="investor"] .top-actions .avatar{display:none!important}
+@media(max-width:700px){
+ body[data-portal="investor"] .topbar{padding:12px 18px}
+ body[data-portal="investor"] .topbar-brand-mark{gap:10px}
+ body[data-portal="investor"] .topbar-brand-mark .header-heart-logo{width:43px;height:43px;flex-basis:43px}
+ body[data-portal="investor"] .topbar-project-name{font-size:15px}
+ body[data-portal="investor"] .top-actions .subtle-tag{display:none}
+}
