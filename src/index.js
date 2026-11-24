@@ -90,6 +90,35 @@ async function createSession(env, userId) {
   `).bind(id, userId, tokenHash, expires, now, now).run();
   return token;
 }
+async function createAdminSession(env, adminId) {
+  const token = randomToken(32);
+  const tokenHash = await sha256(token);
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const expires = new Date(Date.now() + SESSION_SECONDS * 1000).toISOString();
+  await env.DB.prepare(`
+    INSERT INTO auth_sessions (id, user_id, admin_user_id, token_hash, expires_at, created_at, last_seen_at)
+    VALUES (?, NULL, ?, ?, ?, ?, ?)
+  `).bind(id, adminId, tokenHash, expires, now, now).run();
+  return token;
+}
+async function currentAdmin(request, env) {
+  const token = cookieValue(request, "lcs_session");
+  if (!token) return null;
+  const tokenHash = await sha256(token);
+  const now = new Date().toISOString();
+  const admin = await env.DB.prepare(`
+    SELECT a.id, a.email, a.role
+    FROM auth_sessions s
+    JOIN admin_users a ON a.id = s.admin_user_id
+    WHERE s.token_hash = ? AND s.expires_at > ?
+      AND s.user_id IS NULL AND a.is_active = 1
+    LIMIT 1
+  `).bind(tokenHash, now).first();
+  if (admin) await env.DB.prepare("UPDATE auth_sessions SET last_seen_at = ? WHERE token_hash = ?")
+    .bind(now, tokenHash).run();
+  return admin || null;
+}
 async function currentInvestor(request, env) {
   const token = cookieValue(request, "lcs_session");
   if (!token) return null;
@@ -114,6 +143,47 @@ async function currentInvestor(request, env) {
 async function authApi(request, env, url) {
   if (!env.DB) return json({ error: "Service temporarily unavailable." }, 503);
   if (!checkOrigin(request, url)) return json({ error: "Request origin rejected." }, 403);
+
+  if (request.method === "POST" && url.pathname === "/api/admin/auth/login") {
+    let data;
+    try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
+    const email = typeof data.email === "string" ? data.email.trim().toLowerCase() : "";
+    const password = typeof data.password === "string" ? data.password : "";
+    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || password.length < 1 || password.length > 128) {
+      return json({ error: "Invalid email or password." }, 400);
+    }
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    const rateKey = "admin-login:" + await sha256(ip + ":" + email);
+    if (!await rateLimit(env, rateKey, 8, 900)) return json({ error: "Too many sign-in attempts. Try again in 15 minutes." }, 429);
+    const row = await env.DB.prepare(`
+      SELECT a.id, a.is_active, c.password_hash, c.password_salt, c.password_iterations
+      FROM admin_users a JOIN admin_credentials c ON c.admin_user_id = a.id
+      WHERE lower(a.email) = ? LIMIT 1
+    `).bind(email).first();
+    let valid = false;
+    if (row) {
+      const key = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"]);
+      const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: base64ToBytes(row.password_salt), iterations: row.password_iterations, hash: "SHA-256" }, key, 256);
+      valid = constantTimeEqual(bytesToBase64(new Uint8Array(bits)), row.password_hash);
+    } else {
+      await passwordHash(password, crypto.getRandomValues(new Uint8Array(16)));
+    }
+    if (!row || !valid || row.is_active !== 1) return json({ error: "Invalid email or password." }, 401);
+    const token = await createAdminSession(env, row.id);
+    return json({ ok: true }, 200, { "set-cookie": cookie(token) });
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/admin/auth/me") {
+    const admin = await currentAdmin(request, env);
+    if (!admin) return json({ authenticated: false }, 401);
+    return json({ authenticated: true, admin: { id: admin.id, email: admin.email, role: admin.role } });
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/admin/auth/logout") {
+    const token = cookieValue(request, "lcs_session");
+    if (token) await env.DB.prepare("DELETE FROM auth_sessions WHERE token_hash = ?").bind(await sha256(token)).run();
+    return json({ ok: true }, 200, { "set-cookie": cookie("", 0) });
+  }
 
   if (request.method === "POST" && url.pathname === "/api/auth/register") {
     let data;
