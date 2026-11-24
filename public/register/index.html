@@ -19,7 +19,7 @@
       <div class="story-content">
         <span class="story-kicker"><i></i> YOUR PERSONAL INVESTOR ACCOUNT</span>
         <h1>Start with a<br>clearer <em>perspective.</em></h1>
-        <p>Create an individual account to access your investor workspace. Your registration uses only your personal names, mobile number and password.</p>
+        <p>Create an individual account to access your investor workspace using your mobile number and a secure password.</p>
         <div class="story-points"><span><b>01</b> Individual investor registration</span><span><b>02</b> No email address required</span><span><b>03</b> Secure password-based access</span></div>
       </div>
       <div class="story-footer"><span>© 2026 Lifeline Care Supply</span><span>INDIVIDUAL INVESTORS ONLY</span></div>
@@ -33,17 +33,12 @@
         <h2>Create your account.</h2>
         <p class="intro">Enter your details below to set up your personal investor access.</p>
         <form data-auth-form="register">
-          <div class="name-grid">
-            <div class="field"><label for="firstName">First name</label><input id="firstName" name="firstName" autocomplete="given-name" maxlength="80" required></div>
-            <div class="field"><label for="middleName">Middle name <span class="hint inline-hint">Optional</span></label><input id="middleName" name="middleName" autocomplete="additional-name" maxlength="80"></div>
-          </div>
-          <div class="field"><label for="lastName">Last name</label><input id="lastName" name="lastName" autocomplete="family-name" maxlength="80" required></div>
-          <div class="field"><label for="phone">Mobile number</label><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+2567XXXXXXXX" required pattern="\+[1-9][0-9]{7,14}"><span class="hint">Use international format, including your country code.</span></div>
+                    <div class="field"><label for="phone">Mobile number</label><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+2567XXXXXXXX" required pattern="\+[1-9][0-9]{7,14}"><span class="hint">Use international format, including your country code.</span></div>
           <div class="field"><label for="password">Create password</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><span class="hint">At least 12 characters, including uppercase, lowercase and a number.</span></div>
+          <div class="field"><label for="confirmPassword">Confirm password</label><input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></div>
           <button class="submit" type="submit">Create investor account <span>→</span></button>
           <div class="message" role="status" aria-live="polite"></div>
         </form>
-        <div class="auth-note"><span class="note-icon">⌑</span><p>Phone verification is not required to register or sign in. It will be used to verify account ownership if you need to recover your password.</p></div>
         <p class="switch">Already registered? <a href="/login/">Sign in to your account</a></p>
       </div>
       <p class="main-foot">Lifeline Care Supply accounts are for individual investors. Business accounts are not supported.</p>
