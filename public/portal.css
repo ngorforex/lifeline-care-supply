@@ -125,3 +125,15 @@ body[data-portal="investor"] .mobile-bottom-nav{display:none}
  body[data-portal="investor"] .content{padding-top:28px}
  body[data-portal="investor"] .investor-finance-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
+
+/* Use the exact heart mark from investor sign-in beside the workspace title */
+body[data-portal="investor"] .topbar-heading{display:flex;flex-direction:column;gap:5px}
+body[data-portal="investor"] .page-title-line{display:flex;align-items:center;gap:11px}
+body[data-portal="investor"] .header-heart-logo{width:31px;height:31px;flex:0 0 31px}
+@media(max-width:700px){
+ body[data-portal="investor"] .sidebar{display:none}
+ body[data-portal="investor"] .main{margin-left:0;min-height:100vh}
+ body[data-portal="investor"] .topbar{min-height:76px}
+ body[data-portal="investor"] .header-heart-logo{width:34px;height:34px;flex-basis:34px}
+ body[data-portal="investor"] .topbar h1{font-size:19px}
+}
