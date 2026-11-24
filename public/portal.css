@@ -207,3 +207,17 @@ body[data-portal="investor"] .profile-placeholder p{line-height:1.8;color:#71847
 /* Home dashboard hero artwork */
 body[data-portal="investor"] .home-hero-image{display:block;width:100%;height:auto;max-height:none;aspect-ratio:auto;object-fit:contain;object-position:center;background:#fff;border-radius:20px;margin:0 0 22px;border:1px solid #d8ebe3;box-shadow:0 14px 34px rgba(20,83,70,.09)}
 @media(max-width:700px){body[data-portal="investor"] .home-hero-image{height:auto;max-height:none;aspect-ratio:auto;object-fit:contain;border-radius:16px;margin-bottom:18px}}
+
+/* Home quick actions and account summary — two-column mobile-first layout */
+body[data-portal="investor"] .home-action-grid,
+body[data-portal="investor"] .home-balance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 14px}
+body[data-portal="investor"] .home-action-card{min-width:0;min-height:78px;padding:15px;border:1px solid #dcebe5;border-radius:15px;background:#fff;color:#168b83;display:flex;align-items:center;justify-content:center;gap:10px;font:700 14px "DM Sans",Arial,sans-serif;box-shadow:0 5px 16px rgba(33,105,86,.04)}
+body[data-portal="investor"] .home-action-card .ui-icon{width:23px;height:23px}
+body[data-portal="investor"] .home-action-card:disabled{cursor:not-allowed;opacity:.78}
+body[data-portal="investor"] .home-balance-card{min-width:0;min-height:112px;padding:15px;border-radius:15px}
+body[data-portal="investor"] .home-balance-card>div{display:flex;align-items:center;justify-content:space-between;gap:8px}
+body[data-portal="investor"] .home-balance-card>div .ui-icon{width:20px;height:20px;color:#159b92;flex:0 0 auto}
+body[data-portal="investor"] .home-balance-card>div span{font-size:11px;color:#718580}
+body[data-portal="investor"] .home-balance-card>b{display:block;margin-top:10px;font-size:21px;line-height:1.2;overflow-wrap:anywhere}
+body[data-portal="investor"] .home-balance-card>small{display:block;margin-top:7px;font-size:10px;line-height:1.45;color:#82958e}
+@media(max-width:380px){body[data-portal="investor"] .home-action-grid,body[data-portal="investor"] .home-balance-grid{gap:8px}body[data-portal="investor"] .home-action-card{padding:12px;font-size:12px}body[data-portal="investor"] .home-balance-card{padding:12px}body[data-portal="investor"] .home-balance-card>b{font-size:18px}}
