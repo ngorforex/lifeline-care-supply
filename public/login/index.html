@@ -16,7 +16,7 @@
   <main class="access-page">
     <header class="access-header">
       <a class="access-brand" href="/login/" aria-label="Lifeline Care Supply home">
-        <span class="access-logo"><i></i><i></i><i></i><i></i></span>
+        <svg class="heart-brand-icon" viewBox="0 0 48 48" role="img" aria-label="Lifeline heart logo"><defs><linearGradient id="heartGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#42f3c2"/><stop offset="1" stop-color="#a8f34d"/></linearGradient></defs><path d="M24 41 7.8 25.2C-1.2 16.1 5.4 3.8 16 4.6c4.1.3 6.7 2.6 8 5.2 1.8-3 4.7-5.1 8.6-5.1 10.1 0 15.2 11.8 6.4 20.5L24 41Z" fill="none" stroke="url(#heartGradient)" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.8 22.7h8.1l4-7.1 5.1 15 4.2-8h7" fill="none" stroke="url(#heartGradient)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="access-brand-text">Lifeline <b>Care Supply</b></span>
       </a>
       <div class="access-header-right"><span class="access-live"><i></i> INVESTOR ACCESS</span><span class="access-header-rule"></span><span class="access-region">UGANDA · EAT</span></div>
@@ -29,7 +29,7 @@
       </div>
       <section class="access-card">
         <div class="card-topline"><span>ACCOUNT PORTAL</span><span class="card-topline-mark">LCS<span>®</span></span></div>
-        <div class="access-tabs"><a class="selected" aria-current="page" href="/login/">Sign in</a><a  href="/register/">Create account</a></div>
+        <div class="access-tabs"><a class="selected" aria-current="page" href="/login/"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1.5a8 8 0 0 1 16 0V21Z"/></svg>Sign in</a><a href="/register/"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21v-1.5a7 7 0 0 1 12.2-4.7M19 8v8M15 12h8"/></svg>Create account</a></div>
         <div class="form-heading">
           <span class="form-kicker">WELCOME BACK</span>
           <h2>Welcome back<span>.</span></h2>
@@ -38,14 +38,14 @@
         <form data-auth-form="login" class="access-form">
           <div class="access-field">
             <label for="phone">MOBILE NUMBER</label>
-            <div class="access-input"><span class="field-prefix">+ </span><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="256 7XX XXX XXX" required pattern="\+[1-9][0-9]{7,14}"></div>
+            <div class="access-input"><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.2"/><path d="M10 5h4M11 18.5h2"/></svg><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="256 7XX XXX XXX" required pattern="\+[1-9][0-9]{7,14}"></div>
             <small>Use international format, including +256.</small>
           </div>
           <div class="access-field">
             <div class="field-label-line"><label for="password">PASSWORD</label></div>
-            <div class="access-input"><span class="field-symbol">⌑</span><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="reveal-password" type="button" data-password-toggle aria-label="Show password">SHOW</button></div>
+            <div class="access-input"><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="reveal-password" type="button" data-password-toggle data-target="password" aria-label="Show password"><svg class="field-icon toggle-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
           </div>
-          <button class="access-submit" type="submit"><span>Continue to account</span><b>↗</b></button>
+          <button class="access-submit" type="submit"><span>Continue to account</span><svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></button>
           <div class="message" role="status" aria-live="polite"></div>
         </form>
         <div class="access-assist"><span class="assist-icon">i</span><p><b>Having trouble signing in?</b><br>Password recovery will verify your registered mobile number.</p></div>
