@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1400" fill="none">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="900" y2="1400" gradientUnits="userSpaceOnUse"><stop stop-color="#bcefeb"/><stop offset=".48" stop-color="#f8fbf8"/><stop offset="1" stop-color="#ffd8ca"/></linearGradient>
+ <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#69dfd0"/><stop offset="1" stop-color="#078f89"/></linearGradient>
+ <linearGradient id="coral" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb2a5"/><stop offset="1" stop-color="#f47770"/></linearGradient>
+ <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="18"/></filter>
+</defs>
+<path fill="url(#bg)" d="M0 0h900v1400H0z"/>
+<ellipse cx="105" cy="170" rx="180" ry="220" fill="#7bded5" opacity=".28" filter="url(#shadow)"/>
+<ellipse cx="820" cy="1160" rx="210" ry="260" fill="#ffbca9" opacity=".28" filter="url(#shadow)"/>
+<!-- stethoscope -->
+<g opacity=".9" stroke="url(#teal)" stroke-width="20" stroke-linecap="round"><path d="M-28 90v110c0 104 40 157 112 157s112-53 112-157V94"/><path d="M196 94v110c0 62-25 96-73 105"/></g>
+<circle cx="123" cy="374" r="42" fill="#d8f5f1" stroke="#0c9992" stroke-width="15"/><circle cx="123" cy="374" r="17" fill="#fff"/>
+<!-- shield -->
+<path d="M770 75 850 105v95c0 74-46 124-80 144-34-20-80-70-80-144v-95l80-30Z" fill="#d8f8f2" stroke="#18aaa2" stroke-width="16"/>
+<path d="M770 145v100M720 195h100" stroke="#119d96" stroke-width="20" stroke-linecap="round"/>
+<!-- heart -->
+<path d="M80 640c-82-65-65-150 2-156 39-4 61 24 70 45 13-25 39-47 76-40 68 12 77 99 5 157l-78 66-75-72Z" fill="url(#coral)" stroke="#fff0e9" stroke-width="9"/>
+<path d="M28 635h55l24-39 31 77 25-43h56" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- clipboard -->
+<g transform="translate(-48 1030) rotate(-12)"><rect x="0" y="0" width="190" height="260" rx="22" fill="#fff" stroke="#c6e9e4" stroke-width="12"/><rect x="54" y="-16" width="82" height="38" rx="12" fill="#0eaaa1"/><path d="M35 80h115M35 125h115M35 170h115M35 215h90" stroke="#9acbc4" stroke-width="9" stroke-linecap="round"/></g>
+<!-- medicine bottle -->
+<g transform="translate(750 590) rotate(12)"><rect x="0" y="30" width="125" height="205" rx="30" fill="#fff" stroke="#e7f2ef" stroke-width="10"/><rect x="-8" y="0" width="141" height="48" rx="13" fill="#d8f2ed" stroke="#0c9b95" stroke-width="8"/><rect x="0" y="105" width="125" height="62" fill="url(#teal)"/><path d="M62 115v42M42 136h40" stroke="#fff" stroke-width="12" stroke-linecap="round"/></g>
+<!-- thermometer and pills -->
+<g transform="translate(650 1170) rotate(-28)"><rect x="0" y="0" width="230" height="54" rx="27" fill="#fff" stroke="#d4eeea" stroke-width="9"/><rect x="150" y="0" width="80" height="54" rx="27" fill="#1aa99e"/><circle cx="24" cy="27" r="12" fill="#e5f5f1"/></g>
+<g transform="translate(710 1290) rotate(25)"><rect x="0" y="0" width="130" height="48" rx="24" fill="#fff"/><path d="M65 0v48" stroke="#d2e9e4" stroke-width="5"/><path d="M65 0h41a24 24 0 0 1 0 48H65Z" fill="#45c9bd"/></g>
+<circle cx="735" cy="380" r="24" fill="#fff" opacity=".55"/><circle cx="830" cy="440" r="13" fill="#fff" opacity=".55"/>
+</svg>
