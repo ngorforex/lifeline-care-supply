@@ -42,7 +42,7 @@ function renderDashboard(data){
  const avatar=document.querySelector(".top-actions .avatar");if(avatar)avatar.textContent=name.slice(0,1).toUpperCase();
  setText("[data-profile-name]",name);setText("[data-profile-phone]",profile.phone||"—");
  setText("[data-profile-created]",dateEAT(profile.createdAt));
- setText("[data-profile-verification]",profile.phoneVerified?"Verified":"Not verified");
+ 
  const initial=document.querySelector("[data-profile-initial]");if(initial)initial.textContent=name.slice(0,1).toUpperCase();
  const investments=data.investments||[];
  const active=investments.filter(item=>item.status==="active");
@@ -156,6 +156,24 @@ if(!isAdmin){
    console.error("Investor dashboard load failed:",error);
    showLoadError("Your account information could not be loaded: "+(error.message||"Unknown error")+". Refresh the page to try again.");
   });
+ 
+ document.querySelectorAll("[data-profile-action]").forEach(button=>button.addEventListener("click",()=>{
+  const action=button.dataset.profileAction;
+  const messages={
+   password:"Password management is not available yet. The secure password-change service must be implemented before this control can update credentials.",
+   personal:"Your registered name and mobile number are shown in the profile header. Profile editing is not enabled yet.",
+   help:"Help articles are being prepared. For assistance, use the official support channel once its link is configured.",
+   terms:"The platform Terms & Conditions will be published here before investment transactions are enabled.",
+   privacy:"The platform Privacy Policy will be published here before personal-data workflows are enabled.",
+   about:"Lifeline Care Supply is an individual-investor platform focused on fixed investment packages for medical equipment."
+  };
+  window.alert(messages[action]||"This section is not available yet.");
+ }));
+ document.querySelectorAll("[data-support-placeholder]").forEach(link=>link.addEventListener("click",event=>{
+  event.preventDefault();
+  window.alert("The official Telegram and live-support links have not been configured in this project yet.");
+ }));
+
  document.querySelector("[data-copy-referral]")?.addEventListener("click",async event=>{
  const button=event.currentTarget;const code=button.dataset.code;
  if(!code)return;
