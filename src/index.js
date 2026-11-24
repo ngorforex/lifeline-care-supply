@@ -187,6 +187,25 @@ async function authApi(request, env, url) {
     return json({ ok: true }, 200, { "set-cookie": cookie(sessionToken) });
   }
 
+  if ((request.method === "GET" || request.method === "PUT") && url.pathname === "/api/investor/profile-photo") {
+    const investor = await currentInvestor(request, env);
+    if (!investor) return json({ error: "Authentication required." }, 401);
+    if (request.method === "GET") {
+      const row = await env.DB.prepare("SELECT profile_photo_data FROM investor_profiles WHERE user_id = ? LIMIT 1")
+        .bind(investor.id).first();
+      return json({ photo: row?.profile_photo_data || null });
+    }
+    let data;
+    try { data = await request.json(); } catch { return json({ error: "Invalid photo upload." }, 400); }
+    const photo = typeof data.photo === "string" ? data.photo : "";
+    if (!photo || photo.length > 350000 || !/^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(photo)) {
+      return json({ error: "Upload a valid JPEG profile photo under the size limit." }, 400);
+    }
+    await env.DB.prepare("UPDATE investor_profiles SET profile_photo_data = ?, updated_at = ? WHERE user_id = ?")
+      .bind(photo, new Date().toISOString(), investor.id).run();
+    return json({ ok: true });
+  }
+
   if (request.method === "GET" && url.pathname === "/api/investor/dashboard") {
     const investor = await currentInvestor(request, env);
     if (!investor) return json({ error: "Authentication required." }, 401);
