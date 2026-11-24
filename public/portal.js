@@ -7,7 +7,7 @@ function activateTab(tab){
  const panel=document.getElementById("panel-"+tab);if(!panel)return;
  document.querySelectorAll(".tab-panel").forEach(item=>item.classList.remove("active"));
  panel.classList.add("active");
- document.querySelectorAll(".side-nav a[data-tab]").forEach(item=>item.classList.toggle("active",item.dataset.tab===tab));
+ document.querySelectorAll("a[data-tab]").forEach(item=>item.classList.toggle("active",item.dataset.tab===tab));
  if(title)title.textContent=titles[tab]||"Workspace";
  if(crumb)crumb.textContent=titles[tab]||"Workspace";
 }
@@ -39,11 +39,39 @@ function renderDashboard(data){
  const name=profile.displayName||"Investor";
  if(title&&(!location.hash||location.hash==="#overview"))title.textContent="Good day, "+name;
  if(crumb&&(!location.hash||location.hash==="#overview"))crumb.textContent="Overview";
- const avatar=document.querySelector(".top-actions .avatar");if(avatar)avatar.textContent=name.slice(0,1).toUpperCase();
+ const avatar=document.querySelector(".top-actions .avatar");if(avatar)avatar.textContent=name.slice(0,1).toUpperCase();setText("[data-greeting-name]",name);
  setText("[data-profile-name]",name);setText("[data-profile-phone]",profile.phone||"—");
  setText("[data-profile-created]",dateEAT(profile.createdAt));
  setText("[data-profile-verification]",profile.phoneVerified?"Verified":"Not verified");
  const initial=document.querySelector("[data-profile-initial]");if(initial)initial.textContent=name.slice(0,1).toUpperCase();
+ const investments=data.investments||[];
+ const active=investments.filter(item=>item.status==="active");
+ const totalInvested=investments.filter(item=>!["cancelled","rejected"].includes(item.status)).reduce((sum,item)=>sum+(Number.parseFloat(String(item.principal_amount).replace(/[^0-9.]/g,""))||0),0);
+ const currency=investments[0]?.currency||"UGX";
+ const formatMajor=value=>new Intl.NumberFormat("en-UG",{style:"currency",currency,maximumFractionDigits:0}).format(value);
+ setText('[data-metric="totalInvested"]',formatMajor(totalInvested));
+ setText('[data-metric="totalEarnings"]',"Not available");
+ setText('[data-metric="availableBalance"]',"Not available");
+ setText('[data-metric="portfolioValue"]',"Not available");
+ setText("[data-portfolio-note]","Portfolio valuation and withdrawable balance will appear when ledger reporting is configured.");
+ const activeTarget=document.querySelector("[data-active-investments]");
+ if(activeTarget){
+  activeTarget.replaceChildren();
+  if(!active.length){const empty=document.createElement("div");empty.className="empty-state";empty.textContent="You do not have any active investments yet.";activeTarget.append(empty);}
+  else for(const item of active){
+   const card=document.createElement("article");card.className="investment-card";
+   const head=document.createElement("div");head.style.display="flex";head.style.justifyContent="space-between";head.style.alignItems="center";head.style.gap="10px";
+   const h=document.createElement("h4");h.textContent=item.package_name||"Investment package";
+   const status=document.createElement("span");status.className="status-chip";status.textContent=item.status;
+   head.append(h,status);
+   const p=document.createElement("p");p.textContent="Principal: "+(item.principal_amount||"—")+" "+(item.currency||"");
+   const meta=document.createElement("div");meta.className="investment-meta";
+   const started=document.createElement("span");started.textContent="Started: "+dateEAT(item.started_at);
+   const matures=document.createElement("span");matures.textContent="Matures: "+dateEAT(item.matures_at);
+   meta.append(started,matures);card.append(head,p,meta);activeTarget.append(card);
+  }
+ }
+
  fillTable("[data-investments]",data.investments||[],[x=>x.reference,x=>x.package_name||"—",x=>String(x.principal_amount||"—")+" "+(x.currency||""),x=>x.status,x=>dateEAT(x.started_at)],"No investment records yet.");
  fillTable("[data-transactions]",data.transactions||[],[x=>x.reference,x=>x.type,x=>dateEAT(x.createdAt),x=>amountMinor(x.amountMinor,x.currency),x=>x.status],"No transactions have been recorded.");
  fillTable("[data-referrals]",data.referrals||[],[x=>x.phone_e164,x=>dateEAT(x.registered_at),x=>x.status],"No referrals are linked to this account.");
@@ -55,7 +83,17 @@ function renderDashboard(data){
  const recent=document.querySelector("[data-recent-activity]");
  if(recent){recent.replaceChildren();const span=document.createElement("span");span.textContent="⌁";const b=document.createElement("b");b.textContent=data.investments?.length?data.investments.length+" investment record(s)":"No investment activity yet";const small=document.createElement("small");small.textContent="Account records are up to date";recent.append(span,b,small);}
  const recentTx=document.querySelector("[data-recent-transactions]");
- if(recentTx)recentTx.textContent=data.transactions?.length?data.transactions.length+" transaction record(s) are available in your history.":"No transaction activity has been recorded yet.";
+ if(recentTx){
+  recentTx.replaceChildren();
+  const recentItems=(data.transactions||[]).slice(0,5);
+  if(!recentItems.length){const empty=document.createElement("div");empty.className="empty-state";empty.textContent="No transaction activity has been recorded yet.";recentTx.append(empty);}
+  else for(const item of recentItems){
+   const row=document.createElement("div");row.className="recent-transaction";
+   const info=document.createElement("div");const label=document.createElement("b");label.textContent=item.type+" · "+(item.status||"pending");
+   const date=document.createElement("small");date.textContent=dateEAT(item.createdAt);info.append(label,date);
+   const amount=document.createElement("strong");amount.textContent=amountMinor(item.amountMinor,item.currency);row.append(info,amount);recentTx.append(row);
+  }
+ }
 }
 if(!isAdmin){
  const showLoadError=message=>{
