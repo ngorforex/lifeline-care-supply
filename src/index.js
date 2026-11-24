@@ -118,13 +118,10 @@ async function authApi(request, env, url) {
   if (request.method === "POST" && url.pathname === "/api/auth/register") {
     let data;
     try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
-    const first = typeof data.firstName === "string" ? data.firstName.trim() : "";
-    const middle = typeof data.middleName === "string" ? data.middleName.trim() : null;
-    const last = typeof data.lastName === "string" ? data.lastName.trim() : "";
     const phone = typeof data.phone === "string" ? data.phone.trim() : "";
     const password = data.password;
-    if (!validName(first) || !validName(middle, true) || !validName(last) || !validPhone(phone) || !passwordValid(password)) {
-      return json({ error: "Enter valid names, a phone number in international format (+country code), and a password with at least 12 characters including uppercase, lowercase and a number." }, 400);
+    if (!validPhone(phone) || !passwordValid(password)) {
+      return json({ error: "Enter a valid phone number in international format (+country code) and a password with at least 12 characters including uppercase, lowercase and a number." }, 400);
     }
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
     const rateKey = "register:" + await sha256(ip);
@@ -138,8 +135,8 @@ async function authApi(request, env, url) {
       await env.DB.batch([
         env.DB.prepare("INSERT INTO users (id, phone_e164, status, created_at, updated_at) VALUES (?, ?, 'active', ?, ?)")
           .bind(userId, phone, now, now),
-        env.DB.prepare("INSERT INTO investor_profiles (user_id, first_name, middle_name, last_name, verification_state, created_at, updated_at) VALUES (?, ?, ?, ?, 'not_started', ?, ?)")
-          .bind(userId, first, middle || null, last, now, now),
+        env.DB.prepare("INSERT INTO investor_profiles (user_id, verification_state, created_at, updated_at) VALUES (?, 'not_started', ?, ?)")
+          .bind(userId, now, now),
         env.DB.prepare("INSERT INTO user_credentials (user_id, password_hash, password_salt, password_iterations, password_changed_at) VALUES (?, ?, ?, ?, ?)")
           .bind(userId, hash, bytesToBase64(salt), PASSWORD_ITERATIONS, now),
         env.DB.prepare("INSERT INTO audit_logs (id, actor_user_id, action, entity_type, entity_id, metadata, created_at) VALUES (?, ?, 'investor.registered', 'user', ?, ?, ?)")
@@ -152,8 +149,8 @@ async function authApi(request, env, url) {
     const sessionToken = await createSession(env, userId);
     return json({
       ok: true,
-      investor: { id: userId, firstName: first, middleName: middle || null, lastName: last, phone, phoneVerified: false },
-      message: "Account created. Phone ownership has not been verified."
+      investor: { id: userId, phone },
+      message: "Account created."
     }, 201, { "set-cookie": cookie(sessionToken) });
   }
 
