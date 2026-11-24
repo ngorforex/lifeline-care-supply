@@ -214,7 +214,14 @@ async function authApi(request, env, url) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname.startsWith("/api/auth/")) return authApi(request, env, url);
+    if (url.pathname.startsWith("/api/auth/")) {
+      try {
+        return await authApi(request, env, url);
+      } catch (error) {
+        console.error("Investor authentication request failed:", error);
+        return json({ error: "The account service encountered an unexpected error. Please try again shortly." }, 500);
+      }
+    }
 
     if (url.pathname === "/health") {
       try {
