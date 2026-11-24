@@ -137,3 +137,15 @@ body[data-portal="investor"] .header-heart-logo{width:31px;height:31px;flex:0 0 
  body[data-portal="investor"] .header-heart-logo{width:34px;height:34px;flex-basis:34px}
  body[data-portal="investor"] .topbar h1{font-size:19px}
 }
+
+/* Single brand mark in workspace header; page title belongs in page content */
+body[data-portal="investor"] .topbar{justify-content:space-between}
+body[data-portal="investor"] .topbar-brand-mark{display:flex;align-items:center;min-width:42px}
+body[data-portal="investor"] .topbar-brand-mark .header-heart-logo{width:43px;height:43px;display:block}
+body[data-portal="investor"] .investor-greeting{justify-content:flex-start}
+body[data-portal="investor"] .investor-greeting h2{font-size:27px;letter-spacing:-.045em}
+@media(max-width:700px){
+ body[data-portal="investor"] .topbar{min-height:76px;padding:12px 18px}
+ body[data-portal="investor"] .topbar-brand-mark .header-heart-logo{width:43px;height:43px}
+ body[data-portal="investor"] .investor-greeting h2{font-size:25px}
+}
