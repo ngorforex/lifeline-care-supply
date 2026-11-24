@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#071f25">
+  <meta name="theme-color" content="#e9eee8">
   <title>Create account | Lifeline Care Supply</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,36 +13,52 @@
   <script src="/auth.js" defer></script>
 </head>
 <body class="auth-page">
-  <main class="auth-layout">
-    <section class="auth-story" aria-label="Lifeline Care Supply">
-      <a class="auth-brand" href="/login/"><span class="brand-mark">L</span><span class="brand-copy">Lifeline <strong>Care Supply</strong><small>PRIVATE INVESTOR ACCESS</small></span></a>
-      <div class="story-content">
-        <span class="story-kicker"><i></i> YOUR PERSONAL INVESTOR ACCOUNT</span>
-        <h1>Start with a<br>clearer <em>perspective.</em></h1>
-        <p>Create an individual account to access your investor workspace using your mobile number and a secure password.</p>
-        <div class="story-points"><span><b>01</b> Individual investor registration</span><span><b>02</b> No email address required</span><span><b>03</b> Secure password-based access</span></div>
+  <main class="access-page">
+    <header class="access-header">
+      <a class="access-brand" href="/login/" aria-label="Lifeline Care Supply home">
+        <span class="access-logo"><i></i><i></i><i></i><i></i></span>
+        <span class="access-brand-text">Lifeline <b>Care Supply</b></span>
+      </a>
+      <div class="access-header-right"><span class="access-live"><i></i> INVESTOR ACCESS</span><span class="access-header-rule"></span><span class="access-region">UGANDA · EAT</span></div>
+    </header>
+    <section class="access-content">
+      <div class="access-intro">
+        <div class="access-overline"><span>01</span> / PERSONAL ACCOUNT</div>
+        <h1>Make room for<br><em>what’s next.</em></h1>
+        <p>One secure place to access your Lifeline Care Supply investor account.</p>
       </div>
-      <div class="story-footer"><span>© 2026 Lifeline Care Supply</span><span>INDIVIDUAL INVESTORS ONLY</span></div>
-      <div class="story-orb orb-a"></div><div class="story-orb orb-b"></div>
-    </section>
-    <section class="auth-main register-main">
-      <div class="mobile-brand"><span class="brand-mark">L</span><span class="brand-copy">Lifeline <strong>Care Supply</strong><small>INVESTOR PORTAL</small></span></div>
-      <div class="auth-card">
-        <div class="auth-tabs"><a href="/login/">Sign in</a><a class="active" href="/register/" aria-current="page">Create account</a></div>
-        <div class="eyebrow">GET STARTED</div>
-        <h2>Create your account.</h2>
-        <p class="intro">Enter your details below to set up your personal investor access.</p>
-        <form data-auth-form="register">
-                    <div class="field"><label for="phone">Mobile number</label><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+2567XXXXXXXX" required pattern="\+[1-9][0-9]{7,14}"><span class="hint">Use international format, including your country code.</span></div>
-          <div class="field"><label for="password">Create password</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><span class="hint">At least 12 characters, including uppercase, lowercase and a number.</span></div>
-          <div class="field"><label for="confirmPassword">Confirm password</label><input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></div>
-          <button class="submit" type="submit">Create investor account <span>→</span></button>
+      <section class="access-card">
+        <div class="card-topline"><span>ACCOUNT PORTAL</span><span class="card-topline-mark">LCS<span>®</span></span></div>
+        <div class="access-tabs"><a  href="/login/">Sign in</a><a class="selected" aria-current="page" href="/register/">Create account</a></div>
+        <div class="form-heading">
+          <span class="form-kicker">NEW INVESTOR ACCOUNT</span>
+          <h2>Start with the essentials<span>.</span></h2>
+          <p>Create your personal access using a mobile number and password.</p>
+        </div>
+        <form data-auth-form="register" class="access-form">
+          <div class="access-field">
+            <label for="phone">MOBILE NUMBER</label>
+            <div class="access-input"><span class="field-prefix">+ </span><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="256 7XX XXX XXX" required pattern="\+[1-9][0-9]{7,14}"></div>
+            <small>Use international format, including +256.</small>
+          </div>
+          <div class="access-field">
+            <label for="password">CREATE PASSWORD</label>
+            <div class="access-input"><span class="field-symbol">⌑</span><input id="password" name="password" type="password" autocomplete="new-password" placeholder="Create a secure password" minlength="12" maxlength="128" required></div>
+            <small>At least 12 characters, with uppercase, lowercase and a number.</small>
+          </div>
+          <div class="access-field">
+            <label for="confirmPassword">CONFIRM PASSWORD</label>
+            <div class="access-input"><span class="field-symbol">⌑</span><input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Enter your password again" minlength="12" maxlength="128" required></div>
+          </div>
+          <button class="access-submit" type="submit"><span>Create investor account</span><b>↗</b></button>
           <div class="message" role="status" aria-live="polite"></div>
         </form>
-        <p class="switch">Already registered? <a href="/login/">Sign in to your account</a></p>
-      </div>
-      <p class="main-foot">Lifeline Care Supply accounts are for individual investors. Business accounts are not supported.</p>
+        <div class="access-assist"><span class="assist-icon">i</span><p><b>Keep your account secure.</b><br>Use a password you do not share with anyone.</p></div>
+        <div class="access-card-bottom"><span class="bottom-mark">✳</span><span>YOUR ACCOUNT. YOUR ACCESS.</span><span>01 — 01</span></div>
+      </section>
     </section>
+    <footer class="access-footer"><span>© 2026 Lifeline Care Supply</span><span>BUILT FOR INDIVIDUAL INVESTORS</span><a href="/register/">Need an account? <b>Get started ↗</b></a></footer>
+    <div class="background-stamp" aria-hidden="true">L</div>
   </main>
 </body>
 </html>
