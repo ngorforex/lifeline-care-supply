@@ -17,14 +17,14 @@ document.querySelectorAll("[data-tab]").forEach(link=>link.addEventListener("cli
 }));
 const initialTab=location.hash.slice(1);if(initialTab&&document.getElementById("panel-"+initialTab))activateTab(initialTab);
 document.querySelectorAll(".year").forEach(item=>item.textContent=String(new Date().getFullYear()));
-function setText(selector,value){const el=document.querySelector(selector);if(el)el.textContent=value??"—";}
+function setText(selector,value){document.querySelectorAll(selector).forEach(el=>{el.textContent=value??"—";});}
 function cell(row,value){const td=document.createElement("td");td.textContent=value??"—";row.append(td);}
 function dateEAT(value){
  if(!value)return "—";
  const date=new Date(value);if(Number.isNaN(date.getTime()))return "—";
  return new Intl.DateTimeFormat("en-UG",{timeZone:"Africa/Kampala",year:"numeric",month:"short",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(date);
 }
-function amountMinor(value,currency){const n=Number(value);return Number.isFinite(n)?new Intl.NumberFormat("en-UG",{style:"currency",currency:currency||"UGX",maximumFractionDigits:2}).format(n/100):"—";}
+function amountMinor(value,currency){const code=currency||"UGX";const n=Number(value);const scale=code==="UGX"?1:100;return Number.isFinite(n)?new Intl.NumberFormat("en-UG",{style:"currency",currency:code,maximumFractionDigits:code==="UGX"?0:2}).format(n/scale):"—";}
 function fillTable(selector,items,columns,emptyText){
  const target=document.querySelector(selector);if(!target)return;
  target.replaceChildren();
@@ -51,7 +51,12 @@ function renderDashboard(data){
  const formatMajor=value=>new Intl.NumberFormat("en-UG",{style:"currency",currency,maximumFractionDigits:0}).format(value);
  setText('[data-metric="totalInvested"]',formatMajor(totalInvested));
  setText('[data-metric="totalEarnings"]',"Not available");
- setText('[data-metric="availableBalance"]',"Not available");
+ const walletCurrency=metrics.walletCurrency||"UGX";
+ const walletBalance=amountMinor(metrics.walletBalanceMinor||0,walletCurrency);
+ setText('[data-metric="availableBalance"]',walletBalance);
+ setText("[data-home-wallet-balance]",walletBalance);
+ setText("[data-wallet-balance]",walletBalance);
+ setText("[data-home-today-earnings]","UGX 0");
  setText('[data-metric="portfolioValue"]',"Not available");
  setText("[data-portfolio-note]","Portfolio valuation will appear when ledger reporting is configured.");
  const activeTarget=document.querySelector("[data-active-investments]");
@@ -87,18 +92,10 @@ function renderDashboard(data){
   if(copyButton)copyButton.disabled=true;
  }
  const packages=document.querySelector("[data-packages]");
- const catalogue=[
-  {name:"Product 1",price:10000,daily:2000,duration:90,image:"/product-01.jpg"},
-  {name:"Product 2",price:15000,daily:3000,duration:90,image:"/product-02.jpg"},
-  {name:"Product 3",price:20000,daily:4000,duration:90,image:"/product-03.jpg"},
-  {name:"Product 4",price:30000,daily:6000,duration:90,image:"/product-04.jpg"},
-  {name:"Product 5",price:50000,daily:8000,duration:90,image:"/product-05.jpg"},
-  {name:"Product 6",price:80000,daily:11000,duration:90,image:"/product-06.jpg"},
-  {name:"Product 7",price:100000,daily:20000,duration:90,image:"/product-07.jpg"},
-  {name:"Product 8",price:150000,daily:30000,duration:90,image:"/product-08.jpg"},
-  {name:"Product 9",price:200000,daily:40000,duration:90,image:"/product-09.jpg"},
-  {name:"Product 10",price:250000,daily:48000,duration:90,image:"/product-10.jpg"}
- ];
+ const catalogue=(data.packages||[]).map((item,index)=>{
+  let terms={};try{terms=JSON.parse(item.return_structure||"{}");}catch{}
+  return {name:item.name,price:Number(item.investment_amount),daily:Number(terms.daily_income_ugx||0),duration:Number(item.duration_days||90),total:Number(terms.total_return_ugx||0),image:"/product-"+String(index+1).padStart(2,"0")+".jpg"};
+ });
  if(packages){
   packages.replaceChildren();
   const items=catalogue;
@@ -108,7 +105,7 @@ function renderDashboard(data){
    const body=document.createElement("div");body.className="package-card-body";
    const heading=document.createElement("h3");heading.textContent=p.name;
    const details=document.createElement("div");details.className="package-details";
-   const fields=[["Purchase price",p.price],["Daily income",p.daily],["Duration",p.duration+" days"],["Total projected return",p.daily*p.duration]];
+   const fields=[["Purchase price",p.price],["Daily income",p.daily],["Duration",p.duration+" days"],["Total projected return",p.total]];
    for(const [label,value] of fields){const item=document.createElement("div");item.className="package-detail";const caption=document.createElement("span");caption.textContent=label;const amount=document.createElement("b");amount.textContent=typeof value==="number"?new Intl.NumberFormat("en-UG").format(value)+" UGX":value;item.append(caption,amount);details.append(item);}
    const note=document.createElement("p");note.className="package-risk-note";note.textContent="Catalogue figures only. Projected returns are not guaranteed. Investment activation and earnings are not yet enabled.";
    body.append(heading,details,note);card.append(image,body);packages.append(card);
