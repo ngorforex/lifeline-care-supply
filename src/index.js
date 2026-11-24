@@ -118,10 +118,14 @@ async function authApi(request, env, url) {
   if (request.method === "POST" && url.pathname === "/api/auth/register") {
     let data;
     try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
+    const firstName = typeof data.firstName === "string" ? data.firstName.trim() : "";
+    const middleName = typeof data.middleName === "string" ? data.middleName.trim() : null;
+    const lastName = typeof data.lastName === "string" ? data.lastName.trim() : "";
     const phone = typeof data.phone === "string" ? data.phone.trim() : "";
     const password = data.password;
-    if (!validPhone(phone) || !passwordValid(password)) {
-      return json({ error: "Enter a valid phone number in international format (+country code) and a password with at least 12 characters including uppercase, lowercase and a number." }, 400);
+    if (!validName(firstName) || !validName(lastName) || !validName(middleName, true) ||
+        !validPhone(phone) || !passwordValid(password)) {
+      return json({ error: "Enter your first and last names, a valid international phone number, and a password with at least 12 characters including uppercase, lowercase and a number." }, 400);
     }
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
     const rateKey = "register:" + await sha256(ip);
@@ -135,12 +139,20 @@ async function authApi(request, env, url) {
       await env.DB.batch([
         env.DB.prepare("INSERT INTO users (id, phone_e164, status, created_at, updated_at) VALUES (?, ?, 'active', ?, ?)")
           .bind(userId, phone, now, now),
-        env.DB.prepare("INSERT INTO investor_profiles (user_id, first_name, middle_name, last_name, verification_state, created_at, updated_at) VALUES (?, 'Investor', NULL, 'Account', 'not_started', ?, ?)")
-          .bind(userId, now, now),
+        env.DB.prepare("INSERT INTO investor_profiles (user_id, first_name, middle_name, last_name, verification_state, created_at, updated_at) VALUES (?, ?, ?, ?, 'not_started', ?, ?)")
+          .bind(userId, firstName, middleName || null, lastName, now, now),
         env.DB.prepare("INSERT INTO user_credentials (user_id, password_hash, password_salt, password_iterations, password_changed_at) VALUES (?, ?, ?, ?, ?)")
           .bind(userId, hash, bytesToBase64(salt), PASSWORD_ITERATIONS, now),
+        env.DB.prepare("INSERT INTO ledger_accounts (id, owner_user_id, account_code, currency, account_name, created_at) VALUES (?, ?, 'WALLET_AVAILABLE', 'UGX', 'Available wallet balance', ?)").bind("wallet-" + userId, userId, now),
+        env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts (id, owner_user_id, account_code, currency, account_name, created_at) VALUES ('platform-welcome-bonus-ugx', NULL, 'PLATFORM_WELCOME_BONUS_EXPENSE', 'UGX', 'Welcome bonus expense', ?)").bind(now),
+        env.DB.prepare("INSERT INTO ledger_transactions (id, reference, idempotency_key, transaction_type, status, currency, related_entity_type, related_entity_id, description, created_by_user_id, posted_at, created_at) VALUES (?, ?, ?, 'welcome_bonus', 'posted', 'UGX', 'user', ?, 'One-time account registration welcome bonus', ?, ?, ?)")
+          .bind("welcome-" + userId, "WEL-" + userId.slice(0, 12).toUpperCase(), "welcome-bonus:" + userId, userId, userId, now, now),
+        env.DB.prepare("INSERT INTO ledger_entries (id, transaction_id, account_id, side, amount_minor, currency, created_at) VALUES (?, ?, 'platform-welcome-bonus-ugx', 'debit', 2000, 'UGX', ?)")
+          .bind("welcome-debit-" + userId, "welcome-" + userId, now),
+        env.DB.prepare("INSERT INTO ledger_entries (id, transaction_id, account_id, side, amount_minor, currency, created_at) VALUES (?, ?, ?, 'credit', 2000, 'UGX', ?)")
+          .bind("welcome-credit-" + userId, "welcome-" + userId, "wallet-" + userId, now),
         env.DB.prepare("INSERT INTO audit_logs (id, actor_user_id, action, entity_type, entity_id, metadata, created_at) VALUES (?, ?, 'investor.registered', 'user', ?, ?, ?)")
-          .bind(crypto.randomUUID(), userId, userId, JSON.stringify({ channel: "phone_password" }), now)
+          .bind(crypto.randomUUID(), userId, userId, JSON.stringify({ channel: "phone_password", welcomeBonusUGX: 2000 }), now)
       ]);
     } catch (error) {
       if (String(error).includes("UNIQUE")) return json({ error: "Unable to create account with those details. Check the phone number or sign in." }, 409);
@@ -149,7 +161,7 @@ async function authApi(request, env, url) {
     const sessionToken = await createSession(env, userId);
     return json({
       ok: true,
-      investor: { id: userId, phone },
+      investor: { id: userId, firstName, middleName: middleName || null, lastName, phone, welcomeBonusUGX: 2000 },
       message: "Account created."
     }, 201, { "set-cookie": cookie(sessionToken) });
   }
