@@ -92,9 +92,15 @@ function renderDashboard(data){
   if(copyButton)copyButton.disabled=true;
  }
  const packages=document.querySelector("[data-packages]");
- const catalogue=(data.packages||[]).map((item,index)=>{
+ const productImageByCode={
+  THERMOMETER:"/product-01.jpg","BP-MONITOR":"/product-02.jpg","PULSE-OXIMETER":"/product-03.jpg",
+  NEBULIZER:"/product-04.jpg",GLUCOMETER:"/product-05.jpg","ECG-MACHINE":"/product-06.jpg",
+  "PATIENT-MONITOR":"/product-07.jpg",MICROSCOPE:"/product-08.jpg",
+  "OXYGEN-CONCENTRATOR":"/product-09.jpg","ULTRASOUND-SCANNER":"/product-10.jpg"
+ };
+ const catalogue=(data.packages||[]).map(item=>{
   let terms={};try{terms=JSON.parse(item.return_structure||"{}");}catch{}
-  return {name:item.name,price:Number(item.investment_amount),daily:Number(terms.daily_income_ugx||0),duration:Number(item.duration_days||90),total:Number(terms.total_return_ugx||0),image:"/product-"+String(index+1).padStart(2,"0")+".jpg"};
+  return {name:item.name,price:Number(item.investment_amount),daily:Number(terms.daily_income_ugx||0),duration:Number(item.duration_days||90),total:Number(terms.total_return_ugx||0),image:productImageByCode[item.code]||"/product-01.jpg"};
  });
  if(packages){
   packages.replaceChildren();
