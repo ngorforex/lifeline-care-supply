@@ -190,5 +190,44 @@ if(!isAdmin){
  try{await navigator.clipboard.writeText(code);if(feedback)feedback.textContent="Referral code copied.";}
  catch{if(feedback)feedback.textContent="Copy is unavailable in this browser. Select and copy the code above.";}
 });
+
+ const menuToggle=document.querySelector("[data-menu-toggle]");
+ menuToggle?.addEventListener("click",()=>{
+  const open=document.body.classList.toggle("investor-menu-open");
+  menuToggle.setAttribute("aria-expanded",String(open));
+  menuToggle.setAttribute("aria-label",open?"Close navigation menu":"Open navigation menu");
+ });
+ document.querySelectorAll(".side-nav a[data-tab]").forEach(link=>link.addEventListener("click",()=>{document.body.classList.remove("investor-menu-open");menuToggle?.setAttribute("aria-expanded","false");}));
+ document.querySelector("[data-open-profile]")?.addEventListener("click",()=>{activateTab("profile");history.replaceState(null,"","#profile");window.scrollTo({top:0,behavior:"smooth"});});
+ const photoKey="lcs-investor-profile-photo-v1";
+ const applyPhoto=src=>{
+  const photo=document.querySelector("[data-profile-photo]");
+  const fallback=document.querySelector("[data-profile-initial]");
+  const top=document.querySelector("[data-top-profile-avatar]");
+  if(photo){photo.src=src;photo.hidden=!src;}
+  if(fallback)fallback.hidden=!!src;
+  if(top){top.style.backgroundImage=src?'url("'+src+'")':"";top.classList.toggle("has-photo",!!src);top.textContent=src?"":(document.querySelector("[data-profile-name]")?.textContent||"I").slice(0,1).toUpperCase();}
+ };
+ try{const saved=localStorage.getItem(photoKey);if(saved)applyPhoto(saved);}catch{}
+ document.querySelector("[data-profile-photo-input]")?.addEventListener("change",event=>{
+  const file=event.target.files?.[0];if(!file)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){alert("Choose a JPG, PNG or WebP image.");event.target.value="";return;}
+  if(file.size>3*1024*1024){alert("Choose an image smaller than 3 MB.");event.target.value="";return;}
+  const reader=new FileReader();
+  reader.onload=()=>{
+   const img=new Image();
+   img.onload=()=>{
+    const canvas=document.createElement("canvas");const side=512;canvas.width=side;canvas.height=side;
+    const scale=Math.max(side/img.width,side/img.height),w=img.width*scale,h=img.height*scale;
+    canvas.getContext("2d").drawImage(img,(side-w)/2,(side-h)/2,w,h);
+    const data=canvas.toDataURL("image/jpeg",.82);
+    try{localStorage.setItem(photoKey,data);applyPhoto(data);}
+    catch{alert("This browser could not save the photo. Try a smaller image.");}
+   };
+   img.onerror=()=>alert("The selected image could not be opened.");
+   img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+ });
 document.querySelector("[data-logout]")?.addEventListener("click",async event=>{event.preventDefault();try{await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin"});}finally{location.replace("/login/");}});
 }
