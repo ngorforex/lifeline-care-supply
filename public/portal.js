@@ -44,9 +44,9 @@ function renderDashboard(data){
  setText("[data-profile-created]",dateEAT(profile.createdAt));
  setText("[data-profile-verification]",profile.phoneVerified?"Verified":"Not verified");
  const initial=document.querySelector("[data-profile-initial]");if(initial)initial.textContent=name.slice(0,1).toUpperCase();
- fillTable("[data-investments]",data.investments||[],[x=>x.reference,x=>x.package_name||"—",x=>String(x.principal_amount||"—")+" "+(x.currency||""),x=>x.status,dateEAT(x.started_at)],"No investment records yet.");
- fillTable("[data-transactions]",data.transactions||[],[x=>x.reference,x=>x.type,dateEAT(x.createdAt),x=>amountMinor(x.amountMinor,x.currency),x=>x.status],"No transactions have been recorded.");
- fillTable("[data-referrals]",data.referrals||[],[x=>x.phone_e164,dateEAT(x.registered_at),x=>x.status],"No referrals are linked to this account.");
+ fillTable("[data-investments]",data.investments||[],[x=>x.reference,x=>x.package_name||"—",x=>String(x.principal_amount||"—")+" "+(x.currency||""),x=>x.status,x=>dateEAT(x.started_at)],"No investment records yet.");
+ fillTable("[data-transactions]",data.transactions||[],[x=>x.reference,x=>x.type,x=>dateEAT(x.createdAt),x=>amountMinor(x.amountMinor,x.currency),x=>x.status],"No transactions have been recorded.");
+ fillTable("[data-referrals]",data.referrals||[],[x=>x.phone_e164,x=>dateEAT(x.registered_at),x=>x.status],"No referrals are linked to this account.");
  const link=document.querySelector("[data-referral-link]");const refStatus=document.querySelector("[data-referral-status]");
  if(data.referralCode?.code&&data.referralCode.is_active){if(link)link.textContent=data.referralCode.code;if(refStatus)refStatus.textContent="Active code";}
  const packages=document.querySelector("[data-packages]");
