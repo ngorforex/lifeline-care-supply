@@ -13,7 +13,13 @@ if(form){
   const payload=mode==="register"?{phone:values.phone,password:values.password}:{phone:values.phone,password:values.password};
   try{
    const response=await fetch("/api/auth/"+mode,{method:"POST",headers:{"content-type":"application/json"},credentials:"same-origin",body:JSON.stringify(payload)});
-   const result=await response.json();
+   const responseText=await response.text();
+   let result={};
+   try { result=JSON.parse(responseText); }
+   catch {
+    console.error("Authentication endpoint returned non-JSON content:",response.status,responseText.slice(0,300));
+    throw new Error("The account service returned an invalid response. Please refresh and try again. If this continues, contact support.");
+   }
    if(!response.ok)throw new Error(result.error||"Unable to continue. Try again.");
    message.className="message success";message.textContent=mode==="register"?"Account created. Opening your investor workspace…":"Signed in. Opening your investor workspace…";
    location.assign("/investor/");
