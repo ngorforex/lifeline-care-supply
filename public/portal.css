@@ -586,3 +586,34 @@ body[data-portal="investor"] .content{
   body[data-portal="investor"] .topbar-project-name{font-size:14px;max-width:none;white-space:nowrap;flex-shrink:0}
   body[data-portal="investor"] .topbar-brand-mark{gap:8px}
 }
+
+
+/* Hero image refinements: rounded home artwork and uncropped referral artwork */
+body[data-portal="investor"] .home-hero-image{
+  display:block;
+  width:100%;
+  height:auto!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+  object-position:center;
+  border-radius:20px!important;
+  overflow:hidden;
+}
+body[data-portal="investor"] .referral-hero-image{
+  display:block;
+  width:100%;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+  object-position:center;
+  border-radius:16px!important;
+  background:#f5faf7;
+  overflow:hidden;
+}
+@media(max-width:700px){
+  body[data-portal="investor"] .home-hero-image{border-radius:18px!important}
+  body[data-portal="investor"] .referral-hero-image{border-radius:15px!important}
+}
