@@ -789,7 +789,7 @@ async function authApi(request, env, url) {
     if (!investor) return json({ error: "Authentication required." }, 401);
 
     const investorId = investor.id;
-    const [investmentsResult, depositsResult, withdrawalsResult, referralsResult, referralCode, packagesResult, walletBalance] = await Promise.all([
+    const [investmentsResult, depositsResult, withdrawalsResult, referralsResult, referralCode, packagesResult, walletBalance, earningsSummary, referralEarnings] = await Promise.all([
       env.DB.prepare(`
         SELECT i.id, i.reference, i.principal_amount, i.currency, i.status,
                i.terms_version, i.terms_accepted_at, i.started_at, i.matures_at,
@@ -829,7 +829,11 @@ async function authApi(request, env, url) {
         FROM ledger_accounts a
         LEFT JOIN ledger_entries e ON e.account_id = a.id AND e.currency = a.currency
         WHERE a.owner_user_id = ? AND a.account_code = 'WALLET_AVAILABLE' AND a.currency = 'UGX'
-      `).bind(investorId).first()
+      `).bind(investorId).first(),
+      env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total,COALESCE(SUM(CASE WHEN earning_date=? THEN amount_minor ELSE 0 END),0) AS today FROM investment_earnings WHERE investor_id=?")
+        .bind(new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Kampala",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()),investorId).first(),
+      env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM referral_commissions WHERE referrer_user_id=?")
+        .bind(investorId).first()
     ]);
 
     const investments = investmentsResult.results || [];
@@ -864,7 +868,7 @@ async function authApi(request, env, url) {
         referrals: referrals.length,
         qualifiedReferrals,
         walletBalanceMinor: Number(walletBalance?.balance_minor || 0),
-        walletCurrency: "UGX"
+        walletCurrency: "UGX",\n        investmentEarningsMinor: Number(earningsSummary?.total||0),\n        todayEarningsMinor: Number(earningsSummary?.today||0),\n        referralEarningsMinor: Number(referralEarnings?.total||0),\n        totalEarningsMinor: Number(earningsSummary?.total||0)+Number(referralEarnings?.total||0)
       },
       investments,
       deposits,
