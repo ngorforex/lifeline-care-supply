@@ -334,6 +334,26 @@ async function releaseWithdrawal(env, withdrawal, reason) {
 
 
 
+
+async function recordObpayHealth(env) {
+  const now=new Date().toISOString();
+  try {
+    const response=await obpay(env,"/ping");
+    await env.DB.batch([
+      env.DB.prepare("INSERT OR REPLACE INTO platform_settings(setting_key,setting_value,updated_at) VALUES('obpay_connection_status','connected',?)").bind(now),
+      env.DB.prepare("INSERT OR REPLACE INTO platform_settings(setting_key,setting_value,updated_at) VALUES('obpay_connection_checked_at',?,?)").bind(now,now)
+    ]);
+    return {connected:true,message:typeof response.message==="string"?response.message.slice(0,100):null};
+  } catch(error) {
+    console.error("ObPay scheduled connectivity check failed:",error);
+    await env.DB.batch([
+      env.DB.prepare("INSERT OR REPLACE INTO platform_settings(setting_key,setting_value,updated_at) VALUES('obpay_connection_status','unavailable',?)").bind(now),
+      env.DB.prepare("INSERT OR REPLACE INTO platform_settings(setting_key,setting_value,updated_at) VALUES('obpay_connection_checked_at',?,?)").bind(now,now)
+    ]);
+    return {connected:false};
+  }
+}
+
 async function reconcilePendingObpay(env) {
   const deposits=await env.DB.prepare("SELECT * FROM deposit_requests WHERE status='pending' AND payment_method='ObPay Mobile Money' ORDER BY created_at LIMIT 100").all();
   const withdrawals=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE status='approved' AND payout_method='ObPay Mobile Money' ORDER BY created_at LIMIT 100").all();
@@ -945,7 +965,7 @@ async function authApi(request, env, url) {
 
 export default {
   async scheduled(controller, env, ctx) {
-    ctx.waitUntil((async()=>{await reconcilePendingObpay(env);if(controller.cron==="0 21 * * *")await postDailyEarnings(env,new Date(controller.scheduledTime||Date.now()));})());
+    ctx.waitUntil((async()=>{await recordObpayHealth(env);await reconcilePendingObpay(env);if(controller.cron==="0 21 * * *")await postDailyEarnings(env,new Date(controller.scheduledTime||Date.now()));})());
   },
   async fetch(request, env) {
     const url = new URL(request.url);
