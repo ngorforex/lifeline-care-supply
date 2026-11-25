@@ -565,8 +565,9 @@ body[data-portal="investor"] .content{
   body[data-portal="investor"] .topbar-project-name{
     font-size:18px;
     letter-spacing:-.045em;
-    white-space:normal;
-    max-width:190px;
+    white-space:nowrap;
+    max-width:none;
+    flex-shrink:0;
   }
   body[data-portal="investor"] .top-actions .top-profile-button{
     width:40px;
@@ -582,6 +583,6 @@ body[data-portal="investor"] .content{
   }
 }
 @media(max-width:380px){
-  body[data-portal="investor"] .topbar-project-name{font-size:16px;max-width:150px}
+  body[data-portal="investor"] .topbar-project-name{font-size:14px;max-width:none;white-space:nowrap;flex-shrink:0}
   body[data-portal="investor"] .topbar-brand-mark{gap:8px}
 }
