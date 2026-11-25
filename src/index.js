@@ -330,6 +330,36 @@ async function releaseWithdrawal(env, withdrawal, reason) {
 }
 
 
+
+async function reconcilePendingObpay(env) {
+  const deposits=await env.DB.prepare("SELECT * FROM deposit_requests WHERE status='pending' AND payment_method='ObPay Mobile Money' ORDER BY created_at LIMIT 100").all();
+  const withdrawals=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE status='approved' AND payout_method='ObPay Mobile Money' ORDER BY created_at LIMIT 100").all();
+  let completedDeposits=0,completedWithdrawals=0,failed=0;
+  for(const row of deposits.results||[]){
+    try{
+      const p=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
+      const status=providerStatus(p.status||p.payment_status);
+      if(p.reference&&String(p.reference)!==row.reference)continue;
+      if(p.amount!==undefined&&Number(p.amount)!==Number(row.amount_minor))continue;
+      if(p.currency&&String(p.currency).toUpperCase()!=="UGX")continue;
+      if(status==="success"){await postDepositCredit(env,row,p);completedDeposits++;}
+      else if(status==="failed"){await env.DB.prepare("UPDATE deposit_requests SET status='rejected',provider_status='failed',updated_at=? WHERE id=? AND status='pending'").bind(new Date().toISOString(),row.id).run();failed++;}
+    }catch(error){console.warn("Pending ObPay deposit reconciliation deferred:",row.reference,String(error).slice(0,160));}
+  }
+  for(const row of withdrawals.results||[]){
+    try{
+      const p=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
+      const status=providerStatus(p.status||p.payment_status);
+      if(p.reference&&String(p.reference)!==row.reference)continue;
+      if(p.amount!==undefined&&Number(p.amount)!==Number(row.amount_minor))continue;
+      if(p.currency&&String(p.currency).toUpperCase()!=="UGX")continue;
+      if(status==="success"){await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),row.id).run();completedWithdrawals++;}
+      else if(status==="failed"){await releaseWithdrawal(env,row,"ObPay payout failed");failed++;}
+    }catch(error){console.warn("Pending ObPay payout reconciliation deferred:",row.reference,String(error).slice(0,160));}
+  }
+  return {completedDeposits,completedWithdrawals,failed};
+}
+
 async function postDailyEarnings(env, scheduledAt = new Date()) {
   const eatDate = new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Kampala",year:"numeric",month:"2-digit",day:"2-digit"}).format(scheduledAt);
   const now = scheduledAt.toISOString();
@@ -865,7 +895,7 @@ async function authApi(request, env, url) {
 
 export default {
   async scheduled(controller, env, ctx) {
-    ctx.waitUntil(postDailyEarnings(env, new Date(controller.scheduledTime || Date.now())));
+    ctx.waitUntil((async()=>{await reconcilePendingObpay(env);if(controller.cron==="0 21 * * *")await postDailyEarnings(env,new Date(controller.scheduledTime||Date.now()));})());
   },
   async fetch(request, env) {
     const url = new URL(request.url);
