@@ -2,7 +2,7 @@ const body=document.body;
 const title=document.getElementById("page-title");
 const crumb=document.getElementById("crumb");
 const isAdmin=body.dataset.portal==="admin";
-const titles={overview:isAdmin?"Administrator overview":"Dashboard",investments:"My Investments",packages:"Investment Plans",wallet:"Wallet",earnings:"Earnings",transactions:"History",referrals:"Referral",profile:"Profile",investors:"Individual investors",deposits:"Deposit management",withdrawals:"Withdrawal management",reports:"Reports",staff:"Staff & permissions",audit:"Audit log"};
+const titles={overview:isAdmin?"Administrator overview":"Dashboard",investments:"My Investments",packages:"Investment Plans",wallet:"Wallet",earnings:"Earnings",transactions:"History",referrals:"Referral",profile:"Profile",investors:"Individual investors",deposits:"Deposit management",withdrawals:"Withdrawal management",reports:"Reports",staff:"Staff & permissions",audit:"Audit log","all-deposits":"All deposits","successful-deposits":"Successful deposits","all-withdrawals":"All withdrawals","successful-withdrawals":"Successful withdrawals","active-customers":"Active customers"};
 function activateTab(tab){
  const panel=document.getElementById("panel-"+tab);if(!panel)return;
  document.querySelectorAll(".tab-panel").forEach(item=>item.classList.remove("active"));
@@ -146,7 +146,12 @@ if(isAdmin){
   packages:[["CODE",x=>x.code],["PACKAGE",x=>x.name],["PRICE",x=>adminMoney(Number(x.investment_amount),x.currency)],["DURATION",x=>String(x.duration_days||"—")+" days"],["STATUS",x=>x.status]],
   investments:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["PACKAGE",x=>x.package_name],["PRINCIPAL",x=>adminMoney(Number(x.principal_amount),x.currency)],["STATUS",x=>x.status],["STARTED (EAT)",x=>adminDate(x.started_at)]],
   deposits:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["AMOUNT",x=>adminMoney(x.amount_minor,x.currency)],["PROVIDER",x=>x.payment_method],["PROVIDER REF",x=>x.provider_reference],["STATUS",x=>x.status],["CREATED (EAT)",x=>adminDate(x.created_at)]],
-  withdrawals:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["AMOUNT",x=>adminMoney(x.amount_minor,x.currency)],["PAYOUT METHOD",x=>x.payout_method],["STATUS",x=>x.status],["CREATED (EAT)",x=>adminDate(x.created_at)]],
+  all_deposits:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["AMOUNT",x=>adminMoney(x.amount_minor,x.currency)],["PROVIDER REF",x=>x.provider_reference],["STATUS",x=>x.status],["CREATED (EAT)",x=>adminDate(x.created_at)]],
+  successful_deposits:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["AMOUNT",x=>adminMoney(x.amount_minor,x.currency)],["PROVIDER REF",x=>x.provider_reference],["STATUS",x=>x.status],["COMPLETED (EAT)",x=>adminDate(x.updated_at)]],
+  active_customers:[["PHONE",x=>x.phone_e164],["INVESTOR",x=>[x.first_name,x.middle_name,x.last_name].filter(Boolean).join(" ")],["STATUS",x=>x.status],["REGISTERED (EAT)",x=>adminDate(x.created_at)]],
+  withdrawals:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["AMOUNT",x=>adminMoney(x.amount_minor,x.currency)],["PAYOUT TO",x=>x.payout_phone_e164],["STATUS",x=>x.status],["CREATED (EAT)",x=>adminDate(x.created_at)]],
+  all_withdrawals:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["AMOUNT",x=>adminMoney(x.amount_minor,x.currency)],["PAYOUT TO",x=>x.payout_phone_e164],["STATUS",x=>x.status],["CREATED (EAT)",x=>adminDate(x.created_at)]],
+  successful_withdrawals:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["AMOUNT",x=>adminMoney(x.amount_minor,x.currency)],["PAYOUT TO",x=>x.payout_phone_e164],["STATUS",x=>x.status],["COMPLETED (EAT)",x=>adminDate(x.updated_at)]],
   referrals:[["REFERRER",x=>x.referrer_phone],["REFERRED INVESTOR",x=>x.referred_phone],["REGISTERED (EAT)",x=>adminDate(x.registered_at)],["STATUS",x=>x.status],["QUALIFIED (EAT)",x=>adminDate(x.qualified_at)]],
   audit:[["TIME (EAT)",x=>adminDate(x.created_at)],["ACTOR",x=>x.admin_email||x.investor_phone],["ACTION",x=>x.action],["RECORD",x=>(x.entity_type||"")+" / "+(x.entity_id||"")],["DETAILS",x=>x.reason||x.metadata]]
  };
@@ -167,7 +172,7 @@ if(isAdmin){
   for(const item of records){const tr=document.createElement("tr");for(const [,get] of defs){const td=document.createElement("td");td.textContent=String(get(item)??"—");tr.append(td);}tbody.append(tr);}
  };
  const loadAdminSection=async tab=>{
-  const section=tab==="overview"?"overview":tab==="packages"?"packages":tab==="investors"?"investors":tab==="investments"?"investments":tab==="deposits"?"deposits":tab==="withdrawals"?"withdrawals":tab==="referrals"?"referrals":tab==="audit"?"audit":null;
+  const section=tab==="overview"?"overview":tab==="packages"?"packages":tab==="investors"?"investors":tab==="investments"?"investments":tab==="deposits"?"deposits":tab==="withdrawals"?"withdrawals":tab==="all-deposits"?"all_deposits":tab==="successful-deposits"?"successful_deposits":tab==="all-withdrawals"?"all_withdrawals":tab==="successful-withdrawals"?"successful_withdrawals":tab==="active-customers"?"active_customers":tab==="referrals"?"referrals":tab==="audit"?"audit":null;
   if(!section)return;
   try{
    const response=await fetch("/api/admin/data?section="+encodeURIComponent(section),{credentials:"same-origin",cache:"no-store",headers:{"Accept":"application/json"}});
