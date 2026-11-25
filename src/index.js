@@ -900,7 +900,12 @@ async function authApi(request, env, url) {
         referrals: referrals.length,
         qualifiedReferrals,
         walletBalanceMinor: Number(walletBalance?.balance_minor || 0),
-        walletCurrency: "UGX",\n        investmentEarningsMinor: Number(earningsSummary?.total||0),\n        todayEarningsMinor: Number(earningsSummary?.today||0),\n        referralEarningsMinor: Number(referralEarnings?.total||0),\n        totalEarningsMinor: Number(earningsSummary?.total||0)+Number(referralEarnings?.total||0),\n        nextEarningsMinor
+        walletCurrency: "UGX",
+        investmentEarningsMinor: Number(earningsSummary?.total||0),
+        todayEarningsMinor: Number(earningsSummary?.today||0),
+        referralEarningsMinor: Number(referralEarnings?.total||0),
+        totalEarningsMinor: Number(earningsSummary?.total||0)+Number(referralEarnings?.total||0),
+        nextEarningsMinor
       },
       investments,
       deposits,
