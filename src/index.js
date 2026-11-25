@@ -301,7 +301,7 @@ async function authApi(request, env, url) {
     const welcomeTransactionId = crypto.randomUUID();
     const welcomeSetting = await env.DB.prepare("SELECT setting_value FROM platform_settings WHERE setting_key = ? LIMIT 1").bind("welcome_bonus_ugx").first();
     const welcomeAmount = Number(welcomeSetting?.setting_value);
-    if (!Number.isSafeInteger(welcomeAmount) || welcomeAmount < 0) {
+    if (!Number.isSafeInteger(welcomeAmount) || welcomeAmount <= 0) {
       return json({ error: "Account registration is temporarily unavailable. Please try again later." }, 503);
     }
     try {
