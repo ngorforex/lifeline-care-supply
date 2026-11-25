@@ -479,14 +479,20 @@ async function authApi(request, env, url) {
 
   if (request.method === "POST" && url.pathname.startsWith("/api/admin/withdrawals/") && url.pathname.endsWith("/approve")) {
     const admin=await currentAdmin(request,env);if(!admin)return json({error:"Authentication required."},401);
+    if(!["super_admin","finance_admin"].includes(admin.role))return json({error:"Your administrator role cannot approve payouts."},403);
     const id=url.pathname.split("/")[4];const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=? LIMIT 1").bind(id).first();
     if(!row||row.status!=="pending")return json({error:"Pending withdrawal not found."},404);
     try{
       const result=await obpay(env,"/payouts","POST",{reference:row.reference,amount:Number(row.amount_minor),currency:"UGX",phone:row.payout_phone_e164,callback_url:new URL("/obpay/webhook",url).toString(),description:"Lifeline Care Supply withdrawal"});
-      await env.DB.prepare("UPDATE withdrawal_requests SET status='approved',provider_reference=?,provider_status=?,reviewed_by_admin_id=?,reviewed_at=?,updated_at=? WHERE id=? AND status='pending'")
-        .bind(String(result.provider_reference||result.reference||row.reference),String(result.status||"pending"),admin.id,new Date().toISOString(),new Date().toISOString(),id).run();
-      if(providerStatus(result.status)==="success")await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=?").bind(new Date().toISOString(),id).run();
-      return json({ok:true,status:providerStatus(result.status)==="success"?"completed":"approved",provider:result});
+      const verified=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
+      const verifiedStatus=providerStatus(verified.status||verified.payment_status);
+      if(verified.reference&&String(verified.reference)!==row.reference)throw new Error("Payout verification reference mismatch.");
+      if(verified.amount!==undefined&&Number(verified.amount)!==Number(row.amount_minor))throw new Error("Payout verification amount mismatch.");
+      if(verified.currency&&String(verified.currency).toUpperCase()!=="UGX")throw new Error("Payout verification currency mismatch.");
+      await env.DB.prepare("UPDATE withdrawal_requests SET status=?,provider_reference=?,provider_status=?,reviewed_by_admin_id=?,reviewed_at=?,updated_at=? WHERE id=? AND status='pending'")
+        .bind(verifiedStatus==="success"?"completed":"approved",String(verified.provider_reference||verified.reference||result.reference||row.reference),String(verified.status||"pending"),admin.id,new Date().toISOString(),new Date().toISOString(),id).run();
+      if(verifiedStatus==="failed")await releaseWithdrawal(env,row,"ObPay payout failed");
+      return json({ok:true,status:verifiedStatus==="success"?"completed":verifiedStatus==="failed"?"rejected":"approved",provider:result});
     }catch(error){console.error("ObPay payout initiation failed:",error);return json({error:"ObPay payout was not accepted. Funds remain reserved; inspect provider status before retrying."},502);}
   }
   if (request.method === "POST" && url.pathname.startsWith("/api/admin/withdrawals/") && url.pathname.endsWith("/reject")) {
@@ -499,6 +505,7 @@ async function authApi(request, env, url) {
   }
   if (request.method === "POST" && url.pathname.startsWith("/api/admin/packages/") && url.pathname.endsWith("/publish")) {
     const admin=await currentAdmin(request,env);if(!admin)return json({error:"Authentication required."},401);
+    if(!["super_admin","investment_manager"].includes(admin.role))return json({error:"Your administrator role cannot publish investment packages."},403);
     const id=url.pathname.split("/")[4];const pkg=await env.DB.prepare("SELECT * FROM investment_packages WHERE id=? AND status IN ('draft','paused')").bind(id).first();
     if(!pkg)return json({error:"Package not found or cannot be published."},404);
     const price=Number(pkg.investment_amount),terms=(()=>{try{return JSON.parse(pkg.return_structure||"{}");}catch{return {};}})();
@@ -547,7 +554,7 @@ async function authApi(request, env, url) {
       packages: "SELECT id, code, name, currency, investment_amount, duration_days, return_structure, risk_disclosure, terms_version, status, published_at, created_at, updated_at FROM investment_packages ORDER BY created_at ASC LIMIT ?",
       investments: "SELECT i.id, i.reference, i.investor_id, u.phone_e164, p.name AS package_name, i.principal_amount, i.currency, i.status, i.started_at, i.matures_at, i.created_at FROM investments i JOIN users u ON u.id=i.investor_id LEFT JOIN investment_packages p ON p.id=i.package_id ORDER BY i.created_at DESC LIMIT ?",
       deposits: "SELECT d.id, d.reference, d.investor_id, u.phone_e164, d.amount_minor, d.currency, d.payment_method, d.provider_reference, d.status, d.created_at, d.updated_at FROM deposit_requests d JOIN users u ON u.id=d.investor_id ORDER BY d.created_at DESC LIMIT ?",
-      withdrawals: "SELECT w.id, w.reference, w.investor_id, u.phone_e164, w.amount_minor, w.currency, w.payout_method, w.status, w.created_at, w.updated_at FROM withdrawal_requests w JOIN users u ON u.id=w.investor_id ORDER BY w.created_at DESC LIMIT ?",
+      withdrawals: "SELECT w.id,w.reference,w.investor_id,u.phone_e164,w.amount_minor,w.currency,w.payout_method,w.payout_phone_e164,w.provider_reference,w.provider_status,w.status,w.created_at,w.updated_at FROM withdrawal_requests w JOIN users u ON u.id=w.investor_id ORDER BY w.created_at DESC LIMIT ?",
       referrals: "SELECT r.id, r.referrer_user_id, ru.phone_e164 AS referrer_phone, r.referred_user_id, vu.phone_e164 AS referred_phone, r.status, r.registered_at, r.qualified_at FROM referrals r JOIN users ru ON ru.id=r.referrer_user_id JOIN users vu ON vu.id=r.referred_user_id ORDER BY r.registered_at DESC LIMIT ?",
       audit: "SELECT l.id, l.actor_admin_id, l.actor_user_id, a.email AS admin_email, u.phone_e164 AS investor_phone, l.action, l.entity_type, l.entity_id, l.reason, l.metadata, l.created_at FROM audit_logs l LEFT JOIN admin_users a ON a.id=l.actor_admin_id LEFT JOIN users u ON u.id=l.actor_user_id ORDER BY l.created_at DESC LIMIT ?"
     };
