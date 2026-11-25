@@ -51,6 +51,8 @@ function renderDashboard(data){
  const formatMajor=value=>new Intl.NumberFormat("en-UG",{style:"currency",currency,maximumFractionDigits:0}).format(value);
  setText('[data-metric="totalInvested"]',formatMajor(totalInvested));
  setText('[data-metric="totalEarnings"]',amountMinor(metrics.totalEarningsMinor||0,"UGX"));
+ setText("[data-total-earnings]",amountMinor(metrics.totalEarningsMinor||0,"UGX"));
+ setText("[data-next-earnings]",amountMinor(metrics.nextEarningsMinor||0,"UGX"));
  const walletCurrency=metrics.walletCurrency||"UGX";
  const walletBalance=amountMinor(metrics.walletBalanceMinor||0,walletCurrency);
  setText('[data-metric="availableBalance"]',walletBalance);
@@ -80,6 +82,8 @@ function renderDashboard(data){
  fillTable("[data-investments]",data.investments||[],[x=>x.reference,x=>x.package_name||"—",x=>String(x.principal_amount||"—")+" "+(x.currency||""),x=>x.status,x=>dateEAT(x.started_at)],"No investment records yet.");
  fillTable("[data-transactions]",data.transactions||[],[x=>x.reference,x=>x.type,x=>dateEAT(x.createdAt),x=>amountMinor(x.amountMinor,x.currency),x=>x.status],"No transactions have been recorded.");
  fillTable("[data-referrals]",data.referrals||[],[x=>x.phone_e164,x=>dateEAT(x.registered_at),x=>x.status],"No referrals are linked to this account.");
+ fillTable("[data-earnings]",data.earnings||[],[x=>x.earning_date,x=>String(x.investment_id||"").slice(0,8),x=>amountMinor(x.amount_minor,"UGX")],"No daily earnings have been posted yet.");
+ fillTable("[data-referral-commissions]",data.referralCommissions||[],[x=>"Level "+x.level,x=>amountMinor(x.amount_minor,"UGX"),x=>dateEAT(x.created_at)],"No referral commissions have been posted yet.");
  const link=document.querySelector("[data-referral-link]");const refStatus=document.querySelector("[data-referral-status]");
  const copyButton=document.querySelector("[data-copy-referral]");
  if(data.referralCode?.code&&data.referralCode.is_active){
