@@ -617,3 +617,20 @@ body[data-portal="investor"] .referral-hero-image{
   body[data-portal="investor"] .home-hero-image{border-radius:18px!important}
   body[data-portal="investor"] .referral-hero-image{border-radius:15px!important}
 }
+
+
+/* Dedicated profile banner artwork */
+body[data-portal="investor"] .profile-banner-image{
+  display:block;
+  width:100%;
+  height:auto!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+  object-position:center;
+  border-radius:20px;
+  margin:0 0 16px;
+}
+@media(max-width:700px){
+  body[data-portal="investor"] .profile-banner-image{border-radius:16px;margin-bottom:13px}
+}
