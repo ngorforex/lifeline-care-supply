@@ -497,6 +497,18 @@ export default {
       </script></body></html>`;
       return new Response(html,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","referrer-policy":"no-referrer"}});
     }
+    const adminDashboardPaths = ["/admin", "/admin/", "/admin/index.html"];
+    const isAdminDashboard = adminDashboardPaths.includes(url.pathname);
+    const isAdminLogin = url.pathname === "/admin/login" || url.pathname === "/admin/login/";
+    if (isAdminDashboard || isAdminLogin) {
+      const admin = await currentAdmin(request, env);
+      if (isAdminDashboard && !admin) {
+        const loginUrl = new URL("/admin/login/", url);
+        return env.ASSETS ? env.ASSETS.fetch(new Request(loginUrl, { method: "GET", headers: request.headers })) : Response.redirect(loginUrl, 302);
+      }
+      if (isAdminLogin && admin) return Response.redirect(new URL("/admin/", url), 302);
+      if (isAdminDashboard && admin && url.pathname !== "/admin/") return Response.redirect(new URL("/admin/", url), 302);
+    }
     if (url.pathname.startsWith("/api/")) {
       try {
         return await authApi(request, env, url);
