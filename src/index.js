@@ -513,20 +513,25 @@ async function authApi(request, env, url) {
     const id=url.pathname.split("/")[4];const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=? LIMIT 1").bind(id).first();
     if(!row||row.status!=="pending")return json({error:"Pending withdrawal not found."},404);
     try{
+      const reviewedAt=new Date().toISOString();
+      await env.DB.prepare("UPDATE withdrawal_requests SET status='approved',reviewed_by_admin_id=?,reviewed_at=?,updated_at=? WHERE id=? AND status='pending'")
+        .bind(admin.id,reviewedAt,reviewedAt,id).run();
       const result=await obpay(env,"/payouts","POST",{reference:row.reference,amount:Number(row.amount_minor),currency:"UGX",phone:row.payout_phone_e164,callback_url:new URL("/obpay/webhook",url).toString(),description:"Lifeline Care Supply withdrawal"});
+      await env.DB.prepare("UPDATE withdrawal_requests SET provider_reference=?,provider_status=?,updated_at=? WHERE id=? AND status='approved'")
+        .bind(String(result.provider_reference||result.reference||row.reference),String(result.status||"pending"),new Date().toISOString(),id).run();
       const verified=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
       const verifiedStatus=providerStatus(verified.status||verified.payment_status);
       if(verified.reference&&String(verified.reference)!==row.reference)throw new Error("Payout verification reference mismatch.");
       if(verified.amount!==undefined&&Number(verified.amount)!==Number(row.amount_minor))throw new Error("Payout verification amount mismatch.");
       if(verified.currency&&String(verified.currency).toUpperCase()!=="UGX")throw new Error("Payout verification currency mismatch.");
-      await env.DB.prepare("UPDATE withdrawal_requests SET status=?,provider_reference=?,provider_status=?,reviewed_by_admin_id=?,reviewed_at=?,updated_at=? WHERE id=? AND status='pending'")
-        .bind(verifiedStatus==="success"?"completed":"approved",String(verified.provider_reference||verified.reference||result.reference||row.reference),String(verified.status||"pending"),admin.id,new Date().toISOString(),new Date().toISOString(),id).run();
-      if(verifiedStatus==="failed")await releaseWithdrawal(env,row,"ObPay payout failed");
+      if(verifiedStatus==="success")await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),id).run();
+      if(verifiedStatus==="failed")await releaseWithdrawal(env,{...row,status:"approved"},"ObPay payout failed");
       return json({ok:true,status:verifiedStatus==="success"?"completed":verifiedStatus==="failed"?"rejected":"approved",provider:result});
     }catch(error){console.error("ObPay payout initiation failed:",error);return json({error:"ObPay payout was not accepted. Funds remain reserved; inspect provider status before retrying."},502);}
   }
   if (request.method === "POST" && url.pathname.startsWith("/api/admin/withdrawals/") && url.pathname.endsWith("/reject")) {
     const admin=await currentAdmin(request,env);if(!admin)return json({error:"Authentication required."},401);
+    if(!["super_admin","finance_admin"].includes(admin.role))return json({error:"Your administrator role cannot reject payouts."},403);
     const id=url.pathname.split("/")[4];const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=? LIMIT 1").bind(id).first();
     if(!row||!["pending","approved"].includes(row.status))return json({error:"Withdrawal cannot be rejected in its current state."},409);
     await releaseWithdrawal(env,row,"Withdrawal rejected by administrator");
