@@ -925,3 +925,145 @@ body[data-portal="investor"] .profile-hero-combined .profile-status{
   body[data-portal="investor"] .profile-hero-combined .profile-photo{width:54px!important;height:54px!important;flex-basis:54px!important}
   body[data-portal="investor"] .profile-hero-combined .profile-upload-button{width:24px!important;height:24px!important;min-height:24px!important}
 }
+
+
+/* Profile details card: remove all decorative banner artwork and prioritize account identity */
+body[data-portal="investor"] .profile-details-card{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:20px!important;
+  width:100%;
+  min-height:148px;
+  margin:0 0 22px!important;
+  padding:22px!important;
+  overflow:visible!important;
+  border:1px solid #dce9e3!important;
+  border-radius:20px!important;
+  color:#17483f!important;
+  background:#fff!important;
+  box-shadow:0 8px 24px rgba(21,72,60,.06)!important;
+}
+body[data-portal="investor"] .profile-details-card:after{display:none!important}
+body[data-portal="investor"] .profile-details-card .profile-photo-wrap{
+  position:relative!important;
+  display:flex!important;
+  flex:0 0 112px!important;
+  width:112px!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+}
+body[data-portal="investor"] .profile-details-card .profile-avatar-frame{
+  position:relative;
+  display:grid!important;
+  place-items:center;
+  width:100px!important;
+  height:100px!important;
+  flex:0 0 100px!important;
+  overflow:hidden;
+  border:4px solid #dff5e9!important;
+  border-radius:50%!important;
+  background:#eaf7f1!important;
+}
+body[data-portal="investor"] .profile-details-card .profile-hero-avatar,
+body[data-portal="investor"] .profile-details-card .profile-photo{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  flex:0 0 100%!important;
+  border:0!important;
+  border-radius:50%!important;
+  object-fit:cover!important;
+}
+body[data-portal="investor"] .profile-details-card .profile-upload-button{
+  position:absolute!important;
+  right:2px!important;
+  bottom:3px!important;
+  display:grid!important;
+  place-items:center!important;
+  width:32px!important;
+  height:32px!important;
+  min-height:32px!important;
+  padding:0!important;
+  border:3px solid #fff!important;
+  border-radius:50%!important;
+  color:#fff!important;
+  background:#138875!important;
+  box-shadow:0 3px 9px rgba(0,0,0,.18)!important;
+  cursor:pointer;
+}
+body[data-portal="investor"] .profile-details-card .profile-upload-button .ui-icon{
+  width:15px!important;
+  height:15px!important;
+}
+body[data-portal="investor"] .profile-details-card .profile-photo-hint{display:none!important}
+body[data-portal="investor"] .profile-details-card .profile-hero-details{
+  position:static!important;
+  display:flex!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  gap:5px!important;
+  color:#17483f!important;
+  text-shadow:none!important;
+}
+body[data-portal="investor"] .profile-details-card .profile-status{
+  display:inline-flex!important;
+  padding:5px 10px!important;
+  color:#087b68!important;
+  background:#e7f7ef!important;
+  border-radius:20px!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  letter-spacing:.06em;
+}
+body[data-portal="investor"] .profile-details-card .profile-hero-details h3{
+  margin:2px 0!important;
+  color:#17483f!important;
+  font-size:21px!important;
+  line-height:1.25!important;
+}
+body[data-portal="investor"] .profile-details-card .profile-hero-details p{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-width:0!important;
+  margin:3px 0!important;
+  color:#667b75!important;
+  font-size:13px!important;
+  line-height:1.4!important;
+  overflow-wrap:anywhere!important;
+  text-shadow:none!important;
+}
+body[data-portal="investor"] .profile-details-card .profile-detail-icon{
+  width:16px!important;
+  height:16px!important;
+  flex:0 0 16px!important;
+  color:#238d7b!important;
+}
+@media(max-width:700px){
+  body[data-portal="investor"] .profile-details-card{
+    min-height:126px;
+    gap:13px!important;
+    padding:16px 14px!important;
+    border-radius:17px!important;
+  }
+  body[data-portal="investor"] .profile-details-card .profile-photo-wrap{flex-basis:92px!important;width:92px!important}
+  body[data-portal="investor"] .profile-details-card .profile-avatar-frame{width:82px!important;height:82px!important;flex-basis:82px!important}
+  body[data-portal="investor"] .profile-details-card .profile-hero-avatar,
+  body[data-portal="investor"] .profile-details-card .profile-photo{width:100%!important;height:100%!important}
+  body[data-portal="investor"] .profile-details-card .profile-upload-button{width:29px!important;height:29px!important;min-height:29px!important}
+  body[data-portal="investor"] .profile-details-card .profile-hero-details h3{font-size:18px!important}
+  body[data-portal="investor"] .profile-details-card .profile-hero-details p{font-size:11px!important}
+}
+@media(max-width:380px){
+  body[data-portal="investor"] .profile-details-card{gap:10px!important;padding:13px 11px!important}
+  body[data-portal="investor"] .profile-details-card .profile-photo-wrap{flex-basis:78px!important;width:78px!important}
+  body[data-portal="investor"] .profile-details-card .profile-avatar-frame{width:70px!important;height:70px!important;flex-basis:70px!important}
+  body[data-portal="investor"] .profile-details-card .profile-hero-details h3{font-size:16px!important}
+  body[data-portal="investor"] .profile-details-card .profile-hero-details p{font-size:10px!important}
+}
