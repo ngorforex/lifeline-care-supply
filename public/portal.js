@@ -223,6 +223,20 @@ if(isAdmin){
    if(!data?.authenticated)return;
    const badge=document.querySelector(".preview-pill");if(badge)badge.textContent=data.admin.role.replaceAll("_"," ").toUpperCase();
    const notice=document.querySelector(".content > .notice");if(notice)notice.remove();
+   const overview=document.getElementById("panel-overview");
+   if(overview&&!overview.querySelector("[data-obpay-tools]")){
+    const tools=document.createElement("div");tools.dataset.obpayTools="true";tools.style.display="flex";tools.style.flexWrap="wrap";tools.style.gap="8px";tools.style.margin="0 0 16px";
+    const check=document.createElement("button");check.type="button";check.className="admin-row-action";check.textContent="Check ObPay & reconcile payments";
+    check.addEventListener("click",async()=>{check.disabled=true;check.textContent="Checking…";try{
+      const statusResponse=await fetch("/api/admin/obpay/status",{credentials:"same-origin",cache:"no-store"});const status=await statusResponse.json().catch(()=>({}));
+      if(!statusResponse.ok)throw new Error(status.error||"ObPay check failed.");
+      const reconcileResponse=await fetch("/api/admin/obpay/reconcile",{method:"POST",credentials:"same-origin"});const reconcile=await reconcileResponse.json().catch(()=>({}));
+      if(!reconcileResponse.ok)throw new Error(reconcile.error||"Reconciliation failed.");
+      const hook=status.webhookRegistered?"webhook registered":"webhook NOT registered";
+      adminError("ObPay: "+(status.authenticated?"connected":"not authenticated")+" · "+hook+" · Deposits reconciled: "+(reconcile.completedDeposits||0)+" · Withdrawals reconciled: "+(reconcile.completedWithdrawals||0)+". Webhook URL: "+status.webhookUrl);
+    }catch(error){adminError(error.message||"ObPay check failed.");}finally{check.disabled=false;check.textContent="Check ObPay & reconcile payments";}});
+    tools.append(check);overview.prepend(tools);
+   }
    const initial=location.hash.slice(1);loadAdminSection(initial&&document.getElementById("panel-"+initial)?initial:"overview");
    document.querySelectorAll("[data-tab]").forEach(link=>link.addEventListener("click",()=>loadAdminSection(link.dataset.tab)));
   })
