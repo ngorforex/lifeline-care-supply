@@ -1,3 +1,72 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administrator Sign In | Lifeline Care Supply</title><link rel="stylesheet" href="/auth.css"></head>
-<body><main class="access-shell"><section class="access-card"><a class="access-brand" href="/"><span class="brand-mark">L</span><span>Lifeline Care Supply</span></a><span class="access-kicker">SECURE ADMINISTRATION</span><h1>Administrator sign in</h1><p class="access-copy">Authorized staff only. Access is monitored and audited.</p><form id="admin-login" class="access-form"><div class="access-field"><label for="email">ADMIN EMAIL</label><div class="access-input"><input id="email" name="email" type="email" autocomplete="username" required></div></div><div class="access-field"><label for="password">PASSWORD</label><div class="access-input"><input id="password" name="password" type="password" autocomplete="current-password" required></div></div><p id="error" role="alert" aria-live="polite"></p><button type="submit">Sign in securely</button></form><p class="access-copy"><a href="/">Return to Lifeline Care Supply</a></p></section></main><script src="/admin-auth.js" defer></script></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#eaf7f2">
+<title>Administrator Sign In | Lifeline Care Supply</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth.css?v=20261125-admin-access">
+<style>
+.admin-access .access-content{grid-template-columns:minmax(0,1fr) minmax(340px,470px)}
+.admin-access .access-intro h1{max-width:560px}
+.admin-access .access-card{align-self:center}
+.admin-access .access-tabs{display:none}
+.admin-access .form-heading{margin-top:22px}
+.admin-access .access-field{margin-bottom:17px}
+.admin-access .access-submit{width:100%;display:flex;align-items:center;justify-content:space-between}
+.admin-access .message{min-height:20px;margin-top:10px;color:#b94c46;font-size:13px}
+.admin-access .message:empty{display:none}
+.admin-access .access-assist{margin-top:20px}
+.admin-access .admin-security{display:flex;align-items:center;gap:9px;color:#648078;font-size:11px;letter-spacing:.08em;font-weight:700}
+.admin-access .admin-security svg{width:17px;height:17px;stroke:#0d928b;fill:none;stroke-width:1.8}
+.admin-access .access-brand-text b{color:#0d928b}
+@media(max-width:760px){.admin-access .access-content{display:flex;flex-direction:column}.admin-access .access-intro h1{font-size:36px}.admin-access .access-card{width:100%}}
+</style>
+<script src="/auth.js" defer></script>
+<script src="/admin-auth.js" defer></script>
+</head>
+<body class="auth-page">
+<main class="access-page admin-access">
+<header class="access-header">
+<a class="access-brand" href="/" aria-label="Lifeline Care Supply home"><svg class="heart-brand-icon" viewBox="0 0 48 48" role="img" aria-label="Lifeline heart logo"><defs><linearGradient id="heartGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#42f3c2"/><stop offset="1" stop-color="#a8f34d"/></linearGradient></defs><path d="M24 41 7.8 25.2C-1.2 16.1 5.4 3.8 16 4.6c4.1.3 6.7 2.6 8 5.2 1.8-3 4.7-5.1 8.6-5.1 10.1 0 15.2 11.8 6.4 20.5L24 41Z" fill="none" stroke="url(#heartGradient)" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.8 22.7h8.1l4-7.1 5.1 15 4.2-8h7" fill="none" stroke="url(#heartGradient)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="access-brand-text">Lifeline <b>Care Supply</b></span></a>
+<div class="access-header-right"><span class="access-live"><i></i> SECURE ADMIN ACCESS</span><span class="access-header-rule"></span><span class="access-region">UGANDA · EAT</span></div>
+</header>
+<section class="access-content">
+<div class="access-intro">
+<div class="access-overline"><span>01</span> / RESTRICTED WORKSPACE</div>
+<h1>Administration<br><em>with accountability.</em></h1>
+<p>Secure access to the Lifeline Care Supply platform management workspace.</p>
+<div class="admin-security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg> AUTHORIZED ADMINISTRATOR ONLY</div>
+</div>
+<section class="access-card">
+<div class="card-topline"><span>ADMINISTRATOR PORTAL</span><span class="card-topline-mark">LCS<span>®</span></span></div>
+<div class="form-heading">
+<span class="form-kicker">SECURE SIGN IN</span>
+<h2>Welcome back<span>.</span></h2>
+<p>Sign in using your administrator email and password.</p>
+</div>
+<form id="admin-login" class="access-form">
+<div class="access-field">
+<label for="email">ADMIN EMAIL</label>
+<div class="access-input"><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg><input id="email" name="email" type="email" autocomplete="username" placeholder="Enter administrator email" required></div>
+</div>
+<div class="access-field">
+<div class="field-label-line"><label for="password">PASSWORD</label></div>
+<div class="access-input"><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="reveal-password" type="button" data-password-toggle data-target="password" aria-label="Show password"><svg class="field-icon toggle-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+</div>
+<div id="error" class="message" role="alert" aria-live="polite"></div>
+<button class="access-submit" type="submit"><span>Sign in securely</span><svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></button>
+</form>
+<div class="access-assist"><span class="assist-icon">i</span><p><b>Protected administrator workspace</b><br>All access is authenticated, monitored and recorded in the audit log.</p></div>
+<div class="access-card-bottom"><span class="bottom-mark">✳</span><span>AUTHORIZED ACCESS ONLY</span><span>01 — 01</span></div>
+</section>
+</section>
+<footer class="access-footer"><span>© 2026 Lifeline Care Supply</span><span>SECURE ADMINISTRATION PORTAL</span><a href="/">← <b>Return to website</b></a></footer>
+<div class="background-stamp" aria-hidden="true">L</div>
+</main>
+</body>
+</html>
