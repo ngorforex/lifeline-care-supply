@@ -133,9 +133,67 @@ function renderDashboard(data){
  }
 }
 if(isAdmin){
+ const adminError=message=>{
+  const content=document.querySelector(".content");if(!content)return;
+  let note=document.querySelector("[data-admin-error]");
+  if(!note){note=document.createElement("div");note.className="notice";note.dataset.adminError="true";content.prepend(note);}
+  note.textContent=message;
+ };
+ const adminDate=value=>dateEAT(value);
+ const adminMoney=(value,currency="UGX")=>amountMinor(value,currency);
+ const columns={
+  investors:[["PHONE",x=>x.phone_e164],["INVESTOR",x=>[x.first_name,x.middle_name,x.last_name].filter(Boolean).join(" ")],["STATUS",x=>x.status],["REGISTERED (EAT)",x=>adminDate(x.created_at)]],
+  packages:[["CODE",x=>x.code],["PACKAGE",x=>x.name],["PRICE",x=>adminMoney(Number(x.investment_amount),x.currency)],["DURATION",x=>String(x.duration_days||"—")+" days"],["STATUS",x=>x.status]],
+  investments:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["PACKAGE",x=>x.package_name],["PRINCIPAL",x=>adminMoney(Number(x.principal_amount),x.currency)],["STATUS",x=>x.status],["STARTED (EAT)",x=>adminDate(x.started_at)]],
+  deposits:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["AMOUNT",x=>adminMoney(x.amount_minor,x.currency)],["PROVIDER",x=>x.payment_method],["PROVIDER REF",x=>x.provider_reference],["STATUS",x=>x.status],["CREATED (EAT)",x=>adminDate(x.created_at)]],
+  withdrawals:[["REFERENCE",x=>x.reference],["INVESTOR",x=>x.phone_e164],["AMOUNT",x=>adminMoney(x.amount_minor,x.currency)],["PAYOUT METHOD",x=>x.payout_method],["STATUS",x=>x.status],["CREATED (EAT)",x=>adminDate(x.created_at)]],
+  referrals:[["REFERRER",x=>x.referrer_phone],["REFERRED INVESTOR",x=>x.referred_phone],["REGISTERED (EAT)",x=>adminDate(x.registered_at)],["STATUS",x=>x.status],["QUALIFIED (EAT)",x=>adminDate(x.qualified_at)]],
+  audit:[["TIME (EAT)",x=>adminDate(x.created_at)],["ACTOR",x=>x.admin_email||x.investor_phone],["ACTION",x=>x.action],["RECORD",x=>(x.entity_type||"")+" / "+(x.entity_id||"")],["DETAILS",x=>x.reason||x.metadata]]
+ };
+ const renderAdminTable=(tab,records)=>{
+  const panel=document.getElementById("panel-"+tab);if(!panel)return;
+  let table=panel.querySelector("table");
+  if(!table){
+   const host=panel.querySelector(".panel")||panel;
+   const scroll=document.createElement("div");scroll.className="table-scroll";
+   table=document.createElement("table");scroll.append(table);host.append(scroll);
+  }
+  let thead=table.querySelector("thead");if(!thead){thead=document.createElement("thead");table.append(thead);}
+  let tbody=table.querySelector("tbody");if(!tbody){tbody=document.createElement("tbody");table.append(tbody);}
+  const defs=columns[tab]||[];
+  const headRow=document.createElement("tr");defs.forEach(([label])=>{const th=document.createElement("th");th.textContent=label;headRow.append(th);});thead.replaceChildren(headRow);
+  tbody.replaceChildren();
+  if(!records?.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=defs.length||1;td.className="empty-cell";td.textContent="No records found.";tr.append(td);tbody.append(tr);return;}
+  for(const item of records){const tr=document.createElement("tr");for(const [,get] of defs){const td=document.createElement("td");td.textContent=String(get(item)??"—");tr.append(td);}tbody.append(tr);}
+ };
+ const loadAdminSection=async tab=>{
+  const section=tab==="overview"?"overview":tab==="packages"?"packages":tab==="investors"?"investors":tab==="investments"?"investments":tab==="deposits"?"deposits":tab==="withdrawals"?"withdrawals":tab==="referrals"?"referrals":tab==="audit"?"audit":null;
+  if(!section)return;
+  try{
+   const response=await fetch("/api/admin/data?section="+encodeURIComponent(section),{credentials:"same-origin",cache:"no-store",headers:{"Accept":"application/json"}});
+   const data=await response.json().catch(()=>({}));
+   if(response.status===401){location.replace("/admin/login/");return;}
+   if(!response.ok)throw new Error(data.error||"Administrator data could not be loaded.");
+   document.querySelector("[data-admin-error]")?.remove();
+   if(section==="overview"){
+    const values={ "Total investors":data.metrics.totalInvestors,"Active investments":data.metrics.activeInvestments,"Pending deposits":data.metrics.pendingDeposits,"Pending withdrawals":data.metrics.pendingWithdrawals };
+    document.querySelectorAll(".admin-metrics .metric").forEach(card=>{
+     const label=card.querySelector("span")?.textContent?.trim();const value=values[label];
+     if(value!==undefined){const b=card.querySelector("b");if(b)b.textContent=String(value);const small=card.querySelector("small");if(small)small.textContent="Live database records";}
+    });
+    const pill=document.querySelector(".subtle-tag");if(pill)pill.textContent="Live database data";
+   }else renderAdminTable(section,data.records||[]);
+  }catch(error){console.error("Administrator data load failed:",error);adminError(error.message||"Administrator data could not be loaded.");}
+ };
  fetch("/api/admin/auth/me",{credentials:"same-origin",cache:"no-store",headers:{"Accept":"application/json"}})
   .then(response=>{if(response.status===401){location.replace("/admin/login/");return null;}if(!response.ok)throw new Error("Administrator session check failed.");return response.json();})
-  .then(data=>{if(data?.authenticated){const badge=document.querySelector(".preview-pill");if(badge)badge.textContent=data.admin.role.replaceAll("_"," ").toUpperCase();}})
+  .then(data=>{
+   if(!data?.authenticated)return;
+   const badge=document.querySelector(".preview-pill");if(badge)badge.textContent=data.admin.role.replaceAll("_"," ").toUpperCase();
+   const notice=document.querySelector(".content > .notice");if(notice)notice.remove();
+   const initial=location.hash.slice(1);loadAdminSection(initial&&document.getElementById("panel-"+initial)?initial:"overview");
+   document.querySelectorAll("[data-tab]").forEach(link=>link.addEventListener("click",()=>loadAdminSection(link.dataset.tab)));
+  })
   .catch(error=>{console.error(error);location.replace("/admin/login/");});
 }
 if(!isAdmin){
