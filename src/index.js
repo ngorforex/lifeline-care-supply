@@ -888,6 +888,10 @@ export default {
       if (isAdminLogin && admin) return Response.redirect(new URL("/admin/", url), 302);
       if (isAdminDashboard && admin && url.pathname !== "/admin/") return Response.redirect(new URL("/admin/", url), 302);
     }
+    if (url.pathname === "/obpay/webhook" && request.method === "POST") {
+      try { return await handleObpayWebhook(request, env); }
+      catch (error) { console.error("ObPay webhook handler error:", error); return json({ error: "Webhook processing failed." }, 503); }
+    }
     if (url.pathname.startsWith("/api/")) {
       try {
         return await authApi(request, env, url);
