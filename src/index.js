@@ -299,7 +299,7 @@ async function handleObpayWebhook(request, env) {
   const now=new Date().toISOString();
   const inserted=await env.DB.prepare("INSERT OR IGNORE INTO provider_webhook_events(id,provider,provider_event_id,provider_reference,event_type,payload_hash,received_at) VALUES(?,'obpay',?,?,?,?,?)")
     .bind(crypto.randomUUID(),eventId,reference,String(payload.event||payload.type||eventStatus),hash,now).run();
-  if(!inserted.meta?.changes) return json({ok:true,duplicate:true});
+  if(!inserted.meta?.changes){const existing=await env.DB.prepare("SELECT processed_at FROM provider_webhook_events WHERE provider='obpay' AND provider_event_id=?").bind(eventId).first();if(existing?.processed_at)return json({ok:true,duplicate:true});}
   try{
     const deposit=await env.DB.prepare("SELECT * FROM deposit_requests WHERE reference=? LIMIT 1").bind(reference).first();
     const withdrawal=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE reference=? LIMIT 1").bind(reference).first();
@@ -346,6 +346,8 @@ async function reconcilePendingObpay(env) {
       else if(status==="failed"){await env.DB.prepare("UPDATE deposit_requests SET status='rejected',provider_status='failed',updated_at=? WHERE id=? AND status='pending'").bind(new Date().toISOString(),row.id).run();failed++;}
     }catch(error){console.warn("Pending ObPay deposit reconciliation deferred:",row.reference,String(error).slice(0,160));}
   }
+  const completed=await env.DB.prepare("SELECT * FROM deposit_requests WHERE status='completed' ORDER BY updated_at DESC LIMIT 100").all();
+  for(const row of completed.results||[]){try{await qualifyReferralCommissions(env,row);}catch(error){console.warn("Referral commission reconciliation deferred:",row.reference,String(error).slice(0,160));}}
   for(const row of withdrawals.results||[]){
     try{
       const p=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
