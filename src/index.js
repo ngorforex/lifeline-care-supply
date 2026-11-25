@@ -540,6 +540,13 @@ async function authApi(request, env, url) {
       referrals: "SELECT r.id, r.referrer_user_id, ru.phone_e164 AS referrer_phone, r.referred_user_id, vu.phone_e164 AS referred_phone, r.status, r.registered_at, r.qualified_at FROM referrals r JOIN users ru ON ru.id=r.referrer_user_id JOIN users vu ON vu.id=r.referred_user_id ORDER BY r.registered_at DESC LIMIT ?",
       audit: "SELECT l.id, l.actor_admin_id, l.actor_user_id, a.email AS admin_email, u.phone_e164 AS investor_phone, l.action, l.entity_type, l.entity_id, l.reason, l.metadata, l.created_at FROM audit_logs l LEFT JOIN admin_users a ON a.id=l.actor_admin_id LEFT JOIN users u ON u.id=l.actor_user_id ORDER BY l.created_at DESC LIMIT ?"
     };
+
+    queries.all_deposits = "SELECT d.id,d.reference,d.investor_id,u.phone_e164,d.amount_minor,d.currency,d.payment_method,d.provider_reference,d.provider_status,d.status,d.created_at,d.updated_at FROM deposit_requests d JOIN users u ON u.id=d.investor_id ORDER BY d.created_at DESC LIMIT ?";
+    queries.successful_deposits = "SELECT d.id,d.reference,d.investor_id,u.phone_e164,d.amount_minor,d.currency,d.payment_method,d.provider_reference,d.provider_status,d.status,d.created_at,d.updated_at FROM deposit_requests d JOIN users u ON u.id=d.investor_id WHERE d.status='completed' ORDER BY d.created_at DESC LIMIT ?";
+    queries.all_withdrawals = "SELECT w.id,w.reference,w.investor_id,u.phone_e164,w.amount_minor,w.currency,w.payout_method,w.payout_phone_e164,w.provider_reference,w.provider_status,w.status,w.created_at,w.updated_at FROM withdrawal_requests w JOIN users u ON u.id=w.investor_id ORDER BY w.created_at DESC LIMIT ?";
+    queries.successful_withdrawals = "SELECT w.id,w.reference,w.investor_id,u.phone_e164,w.amount_minor,w.currency,w.payout_method,w.payout_phone_e164,w.provider_reference,w.provider_status,w.status,w.created_at,w.updated_at FROM withdrawal_requests w JOIN users u ON u.id=w.investor_id WHERE w.status='completed' ORDER BY w.created_at DESC LIMIT ?";
+    queries.active_customers = "SELECT DISTINCT u.id,u.phone_e164,u.status,u.created_at,p.first_name,p.middle_name,p.last_name FROM users u JOIN investor_profiles p ON p.user_id=u.id JOIN investments i ON i.investor_id=u.id WHERE i.status='active' ORDER BY u.created_at DESC LIMIT ?";
+
     if (!queries[section]) return json({ error: "Unknown data section." }, 400);
     const result = await env.DB.prepare(queries[section]).bind(pageLimit).all();
     return json({ section, records: result.results || [], timezone: eat, paymentActions: "read_only" });
