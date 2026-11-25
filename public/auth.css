@@ -74,3 +74,13 @@ body.auth-page{background:#eef7f3;color:#173e3b}
  .access-header-right{font-size:8px}
  .access-footer{color:#5e7770}
 }
+
+/* Administrator sign-in uses the same Lifeline access identity */
+.admin-access .access-content{width:min(100%,1120px);grid-template-columns:minmax(0,1fr) minmax(340px,470px)}
+.admin-access .access-intro h1{font-family:Manrope,Arial,sans-serif;letter-spacing:-.055em}
+.admin-access .access-card{border-radius:24px}
+.admin-access .access-submit{border-radius:12px}
+.admin-access .access-field label{font-size:10px;letter-spacing:.13em;font-weight:800}
+.admin-access .message{color:#b94c46}
+.admin-access .message:empty{display:none}
+@media(max-width:760px){.admin-access .access-content{width:min(100%,460px);gap:16px;padding:28px 0 34px}.admin-access .access-intro h1{font-size:36px}.admin-access .access-card{padding:24px 20px}}
