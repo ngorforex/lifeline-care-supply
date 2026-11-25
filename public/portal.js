@@ -176,10 +176,20 @@ if(isAdmin){
    if(!response.ok)throw new Error(data.error||"Administrator data could not be loaded.");
    document.querySelector("[data-admin-error]")?.remove();
    if(section==="overview"){
-    const values={ "Total investors":data.metrics.totalInvestors,"Active investments":data.metrics.activeInvestments,"Pending deposits":data.metrics.pendingDeposits,"Pending withdrawals":data.metrics.pendingWithdrawals };
-    document.querySelectorAll(".admin-metrics .metric").forEach(card=>{
-     const label=card.querySelector("span")?.textContent?.trim();const value=values[label];
-     if(value!==undefined){const b=card.querySelector("b");if(b)b.textContent=String(value);const small=card.querySelector("small");if(small)small.textContent="Live database records";}
+    const m=data.metrics||{};
+    const values={
+     totalInvestors:String(m.totalInvestors??0),
+     successfulDeposits:adminMoney(m.successfulDepositsMinor??0,"UGX"),
+     successfulWithdrawals:adminMoney(m.successfulWithdrawalsMinor??0,"UGX"),
+     activeInvestments:String(m.activeInvestments??0),
+     todayDeposits:adminMoney(m.todayDepositsMinor??0,"UGX"),
+     todayWithdrawals:adminMoney(m.todayWithdrawalsMinor??0,"UGX"),
+     pendingDeposits:String(m.pendingDeposits??0),
+     pendingWithdrawals:String(m.pendingWithdrawals??0),
+     referrals:String(m.referrals??0)
+    };
+    document.querySelectorAll("[data-overview-metric]").forEach(el=>{
+     const value=values[el.dataset.overviewMetric];if(value!==undefined)el.textContent=value;
     });
     const pill=document.querySelector(".subtle-tag");if(pill)pill.textContent="Live database data";
    }else renderAdminTable(section,data.records||[]);
