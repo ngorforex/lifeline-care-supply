@@ -793,7 +793,7 @@ async function authApi(request, env, url) {
       .bind(id,reference,investor.id,amount,phone,payoutAmount,tax,now,now).run();
     try{
       await postLedger(env,{id:"withdrawal-reserve-"+id,reference:"WRES-"+reference,key:"withdrawal_reserve:"+id,type:"withdrawal_reserve",userId:investor.id,description:"Reserve wallet funds for withdrawal request",debitAccount:wallet,creditAccount:clearing,amount,requireAvailable:true});
-    }catch(error){await env.DB.prepare("DELETE FROM withdrawal_requests WHERE id=?").bind(id).run();throw error;}
+    }catch(error){const reserve=await env.DB.prepare("SELECT id FROM ledger_transactions WHERE id=?").bind("withdrawal-reserve-"+id).first();if(!reserve)await env.DB.prepare("DELETE FROM withdrawal_requests WHERE id=?").bind(id).run();throw error;}
     return json({ok:true,reference,status:"pending",grossAmount:amount,taxAmount:tax,payoutAmount, taxRateBps:taxBps,message:"Withdrawal request submitted for administrator review."},201);
   }
   if (request.method === "POST" && url.pathname === "/api/investor/investments") {
@@ -810,7 +810,8 @@ async function authApi(request, env, url) {
     const snapshot=JSON.stringify({id:pkg.id,code:pkg.code,name:pkg.name,amountUGX:amount,durationDays:pkg.duration_days,returnStructure:pkg.return_structure,termsVersion:pkg.terms_version,riskDisclosure:pkg.risk_disclosure});
     await env.DB.prepare("INSERT INTO investments(id,reference,investor_id,package_id,package_snapshot,principal_amount,currency,status,terms_version,terms_accepted_at,started_at,matures_at,created_at,updated_at) VALUES(?,?,?,?,?,?,'UGX','active',?,?,?,?,?,?)")
       .bind(id,reference,investor.id,pkg.id,snapshot,String(amount),pkg.terms_version,now,started,matures,now,now).run();
-    await postLedger(env,{id:"investment-purchase-"+id,reference:"IP-"+reference,key:"investment_purchase:"+id,type:"investment_purchase",userId:investor.id,description:"Purchase "+pkg.name,debitAccount:wallet,creditAccount:platform,amount,requireAvailable:true});
+    try{await postLedger(env,{id:"investment-purchase-"+id,reference:"IP-"+reference,key:"investment_purchase:"+id,type:"investment_purchase",userId:investor.id,description:"Purchase "+pkg.name,debitAccount:wallet,creditAccount:platform,amount,requireAvailable:true});}
+    catch(error){const posted=await env.DB.prepare("SELECT id FROM ledger_transactions WHERE id=?").bind("investment-purchase-"+id).first();if(!posted)await env.DB.prepare("DELETE FROM investments WHERE id=?").bind(id).run();throw error;}
     return json({ok:true,reference,status:"active",maturesAt:matures},201);
   }
 
