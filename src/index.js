@@ -604,6 +604,17 @@ async function authApi(request, env, url) {
     return json({ok:true,status:"published"});
   }
 
+
+  if (request.method === "POST" && url.pathname === "/api/admin/obpay/reconcile") {
+    const admin=await currentAdmin(request,env);
+    if(!admin)return json({error:"Authentication required."},401);
+    if(!["super_admin","finance_admin"].includes(admin.role))return json({error:"Your administrator role cannot reconcile payments."},403);
+    const result=await reconcilePendingObpay(env);
+    await env.DB.prepare("INSERT INTO audit_logs(id,actor_admin_id,action,entity_type,entity_id,metadata,created_at) VALUES(?,?,'obpay.manual_reconciliation','payment_provider','obpay',?,?)")
+      .bind(crypto.randomUUID(),admin.id,JSON.stringify(result),new Date().toISOString()).run();
+    return json({ok:true,...result});
+  }
+
   if (request.method === "GET" && url.pathname === "/api/admin/data") {
     const admin = await currentAdmin(request, env);
     if (!admin) return json({ error: "Authentication required." }, 401);
