@@ -339,11 +339,22 @@ async function recordObpayHealth(env) {
   const now=new Date().toISOString();
   try {
     const response=await obpay(env,"/ping");
+    let webhookState="unavailable",webhookEvents="[]";
+    try{
+      const hooks=await obpay(env,"/webhooks");
+      const list=Array.isArray(hooks.webhooks)?hooks.webhooks:Array.isArray(hooks)?hooks:[];
+      const expected="https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook";
+      const match=list.find(item=>item.url===expected&&item.active!==false);
+      webhookState=match?"registered":"missing";
+      webhookEvents=JSON.stringify(match?.events||[]);
+    }catch(error){console.warn("ObPay webhook list check failed:",String(error).slice(0,140));}
     await env.DB.batch([
       env.DB.prepare("INSERT OR REPLACE INTO platform_settings(setting_key,setting_value,updated_at) VALUES('obpay_connection_status','connected',?)").bind(now),
-      env.DB.prepare("INSERT OR REPLACE INTO platform_settings(setting_key,setting_value,updated_at) VALUES('obpay_connection_checked_at',?,?)").bind(now,now)
+      env.DB.prepare("INSERT OR REPLACE INTO platform_settings(setting_key,setting_value,updated_at) VALUES('obpay_connection_checked_at',?,?)").bind(now,now),
+      env.DB.prepare("INSERT OR REPLACE INTO platform_settings(setting_key,setting_value,updated_at) VALUES('obpay_webhook_status',?,?)").bind(webhookState,now),
+      env.DB.prepare("INSERT OR REPLACE INTO platform_settings(setting_key,setting_value,updated_at) VALUES('obpay_webhook_events',?,?)").bind(webhookEvents,now)
     ]);
-    return {connected:true,message:typeof response.message==="string"?response.message.slice(0,100):null};
+    return {connected:true,webhookState,message:typeof response.message==="string"?response.message.slice(0,100):null};
   } catch(error) {
     console.error("ObPay scheduled connectivity check failed:",error);
     await env.DB.batch([
