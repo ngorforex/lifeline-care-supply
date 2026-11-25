@@ -1268,3 +1268,40 @@ body[data-portal="admin"] [type="submit"]{border-radius:8px}
   body[data-portal="admin"] .panel{padding:12px}
   body[data-portal="admin"] .metric{padding:11px}
 }
+
+
+/* Distinct uppercase typography for the centered Lifeline Care Supply wordmark */
+body[data-portal="investor"] .topbar-project-name{
+  display:inline-flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:.28em;
+  white-space:nowrap!important;
+  text-transform:uppercase;
+  font-size:clamp(11px,2.65vw,18px)!important;
+  line-height:1;
+  letter-spacing:0!important;
+  font-weight:800;
+}
+body[data-portal="investor"] .topbar-project-name .word-lifeline{
+  font-family:Manrope,"DM Sans",sans-serif;
+  font-weight:900;
+  letter-spacing:-.065em;
+  color:#123e38;
+}
+body[data-portal="investor"] .topbar-project-name .word-care{
+  font-family:"DM Sans",Arial,sans-serif;
+  font-weight:700;
+  letter-spacing:.105em;
+  color:#168f87;
+}
+body[data-portal="investor"] .topbar-project-name .word-supply{
+  font-family:Georgia,"Times New Roman",serif;
+  font-style:italic;
+  font-weight:700;
+  letter-spacing:.025em;
+  color:#245e54;
+}
+@media(max-width:380px){
+  body[data-portal="investor"] .topbar-project-name{font-size:10px!important;gap:.22em}
+}
