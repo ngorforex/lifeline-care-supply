@@ -247,6 +247,33 @@ async function authApi(request, env, url) {
     return json({ authenticated: true, admin: { id: admin.id, email: admin.email, role: admin.role } });
   }
 
+  if (request.method === "GET" && url.pathname === "/api/admin/obpay/status") {
+    const admin = await currentAdmin(request, env);
+    if (!admin) return json({ error: "Authentication required." }, 401);
+    if (!env.OBPAY_SECRET_KEY || !env.OBPAY_WEBHOOK_SIGNING_SECRET) {
+      return json({ configured: false, error: "ObPay credentials are not fully configured." }, 503);
+    }
+    try {
+      const response = await fetch("https://obpay.online/api/public/v1/ping", {
+        method: "GET",
+        headers: { "Authorization": "Bearer " + env.OBPAY_SECRET_KEY, "Accept": "application/json" }
+      });
+      const raw = await response.text();
+      let providerData = {};
+      try { providerData = JSON.parse(raw); } catch { providerData = {}; }
+      return json({
+        configured: true,
+        reachable: response.ok,
+        authenticated: response.ok,
+        providerHttpStatus: response.status,
+        providerMessage: typeof providerData.message === "string" ? providerData.message.slice(0, 160) : null
+      }, response.ok ? 200 : 502);
+    } catch (error) {
+      console.error("ObPay credential check failed:", error);
+      return json({ configured: true, reachable: false, authenticated: false, error: "Could not reach ObPay." }, 502);
+    }
+  }
+
   if (request.method === "GET" && url.pathname === "/api/admin/data") {
     const admin = await currentAdmin(request, env);
     if (!admin) return json({ error: "Authentication required." }, 401);
