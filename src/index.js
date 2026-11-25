@@ -181,8 +181,8 @@ async function walletBalance(env, userId) {
 }
 async function ensurePlatformAccount(env, code, name) {
   await env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts(id,owner_user_id,account_code,currency,account_name,created_at) VALUES(?,NULL,?,'UGX',?,?)")
-    .bind("platform-" + code.toLowerCase().replace(/[^a-z0-9]+/g,"-"), code, name, new Date().toISOString()).run();
-  return "platform-" + code.toLowerCase().replace(/[^a-z0-9]+/g,"-");
+    .bind("platform-" + code.toLowerCase().replace(/^platform_/,"").replace(/[^a-z0-9]+/g,"-"), code, name, new Date().toISOString()).run();
+  return "platform-" + code.toLowerCase().replace(/^platform_/,"").replace(/[^a-z0-9]+/g,"-");
 }
 async function postLedger(env, {id,reference,key,type,userId,description,debitAccount,creditAccount,amount,adminId=null}) {
   if (!Number.isSafeInteger(amount) || amount <= 0) throw new Error("Invalid ledger amount.");
