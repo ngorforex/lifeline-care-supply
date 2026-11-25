@@ -184,18 +184,24 @@ async function ensurePlatformAccount(env, code, name) {
     .bind("platform-" + code.toLowerCase().replace(/^platform_/,"").replace(/[^a-z0-9]+/g,"-"), code, name, new Date().toISOString()).run();
   return "platform-" + code.toLowerCase().replace(/^platform_/,"").replace(/[^a-z0-9]+/g,"-");
 }
-async function postLedger(env, {id,reference,key,type,userId,description,debitAccount,creditAccount,amount,adminId=null}) {
+async function postLedger(env, {id,reference,key,type,userId,description,debitAccount,creditAccount,amount,adminId=null,requireAvailable=false}) {
   if (!Number.isSafeInteger(amount) || amount <= 0) throw new Error("Invalid ledger amount.");
   const now = new Date().toISOString();
   const txId = id;
+  const insertTransaction = requireAvailable
+    ? env.DB.prepare("INSERT OR IGNORE INTO ledger_transactions(id,reference,idempotency_key,transaction_type,status,currency,related_entity_type,related_entity_id,description,created_by_user_id,created_by_admin_id,posted_at,created_at) SELECT ?,?,?,?,'posted','UGX','financial_event',?,?,?,NULL,?,? WHERE (SELECT COALESCE(SUM(CASE WHEN side='credit' THEN amount_minor ELSE -amount_minor END),0) FROM ledger_entries WHERE account_id=? AND currency='UGX')>=?")
+        .bind(txId,reference,key,type,reference,description,userId,now,now,debitAccount,amount)
+    : env.DB.prepare("INSERT OR IGNORE INTO ledger_transactions(id,reference,idempotency_key,transaction_type,status,currency,related_entity_type,related_entity_id,description,created_by_user_id,created_by_admin_id,posted_at,created_at) VALUES(?,?,?,?,'posted','UGX','financial_event',?,?,?,?,?,?)")
+        .bind(txId,reference,key,type,reference,description,userId,adminId,now,now);
   await env.DB.batch([
-    env.DB.prepare("INSERT OR IGNORE INTO ledger_transactions(id,reference,idempotency_key,transaction_type,status,currency,related_entity_type,related_entity_id,description,created_by_user_id,created_by_admin_id,posted_at,created_at) VALUES(?,?,?,?,'posted','UGX','financial_event',?,?,?,?,?,?)")
-      .bind(txId,reference,key,type,reference,description,userId,adminId,now,now),
-    env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) VALUES(?,?,?,'debit',?,'UGX',?)")
-      .bind(txId+"-dr",txId,debitAccount,amount,now),
-    env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) VALUES(?,?,?,'credit',?,'UGX',?)")
-      .bind(txId+"-cr",txId,creditAccount,amount,now)
+    insertTransaction,
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) SELECT ?,?,?, 'debit',?,'UGX',? WHERE EXISTS(SELECT 1 FROM ledger_transactions WHERE id=?)")
+      .bind(txId+"-dr",txId,debitAccount,amount,now,txId),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) SELECT ?,?,?, 'credit',?,'UGX',? WHERE EXISTS(SELECT 1 FROM ledger_transactions WHERE id=?)")
+      .bind(txId+"-cr",txId,creditAccount,amount,now,txId)
   ]);
+  const transaction=await env.DB.prepare("SELECT id FROM ledger_transactions WHERE id=? OR idempotency_key=? LIMIT 1").bind(txId,key).first();
+  if(!transaction)throw new Error("Insufficient available wallet balance.");
   const totals = await env.DB.prepare("SELECT COALESCE(SUM(CASE WHEN side='debit' THEN amount_minor ELSE 0 END),0) AS debit,COALESCE(SUM(CASE WHEN side='credit' THEN amount_minor ELSE 0 END),0) AS credit FROM ledger_entries WHERE transaction_id=?").bind(txId).first();
   if (Number(totals?.debit)!==Number(totals?.credit) || Number(totals?.debit)!==amount) throw new Error("Ledger transaction failed balance validation.");
   return txId;
@@ -786,7 +792,7 @@ async function authApi(request, env, url) {
     await env.DB.prepare("INSERT INTO withdrawal_requests(id,reference,investor_id,amount_minor,currency,payout_method,payout_phone_e164,payout_amount_minor,tax_amount_minor,status,created_at,updated_at) VALUES(?,?,?,?,'UGX','ObPay Mobile Money',?,?,?,'pending',?,?)")
       .bind(id,reference,investor.id,amount,phone,payoutAmount,tax,now,now).run();
     try{
-      await postLedger(env,{id:"withdrawal-reserve-"+id,reference:"WRES-"+reference,key:"withdrawal_reserve:"+id,type:"withdrawal_reserve",userId:investor.id,description:"Reserve wallet funds for withdrawal request",debitAccount:wallet,creditAccount:clearing,amount});
+      await postLedger(env,{id:"withdrawal-reserve-"+id,reference:"WRES-"+reference,key:"withdrawal_reserve:"+id,type:"withdrawal_reserve",userId:investor.id,description:"Reserve wallet funds for withdrawal request",debitAccount:wallet,creditAccount:clearing,amount,requireAvailable:true});
     }catch(error){await env.DB.prepare("DELETE FROM withdrawal_requests WHERE id=?").bind(id).run();throw error;}
     return json({ok:true,reference,status:"pending",grossAmount:amount,taxAmount:tax,payoutAmount, taxRateBps:taxBps,message:"Withdrawal request submitted for administrator review."},201);
   }
@@ -804,7 +810,7 @@ async function authApi(request, env, url) {
     const snapshot=JSON.stringify({id:pkg.id,code:pkg.code,name:pkg.name,amountUGX:amount,durationDays:pkg.duration_days,returnStructure:pkg.return_structure,termsVersion:pkg.terms_version,riskDisclosure:pkg.risk_disclosure});
     await env.DB.prepare("INSERT INTO investments(id,reference,investor_id,package_id,package_snapshot,principal_amount,currency,status,terms_version,terms_accepted_at,started_at,matures_at,created_at,updated_at) VALUES(?,?,?,?,?,?,'UGX','active',?,?,?,?,?,?)")
       .bind(id,reference,investor.id,pkg.id,snapshot,String(amount),pkg.terms_version,now,started,matures,now,now).run();
-    await postLedger(env,{id:"investment-purchase-"+id,reference:"IP-"+reference,key:"investment_purchase:"+id,type:"investment_purchase",userId:investor.id,description:"Purchase "+pkg.name,debitAccount:wallet,creditAccount:platform,amount});
+    await postLedger(env,{id:"investment-purchase-"+id,reference:"IP-"+reference,key:"investment_purchase:"+id,type:"investment_purchase",userId:investor.id,description:"Purchase "+pkg.name,debitAccount:wallet,creditAccount:platform,amount,requireAvailable:true});
     return json({ok:true,reference,status:"active",maturesAt:matures},201);
   }
 
