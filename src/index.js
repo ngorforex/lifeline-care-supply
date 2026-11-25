@@ -578,6 +578,60 @@ async function authApi(request, env, url) {
     return json({ok:true,...result});
   }
 
+  const withdrawalAction = url.pathname.match(/^\/api\/admin\/withdrawals\/([^/]+)\/(approve|reject)$/);
+  if (request.method === "POST" && withdrawalAction) {
+    const admin = await currentAdmin(request, env);
+    if (!admin) return json({ error: "Authentication required." }, 401);
+    if (!["super_admin", "finance_admin"].includes(admin.role)) {
+      return json({ error: "Your administrator role cannot manage withdrawals." }, 403);
+    }
+    const withdrawalId = decodeURIComponent(withdrawalAction[1]);
+    const action = withdrawalAction[2];
+    const withdrawal = await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id = ? LIMIT 1")
+      .bind(withdrawalId).first();
+    if (!withdrawal) return json({ error: "Withdrawal request not found." }, 404);
+    if (withdrawal.status !== "pending") return json({ error: "Only pending withdrawals can be actioned." }, 409);
+    if (action === "approve") {
+      return json({
+        error: "ObPay payout submission is paused until its live payout request contract is verified. The withdrawal remains pending and reserved; no payout was sent."
+      }, 503);
+    }
+    await releaseWithdrawal(env, withdrawal, "Withdrawal rejected by administrator");
+    await env.DB.prepare("INSERT INTO audit_logs(id,actor_admin_id,action,entity_type,entity_id,metadata,created_at) VALUES(?,?,'withdrawal.rejected','withdrawal_request',?,?,?)")
+      .bind(crypto.randomUUID(), admin.id, withdrawal.id, JSON.stringify({ reference: withdrawal.reference }), new Date().toISOString()).run();
+    return json({ ok: true, status: "rejected", reference: withdrawal.reference });
+  }
+
+  const publishPackage = url.pathname.match(/^\/api\/admin\/packages\/([^/]+)\/publish$/);
+  if (request.method === "POST" && publishPackage) {
+    const admin = await currentAdmin(request, env);
+    if (!admin) return json({ error: "Authentication required." }, 401);
+    if (!["super_admin", "investment_manager"].includes(admin.role)) {
+      return json({ error: "Your administrator role cannot publish investment packages." }, 403);
+    }
+    const packageId = decodeURIComponent(publishPackage[1]);
+    const pkg = await env.DB.prepare("SELECT id, name, duration_days, return_structure, risk_disclosure, terms_version, status FROM investment_packages WHERE id = ? LIMIT 1")
+      .bind(packageId).first();
+    if (!pkg) return json({ error: "Investment package not found." }, 404);
+    if (!["draft", "paused"].includes(pkg.status)) return json({ error: "Only draft or paused packages can be published." }, 409);
+    let terms;
+    try { terms = JSON.parse(pkg.return_structure || "{}"); } catch { terms = null; }
+    const dailyIncome = Number(terms?.daily_income_ugx);
+    const duration = Number(pkg.duration_days);
+    if (!Number.isSafeInteger(dailyIncome) || dailyIncome <= 0 ||
+        !Number.isSafeInteger(duration) || duration <= 0 ||
+        typeof pkg.risk_disclosure !== "string" || !pkg.risk_disclosure.trim() ||
+        typeof pkg.terms_version !== "string" || !pkg.terms_version.trim()) {
+      return json({ error: "Package terms are incomplete. Add a valid daily income, duration, risk disclosure and terms version before publishing." }, 409);
+    }
+    const now = new Date().toISOString();
+    await env.DB.prepare("UPDATE investment_packages SET status = 'published', published_at = ?, updated_at = ? WHERE id = ? AND status IN ('draft','paused')")
+      .bind(now, now, packageId).run();
+    await env.DB.prepare("INSERT INTO audit_logs(id,actor_admin_id,action,entity_type,entity_id,metadata,created_at) VALUES(?,?,'investment_package.published','investment_package',?,?,?)")
+      .bind(crypto.randomUUID(), admin.id, packageId, JSON.stringify({ name: pkg.name, durationDays: duration, termsVersion: pkg.terms_version }), now).run();
+    return json({ ok: true, status: "published", packageId });
+  }
+
   if (request.method === "GET" && url.pathname === "/api/admin/data") {
     const admin = await currentAdmin(request, env);
     if (!admin) return json({ error: "Authentication required." }, 401);
