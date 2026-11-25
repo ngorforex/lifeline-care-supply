@@ -1136,3 +1136,135 @@ body[data-portal="investor"] .profile-details-card .profile-detail-icon{
     background:transparent;
   }
 }
+
+
+/* Lifeline visual system: consistent investor surfaces and restrained admin workspace */
+body[data-portal="investor"]{
+  --ink:#173e3b;
+  --muted:#718580;
+  --teal:#13a99e;
+  --teal-dark:#087f78;
+  --mint:#ddf4ed;
+  --paper:#f3f8f6;
+  --line:#e1ebe7;
+  background:#f3f8f6;
+  color:var(--ink);
+}
+body[data-portal="investor"] .main,
+body[data-portal="investor"] .content{background:#f3f8f6}
+body[data-portal="investor"] .topbar{
+  /* Preserve the existing centered brand/wordmark treatment */
+  background:linear-gradient(105deg,#fff 0%,#f9fcfa 55%,#eff8f4 100%);
+  border-bottom:1px solid #e1ebe7;
+}
+body[data-portal="investor"] .panel,
+body[data-portal="investor"] .metric,
+body[data-portal="investor"] .investment-card,
+body[data-portal="investor"] .recent-transactions,
+body[data-portal="investor"] .profile-details-card,
+body[data-portal="investor"] .package-card{
+  background:#fff;
+  border:1px solid #e2ece7;
+  box-shadow:0 5px 18px rgba(28,82,69,.055);
+}
+body[data-portal="investor"] button,
+body[data-portal="investor"] .button,
+body[data-portal="investor"] .secondary-action,
+body[data-portal="investor"] .primary-action,
+body[data-portal="investor"] [type="submit"]{
+  border-radius:12px;
+}
+body[data-portal="investor"] .button,
+body[data-portal="investor"] .secondary-action,
+body[data-portal="investor"] .primary-action,
+body[data-portal="investor"] [type="submit"]{
+  color:#fff;
+  background:#109d92;
+  border-color:#109d92;
+  box-shadow:0 5px 13px rgba(16,157,146,.15);
+}
+body[data-portal="investor"] .button:hover,
+body[data-portal="investor"] .secondary-action:hover,
+body[data-portal="investor"] .primary-action:hover,
+body[data-portal="investor"] [type="submit"]:hover{
+  background:#087f78;
+  border-color:#087f78;
+}
+body[data-portal="investor"] .quick-action,
+body[data-portal="investor"] .home-action-card{
+  border:1px solid #e1ebe7;
+  background:#fff;
+  color:#087f78;
+  box-shadow:0 5px 16px rgba(28,82,69,.05);
+}
+body[data-portal="investor"] .ui-icon{
+  stroke-width:1.7;
+}
+body[data-portal="investor"] .side-nav a.active,
+body[data-portal="investor"] .side-nav a:hover{
+  color:#087f78;
+  background:#ddf4ed;
+}
+body[data-portal="investor"] .mobile-bottom-nav a{
+  color:#87958f;
+}
+body[data-portal="investor"] .mobile-bottom-nav a.active{
+  color:#087f78;
+  background:#ddf4ed;
+}
+body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3) .ui-icon{
+  background:linear-gradient(145deg,#18b9aa,#087f78);
+  box-shadow:0 6px 16px rgba(8,127,120,.3);
+}
+
+/* Admin remains a compact, information-dense operations workspace */
+body[data-portal="admin"]{
+  --ink:#183b3a;
+  --muted:#71817c;
+  --teal:#168f87;
+  --teal-dark:#087a73;
+  --mint:#eef3f1;
+  --paper:#f4f6f5;
+  --line:#e1e7e4;
+  background:#f4f6f5;
+  color:#183b3a;
+  font-size:13px;
+}
+body[data-portal="admin"] .main,
+body[data-portal="admin"] .content{background:#f4f6f5}
+body[data-portal="admin"] .topbar{
+  height:76px;
+  background:#fff;
+  border-bottom:1px solid #e1e7e4;
+  box-shadow:0 2px 8px rgba(24,59,58,.025);
+}
+body[data-portal="admin"] .content{padding-top:22px;padding-bottom:30px}
+body[data-portal="admin"] .metric-grid{gap:11px;margin:13px 0}
+body[data-portal="admin"] .metric,
+body[data-portal="admin"] .panel{
+  border-radius:10px;
+  border:1px solid #e1e7e4;
+  box-shadow:0 2px 8px rgba(24,59,58,.035);
+}
+body[data-portal="admin"] .metric{padding:13px 15px}
+body[data-portal="admin"] .metric b{font-size:22px}
+body[data-portal="admin"] .panel{padding:15px}
+body[data-portal="admin"] .panel-head{margin-bottom:12px}
+body[data-portal="admin"] th{background:#f7f9f8}
+body[data-portal="admin"] td{padding:12px 10px}
+body[data-portal="admin"] .side-nav{gap:3px}
+body[data-portal="admin"] .side-nav a{padding:9px 11px;border-radius:8px}
+body[data-portal="admin"] .side-nav a.active,
+body[data-portal="admin"] .side-nav a:hover{
+  color:#53639a;
+  background:#eef0f8;
+}
+body[data-portal="admin"] .button,
+body[data-portal="admin"] button,
+body[data-portal="admin"] [type="submit"]{border-radius:8px}
+@media(max-width:700px){
+  body[data-portal="admin"] .content{padding:15px 13px 24px}
+  body[data-portal="admin"] .topbar{height:64px;padding:0 14px}
+  body[data-portal="admin"] .panel{padding:12px}
+  body[data-portal="admin"] .metric{padding:11px}
+}
