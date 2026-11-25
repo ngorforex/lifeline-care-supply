@@ -191,7 +191,7 @@ async function authApi(request, env, url) {
     try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
     const email = typeof data.email === "string" ? data.email.trim().toLowerCase() : "";
     const password = typeof data.password === "string" ? data.password : "";
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || password.length < 1 || password.length > 128) {
+    if (!(email.includes("@") && email.indexOf("@") > 0 && email.lastIndexOf(".") > email.indexOf("@") + 1 && email.lastIndexOf(".") < email.length - 1) || password.length < 1 || password.length > 128) {
       return json({ error: "Invalid email or password." }, 400);
     }
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
