@@ -166,6 +166,169 @@ async function currentInvestor(request, env) {
   }
   return session || null;
 }
+
+async function setting(env, key, fallback = null) {
+  const row = await env.DB.prepare("SELECT setting_value FROM platform_settings WHERE setting_key=?").bind(key).first();
+  return row?.setting_value ?? fallback;
+}
+async function walletBalance(env, userId) {
+  const row = await env.DB.prepare(`
+    SELECT COALESCE(SUM(CASE WHEN e.side='credit' THEN e.amount_minor ELSE -e.amount_minor END),0) AS balance
+    FROM ledger_accounts a LEFT JOIN ledger_entries e ON e.account_id=a.id AND e.currency=a.currency
+    WHERE a.owner_user_id=? AND a.account_code='WALLET_AVAILABLE' AND a.currency='UGX'
+  `).bind(userId).first();
+  return Number(row?.balance || 0);
+}
+async function ensurePlatformAccount(env, code, name) {
+  await env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts(id,owner_user_id,account_code,currency,account_name,created_at) VALUES(?,NULL,?,'UGX',?,?)")
+    .bind("platform-" + code.toLowerCase().replace(/[^a-z0-9]+/g,"-"), code, name, new Date().toISOString()).run();
+  return "platform-" + code.toLowerCase().replace(/[^a-z0-9]+/g,"-");
+}
+async function postLedger(env, {id,reference,key,type,userId,description,debitAccount,creditAccount,amount,adminId=null}) {
+  if (!Number.isSafeInteger(amount) || amount <= 0) throw new Error("Invalid ledger amount.");
+  const now = new Date().toISOString();
+  const txId = id;
+  await env.DB.batch([
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_transactions(id,reference,idempotency_key,transaction_type,status,currency,related_entity_type,related_entity_id,description,created_by_user_id,created_by_admin_id,posted_at,created_at) VALUES(?,?,?,?,'posted','UGX','financial_event',?,?,?, ?,?,?)")
+      .bind(txId,reference,key,type,description,userId,adminId,now,now),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) VALUES(?,?,?,'debit',?,'UGX',?)")
+      .bind(txId+"-dr",txId,debitAccount,amount,now),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) VALUES(?,?,?,'credit',?,'UGX',?)")
+      .bind(txId+"-cr",txId,creditAccount,amount,now)
+  ]);
+  const totals = await env.DB.prepare("SELECT COALESCE(SUM(CASE WHEN side='debit' THEN amount_minor ELSE 0 END),0) AS debit,COALESCE(SUM(CASE WHEN side='credit' THEN amount_minor ELSE 0 END),0) AS credit FROM ledger_entries WHERE transaction_id=?").bind(txId).first();
+  if (Number(totals?.debit)!==Number(totals?.credit) || Number(totals?.debit)!==amount) throw new Error("Ledger transaction failed balance validation.");
+  return txId;
+}
+async function obpay(env, path, method="GET", payload=null) {
+  if (!env.OBPAY_SECRET_KEY) throw new Error("ObPay secret key is not configured.");
+  const response = await fetch("https://obpay.online/api/public/v1"+path, {
+    method,
+    headers: {
+      "Authorization":"Bearer "+env.OBPAY_SECRET_KEY,
+      "Accept":"application/json",
+      ...(payload ? {"Content-Type":"application/json"} : {})
+    },
+    ...(payload ? {body:JSON.stringify(payload)} : {})
+  });
+  const raw = await response.text();
+  let data={}; try { data=raw ? JSON.parse(raw) : {}; } catch { throw new Error("ObPay returned an unreadable response."); }
+  if (!response.ok || data.success===false || data.ok===false) {
+    const message = data.error || data.message || data.detail || "ObPay request failed.";
+    throw new Error("ObPay HTTP "+response.status+": "+String(message).slice(0,180));
+  }
+  return data.data || data.result || data;
+}
+function providerStatus(value) {
+  const s=String(value||"").toLowerCase();
+  if (["success","successful","completed","complete","paid","settled"].includes(s)) return "success";
+  if (["failed","failure","rejected","cancelled","canceled","expired"].includes(s)) return "failed";
+  return "pending";
+}
+async function postDepositCredit(env, deposit, provider) {
+  const amount=Number(provider.amount ?? provider.amount_minor ?? deposit.amount_minor);
+  const currency=String(provider.currency || deposit.currency || "UGX").toUpperCase();
+  const providerRef=String(provider.reference || provider.provider_reference || provider.transaction_reference || deposit.reference);
+  const providerId=String(provider.transaction_id || provider.id || provider.provider_transaction_id || providerRef);
+  if (amount!==Number(deposit.amount_minor) || currency!=="UGX" || providerRef!==deposit.reference) {
+    throw new Error("ObPay transaction does not match the local deposit reference, amount and currency.");
+  }
+  const wallet="wallet-"+deposit.investor_id;
+  await env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts(id,owner_user_id,account_code,currency,account_name,created_at) VALUES(?,?,'WALLET_AVAILABLE','UGX','Available wallet balance',?)")
+    .bind(wallet,deposit.investor_id,new Date().toISOString()).run();
+  const clearing=await ensurePlatformAccount(env,"PLATFORM_DEPOSIT_CLEARING","ObPay deposit clearing");
+  const txId="deposit-credit-"+deposit.id;
+  await postLedger(env,{id:txId,reference:"DEP-POST-"+deposit.reference,key:"obpay_deposit:"+deposit.id,type:"deposit",userId:deposit.investor_id,description:"Confirmed ObPay mobile-money deposit",debitAccount:clearing,creditAccount:wallet,amount});
+  const now=new Date().toISOString();
+  await env.DB.batch([
+    env.DB.prepare("UPDATE deposit_requests SET status='completed',provider_status='successful',provider_transaction_id=?,updated_at=? WHERE id=? AND status<>'completed'")
+      .bind(providerId,now,deposit.id),
+    env.DB.prepare("UPDATE deposit_requests SET ledger_transaction_id=? WHERE id=? AND ledger_transaction_id IS NULL")
+      .bind(txId,deposit.id)
+  ]);
+  await qualifyReferralCommissions(env,deposit);
+}
+async function qualifyReferralCommissions(env, deposit) {
+  const already=await env.DB.prepare("SELECT 1 AS yes FROM referral_commissions WHERE deposit_request_id=? LIMIT 1").bind(deposit.id).first();
+  if (already) return;
+  const first=await env.DB.prepare("SELECT id FROM deposit_requests WHERE investor_id=? AND status='completed' ORDER BY created_at,id LIMIT 1").bind(deposit.investor_id).first();
+  if (first?.id!==deposit.id) return;
+  const rates=[Number(await setting(env,"referral_level_1_bps","2500")),Number(await setting(env,"referral_level_2_bps","200")),Number(await setting(env,"referral_level_3_bps","100"))];
+  let current=deposit.investor_id;
+  for(let level=1;level<=3;level++){
+    const rel=await env.DB.prepare("SELECT referrer_user_id FROM referrals WHERE referred_user_id=? LIMIT 1").bind(current).first();
+    if(!rel?.referrer_user_id) break;
+    const referrer=rel.referrer_user_id, rate=rates[level-1], amount=Math.floor(Number(deposit.amount_minor)*rate/10000);
+    if(amount>0){
+      const wallet="wallet-"+referrer;
+      await env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts(id,owner_user_id,account_code,currency,account_name,created_at) VALUES(?,?,'WALLET_AVAILABLE','UGX','Available wallet balance',?)")
+        .bind(wallet,referrer,new Date().toISOString()).run();
+      const expense=await ensurePlatformAccount(env,"PLATFORM_REFERRAL_EXPENSE","Referral commission expense");
+      const commissionId="ref-commission-"+deposit.id+"-L"+level;
+      const txId="referral-credit-"+deposit.id+"-L"+level;
+      await postLedger(env,{id:txId,reference:"REF-"+deposit.reference+"-L"+level,key:"referral:"+deposit.id+":"+level,type:"referral_commission",userId:deposit.investor_id,description:"Level "+level+" referral commission",debitAccount:expense,creditAccount:wallet,amount});
+      await env.DB.prepare("INSERT OR IGNORE INTO referral_commissions(id,deposit_request_id,referrer_user_id,referred_user_id,level,rate_bps,amount_minor,ledger_transaction_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)")
+        .bind(commissionId,deposit.id,referrer,deposit.investor_id,level,rate,amount,txId,new Date().toISOString()).run();
+    }
+    current=referrer;
+  }
+  await env.DB.prepare("UPDATE referrals SET status='qualified',qualified_at=COALESCE(qualified_at,?) WHERE referred_user_id=? AND status='registered'")
+    .bind(new Date().toISOString(),deposit.investor_id).run();
+}
+async function confirmObpayTransaction(env, reference) {
+  const data=await obpay(env,"/transactions/"+encodeURIComponent(reference));
+  const row=await env.DB.prepare("SELECT * FROM deposit_requests WHERE reference=? LIMIT 1").bind(reference).first();
+  if(row && providerStatus(data.status || data.payment_status)==="success") await postDepositCredit(env,row,data);
+  return data;
+}
+async function handleObpayWebhook(request, env) {
+  if(!env.OBPAY_WEBHOOK_SIGNING_SECRET) return json({error:"Webhook signing secret is not configured."},503);
+  const raw=await request.text();
+  const signature=(request.headers.get("x-obpay-signature")||request.headers.get("x-webhook-signature")||request.headers.get("x-signature")||"").replace(/^sha256=/i,"").trim().toLowerCase();
+  if(!signature) return json({error:"Missing webhook signature."},401);
+  const key=await crypto.subtle.importKey("raw",encoder.encode(env.OBPAY_WEBHOOK_SIGNING_SECRET),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
+  const digest=toHex(new Uint8Array(await crypto.subtle.sign("HMAC",key,encoder.encode(raw))));
+  if(!constantTimeEqual(digest,signature)) return json({error:"Invalid webhook signature."},401);
+  let payload;try{payload=JSON.parse(raw);}catch{return json({error:"Invalid webhook JSON."},400);}
+  const event=payload.data||payload.payload||payload;
+  const reference=String(event.reference||event.merchant_reference||event.transaction_reference||"");
+  if(!reference) return json({error:"Webhook reference is missing."},400);
+  const eventStatus=providerStatus(event.status||event.payment_status);
+  const hash=await sha256(raw);
+  const eventId=String(payload.event_id||payload.id||event.event_id||event.transaction_id||reference+":"+eventStatus+":"+hash);
+  const now=new Date().toISOString();
+  const inserted=await env.DB.prepare("INSERT OR IGNORE INTO provider_webhook_events(id,provider,provider_event_id,provider_reference,event_type,payload_hash,received_at) VALUES(?,'obpay',?,?,?,?,?)")
+    .bind(crypto.randomUUID(),eventId,reference,String(payload.event||payload.type||eventStatus),hash,now).run();
+  if(!inserted.meta?.changes) return json({ok:true,duplicate:true});
+  try{
+    const deposit=await env.DB.prepare("SELECT * FROM deposit_requests WHERE reference=? LIMIT 1").bind(reference).first();
+    const withdrawal=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE reference=? LIMIT 1").bind(reference).first();
+    if(deposit){
+      const verified=await confirmObpayTransaction(env,reference);
+      const finalStatus=providerStatus(verified.status||verified.payment_status);
+      if(finalStatus==="failed") await env.DB.prepare("UPDATE deposit_requests SET provider_status='failed',status='rejected',updated_at=? WHERE id=? AND status='pending'").bind(now,deposit.id).run();
+    }else if(withdrawal){
+      const verified=await obpay(env,"/transactions/"+encodeURIComponent(reference));
+      const finalStatus=providerStatus(verified.status||verified.payment_status);
+      if(finalStatus==="success") await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(now,withdrawal.id).run();
+      else if(finalStatus==="failed") await releaseWithdrawal(env,withdrawal,"ObPay payout failed");
+    }
+    await env.DB.prepare("UPDATE provider_webhook_events SET processed_at=? WHERE provider='obpay' AND provider_event_id=?").bind(new Date().toISOString(),eventId).run();
+    return json({ok:true});
+  }catch(error){
+    console.error("ObPay webhook processing failed:",error);
+    return json({error:"Webhook could not be reconciled yet."},503);
+  }
+}
+async function releaseWithdrawal(env, withdrawal, reason) {
+  if(withdrawal.status==="rejected"||withdrawal.status==="completed") return;
+  const clearing=await ensurePlatformAccount(env,"PLATFORM_WITHDRAWAL_CLEARING","ObPay withdrawal clearing");
+  const wallet="wallet-"+withdrawal.investor_id;
+  const txId="withdrawal-release-"+withdrawal.id;
+  await postLedger(env,{id:txId,reference:"WREL-"+withdrawal.reference,key:"withdrawal_release:"+withdrawal.id,type:"withdrawal_release",userId:withdrawal.investor_id,description:reason,debitAccount:clearing,creditAccount:wallet,amount:Number(withdrawal.amount_minor)});
+  await env.DB.prepare("UPDATE withdrawal_requests SET status='rejected',provider_status='failed',updated_at=? WHERE id=? AND status NOT IN ('completed','rejected')").bind(new Date().toISOString(),withdrawal.id).run();
+}
+
 async function authApi(request, env, url) {
   if (!env.DB) return json({ error: "Service temporarily unavailable." }, 503);
   if (!checkOrigin(request, url)) return json({ error: "Request origin rejected." }, 403);
@@ -272,6 +435,43 @@ async function authApi(request, env, url) {
       console.error("ObPay credential check failed:", error);
       return json({ configured: true, reachable: false, authenticated: false, error: "Could not reach ObPay." }, 502);
     }
+  }
+
+  if (request.method === "POST" && url.pathname === "/obpay/webhook") return handleObpayWebhook(request, env);
+
+
+  if (request.method === "POST" && url.pathname.startsWith("/api/admin/withdrawals/") && url.pathname.endsWith("/approve")) {
+    const admin=await currentAdmin(request,env);if(!admin)return json({error:"Authentication required."},401);
+    const id=url.pathname.split("/")[4];const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=? LIMIT 1").bind(id).first();
+    if(!row||row.status!=="pending")return json({error:"Pending withdrawal not found."},404);
+    try{
+      const result=await obpay(env,"/payouts","POST",{reference:row.reference,amount:Number(row.amount_minor),currency:"UGX",phone:row.payout_phone_e164,callback_url:new URL("/obpay/webhook",url).toString(),description:"Lifeline Care Supply withdrawal"});
+      await env.DB.prepare("UPDATE withdrawal_requests SET status='approved',provider_reference=?,provider_status=?,reviewed_by_admin_id=?,reviewed_at=?,updated_at=? WHERE id=? AND status='pending'")
+        .bind(String(result.provider_reference||result.reference||row.reference),String(result.status||"pending"),admin.id,new Date().toISOString(),new Date().toISOString(),id).run();
+      if(providerStatus(result.status)==="success")await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=?").bind(new Date().toISOString(),id).run();
+      return json({ok:true,status:providerStatus(result.status)==="success"?"completed":"approved",provider:result});
+    }catch(error){console.error("ObPay payout initiation failed:",error);return json({error:"ObPay payout was not accepted. Funds remain reserved; inspect provider status before retrying."},502);}
+  }
+  if (request.method === "POST" && url.pathname.startsWith("/api/admin/withdrawals/") && url.pathname.endsWith("/reject")) {
+    const admin=await currentAdmin(request,env);if(!admin)return json({error:"Authentication required."},401);
+    const id=url.pathname.split("/")[4];const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=? LIMIT 1").bind(id).first();
+    if(!row||!["pending","approved"].includes(row.status))return json({error:"Withdrawal cannot be rejected in its current state."},409);
+    await releaseWithdrawal(env,row,"Withdrawal rejected by administrator");
+    await env.DB.prepare("UPDATE withdrawal_requests SET reviewed_by_admin_id=?,reviewed_at=?,review_note='Rejected by administrator' WHERE id=?").bind(admin.id,new Date().toISOString(),id).run();
+    return json({ok:true,status:"rejected"});
+  }
+  if (request.method === "POST" && url.pathname.startsWith("/api/admin/packages/") && url.pathname.endsWith("/publish")) {
+    const admin=await currentAdmin(request,env);if(!admin)return json({error:"Authentication required."},401);
+    const id=url.pathname.split("/")[4];const pkg=await env.DB.prepare("SELECT * FROM investment_packages WHERE id=? AND status IN ('draft','paused')").bind(id).first();
+    if(!pkg)return json({error:"Package not found or cannot be published."},404);
+    const price=Number(pkg.investment_amount),terms=(()=>{try{return JSON.parse(pkg.return_structure||"{}");}catch{return {};}})();
+    if(!Number.isSafeInteger(price)||price<=0||!Number.isSafeInteger(Number(pkg.duration_days))||Number(pkg.duration_days)<=0||!Number.isSafeInteger(Number(terms.daily_income_ugx))||Number(terms.daily_income_ugx)<=0||!pkg.terms_version||!pkg.risk_disclosure)return json({error:"Package terms are incomplete. Update the package before publishing."},409);
+    const now=new Date().toISOString();
+    await env.DB.batch([
+      env.DB.prepare("UPDATE investment_packages SET status='published',published_at=?,updated_at=? WHERE id=?").bind(now,now,id),
+      env.DB.prepare("INSERT INTO audit_logs(id,actor_admin_id,action,entity_type,entity_id,metadata,created_at) VALUES(?,?,'investment_package.published','investment_package',?,?,?)").bind(crypto.randomUUID(),admin.id,id,JSON.stringify({code:pkg.code,termsVersion:pkg.terms_version}),now)
+    ]);
+    return json({ok:true,status:"published"});
   }
 
   if (request.method === "GET" && url.pathname === "/api/admin/data") {
@@ -434,6 +634,66 @@ async function authApi(request, env, url) {
     await env.DB.prepare("UPDATE investor_profiles SET profile_photo_data = ?, updated_at = ? WHERE user_id = ?")
       .bind(photo, new Date().toISOString(), investor.id).run();
     return json({ ok: true });
+  }
+
+
+  if (request.method === "POST" && url.pathname === "/api/investor/deposits") {
+    const investor=await currentInvestor(request,env); if(!investor)return json({error:"Authentication required."},401);
+    let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
+    const amount=Number(data.amount), phone=typeof data.phone==="string"?data.phone.trim():investor.phone_e164;
+    const min=Number(await setting(env,"minimum_deposit_ugx","10000"));
+    if(!Number.isSafeInteger(amount)||amount<min||amount>100000000||!validPhone(phone))return json({error:"Enter a valid mobile-money number and deposit amount of at least UGX "+min+"."},400);
+    const id=crypto.randomUUID(),reference="LCSDEP"+Date.now().toString(36).toUpperCase()+randomToken(5).replace(/[^A-Z0-9]/gi,"").toUpperCase();
+    const now=new Date().toISOString();
+    await env.DB.prepare("INSERT INTO deposit_requests(id,reference,investor_id,amount_minor,currency,payment_method,provider_reference,status,payment_phone_e164,created_at,updated_at) VALUES(?,?,?,?,'UGX','ObPay Mobile Money',?,'pending',?,?,?)")
+      .bind(id,reference,investor.id,amount,reference,phone,now,now).run();
+    try{
+      const result=await obpay(env,"/collect","POST",{reference,amount,currency:"UGX",phone,callback_url:new URL("/obpay/webhook",url).toString(),description:"Lifeline Care Supply wallet deposit"});
+      await env.DB.prepare("UPDATE deposit_requests SET provider_reference=?,provider_status=?,updated_at=? WHERE id=?")
+        .bind(String(result.provider_reference||result.reference||reference),String(result.status||"pending"),new Date().toISOString(),id).run();
+      return json({ok:true,reference,status:"pending",provider:result},201);
+    }catch(error){
+      console.error("ObPay collection initiation failed:",error);
+      await env.DB.prepare("UPDATE deposit_requests SET provider_status='initiation_failed',updated_at=? WHERE id=?").bind(new Date().toISOString(),id).run();
+      return json({error:"ObPay could not start this payment. No wallet credit was made.",reference},502);
+    }
+  }
+  if (request.method === "POST" && url.pathname === "/api/investor/withdrawals") {
+    const investor=await currentInvestor(request,env); if(!investor)return json({error:"Authentication required."},401);
+    let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
+    const amount=Number(data.amount),phone=typeof data.phone==="string"?data.phone.trim():investor.phone_e164;
+    const min=Number(await setting(env,"minimum_withdrawal_ugx","2000"));
+    if(!Number.isSafeInteger(amount)||amount<min||amount>100000000||!validPhone(phone))return json({error:"Enter a valid amount and registered mobile-money number."},400);
+    const deposit=await env.DB.prepare("SELECT id FROM deposit_requests WHERE investor_id=? AND status='completed' LIMIT 1").bind(investor.id).first();
+    const active=await env.DB.prepare("SELECT id FROM investments WHERE investor_id=? AND status='active' LIMIT 1").bind(investor.id).first();
+    if(!deposit||!active)return json({error:"Withdrawal eligibility requires a successful deposit and at least one active investment."},403);
+    const balance=await walletBalance(env,investor.id);if(balance<amount)return json({error:"Insufficient available wallet balance."},400);
+    const id=crypto.randomUUID(),reference="LCSWDR"+Date.now().toString(36).toUpperCase()+randomToken(5).replace(/[^A-Z0-9]/gi,"").toUpperCase(),now=new Date().toISOString();
+    const clearing=await ensurePlatformAccount(env,"PLATFORM_WITHDRAWAL_CLEARING","ObPay withdrawal clearing");
+    const wallet="wallet-"+investor.id;
+    await env.DB.prepare("INSERT INTO withdrawal_requests(id,reference,investor_id,amount_minor,currency,payout_method,payout_phone_e164,status,created_at,updated_at) VALUES(?,?,?,?,'UGX','ObPay Mobile Money',?,'pending',?,?)")
+      .bind(id,reference,investor.id,amount,phone,now,now).run();
+    try{
+      await postLedger(env,{id:"withdrawal-reserve-"+id,reference:"WRES-"+reference,key:"withdrawal_reserve:"+id,type:"withdrawal_reserve",userId:investor.id,description:"Reserve wallet funds for withdrawal request",debitAccount:wallet,creditAccount:clearing,amount});
+    }catch(error){await env.DB.prepare("DELETE FROM withdrawal_requests WHERE id=?").bind(id).run();throw error;}
+    return json({ok:true,reference,status:"pending",message:"Withdrawal request submitted for administrator review."},201);
+  }
+  if (request.method === "POST" && url.pathname === "/api/investor/investments") {
+    const investor=await currentInvestor(request,env);if(!investor)return json({error:"Authentication required."},401);
+    let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
+    const pkg=await env.DB.prepare("SELECT * FROM investment_packages WHERE id=? AND status='published' LIMIT 1").bind(String(data.packageId||"")).first();
+    if(!pkg)return json({error:"This investment package is not currently available."},404);
+    const amount=Number(pkg.investment_amount);if(!Number.isSafeInteger(amount)||amount<=0)return json({error:"Package configuration is invalid."},409);
+    const balance=await walletBalance(env,investor.id);if(balance<amount)return json({error:"Insufficient wallet balance. Deposit first."},400);
+    const id=crypto.randomUUID(),reference="LCSINV"+Date.now().toString(36).toUpperCase()+randomToken(5).replace(/[^A-Z0-9]/gi,"").toUpperCase();
+    const now=new Date().toISOString(),started=now,matures=new Date(Date.now()+Number(pkg.duration_days||90)*86400000).toISOString();
+    const platform=await ensurePlatformAccount(env,"PLATFORM_INVESTMENT_PRINCIPAL","Investment principal holding");
+    const wallet="wallet-"+investor.id;
+    const snapshot=JSON.stringify({id:pkg.id,code:pkg.code,name:pkg.name,amountUGX:amount,durationDays:pkg.duration_days,returnStructure:pkg.return_structure,termsVersion:pkg.terms_version,riskDisclosure:pkg.risk_disclosure});
+    await env.DB.prepare("INSERT INTO investments(id,reference,investor_id,package_id,package_snapshot,principal_amount,currency,status,terms_version,terms_accepted_at,started_at,matures_at,created_at,updated_at) VALUES(?,?,?,?,?,?,'UGX','active',?,?,?,?,?,?)")
+      .bind(id,reference,investor.id,pkg.id,snapshot,String(amount),pkg.terms_version,now,started,matures,now,now).run();
+    await postLedger(env,{id:"investment-purchase-"+id,reference:"IP-"+reference,key:"investment_purchase:"+id,type:"investment_purchase",userId:investor.id,description:"Purchase "+pkg.name,debitAccount:wallet,creditAccount:platform,amount});
+    return json({ok:true,reference,status:"active",maturesAt:matures},201);
   }
 
   if (request.method === "GET" && url.pathname === "/api/investor/dashboard") {
