@@ -219,7 +219,7 @@ async function obpay(env, path, method="GET", payload=null) {
   });
   const raw = await response.text();
   let data={}; try { data=raw ? JSON.parse(raw) : {}; } catch { throw new Error("ObPay returned an unreadable response."); }
-  if (!response.ok || data.success===false || data.ok===false) {
+  if (!response.ok || data.success===false || data.ok===false || String(data.status||"").toLowerCase()==="error") {
     const message = data.error || data.message || data.detail || "ObPay request failed.";
     throw new Error("ObPay HTTP "+response.status+": "+String(message).slice(0,180));
   }
@@ -234,9 +234,9 @@ function providerStatus(value) {
 async function postDepositCredit(env, deposit, provider) {
   const amount=Number(provider.amount ?? provider.amount_minor ?? deposit.amount_minor);
   const currency=String(provider.currency || deposit.currency || "UGX").toUpperCase();
-  const providerRef=String(provider.reference || provider.provider_reference || provider.transaction_reference || deposit.reference);
-  const providerId=String(provider.transaction_id || provider.id || provider.provider_transaction_id || providerRef);
-  if (amount!==Number(deposit.amount_minor) || currency!=="UGX" || providerRef!==deposit.reference) {
+  const providerRef=String(provider.reference || provider.provider_reference || provider.transaction_reference || provider.merchant_reference || deposit.reference);
+  const providerId=String(provider.transaction_id || provider.transactionId || provider.id || provider.provider_transaction_id || providerRef);
+  const providerPhone=String(provider.phone||provider.phone_number||provider.payer_phone||provider.customer_phone||"").replace(/\\D/g,"");\n  const expectedPhone=String(deposit.payment_phone_e164||"").replace(/\\D/g,"");\n  if (amount!==Number(deposit.amount_minor) || currency!=="UGX" || providerRef!==deposit.reference || (providerPhone&&expectedPhone&&providerPhone!==expectedPhone)) {
     throw new Error("ObPay transaction does not match the local deposit reference, amount and currency.");
   }
   const wallet="wallet-"+deposit.investor_id;
@@ -284,7 +284,7 @@ async function qualifyReferralCommissions(env, deposit) {
 async function confirmObpayTransaction(env, reference) {
   const data=await obpay(env,"/transactions/"+encodeURIComponent(reference));
   const row=await env.DB.prepare("SELECT * FROM deposit_requests WHERE reference=? LIMIT 1").bind(reference).first();
-  if(row && providerStatus(data.status || data.payment_status)==="success") await postDepositCredit(env,row,data);
+  if(row && providerStatus(data.status || data.payment_status || data.state)==="success") await postDepositCredit(env,row,data);
   return data;
 }
 async function handleObpayWebhook(request, env) {
@@ -311,7 +311,7 @@ async function handleObpayWebhook(request, env) {
     const withdrawal=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE reference=? LIMIT 1").bind(reference).first();
     if(deposit){
       const verified=await confirmObpayTransaction(env,reference);
-      const finalStatus=providerStatus(verified.status||verified.payment_status);
+      const finalStatus=providerStatus(verified.status||verified.payment_status||verified.state);
       if(finalStatus==="failed") await env.DB.prepare("UPDATE deposit_requests SET provider_status='failed',status='rejected',updated_at=? WHERE id=? AND status='pending'").bind(now,deposit.id).run();
     }else if(withdrawal){
       const verified=await obpay(env,"/transactions/"+encodeURIComponent(reference));
@@ -378,7 +378,7 @@ async function reconcilePendingObpay(env) {
   for(const row of deposits.results||[]){
     try{
       const p=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
-      const status=providerStatus(p.status||p.payment_status);
+      const status=providerStatus(p.status||p.payment_status||p.state);
       if(p.reference&&String(p.reference)!==row.reference)continue;
       if(p.amount!==undefined&&Number(p.amount)!==Number(row.amount_minor))continue;
       if(p.currency&&String(p.currency).toUpperCase()!=="UGX")continue;
