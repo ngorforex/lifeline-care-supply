@@ -166,10 +166,21 @@ if(isAdmin){
   let thead=table.querySelector("thead");if(!thead){thead=document.createElement("thead");table.append(thead);}
   let tbody=table.querySelector("tbody");if(!tbody){tbody=document.createElement("tbody");table.append(tbody);}
   const defs=columns[tab]||[];
-  const headRow=document.createElement("tr");defs.forEach(([label])=>{const th=document.createElement("th");th.textContent=label;headRow.append(th);});thead.replaceChildren(headRow);
+  const hasActions=["withdrawals","all_withdrawals","packages"].includes(tab);const headRow=document.createElement("tr");defs.forEach(([label])=>{const th=document.createElement("th");th.textContent=label;headRow.append(th);});if(hasActions){const th=document.createElement("th");th.textContent="ACTIONS";headRow.append(th);}thead.replaceChildren(headRow);
   tbody.replaceChildren();
-  if(!records?.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=defs.length||1;td.className="empty-cell";td.textContent="No records found.";tr.append(td);tbody.append(tr);return;}
-  for(const item of records){const tr=document.createElement("tr");for(const [,get] of defs){const td=document.createElement("td");td.textContent=String(get(item)??"—");tr.append(td);}tbody.append(tr);}
+  if(!records?.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=(defs.length||1)+(hasActions?1:0);td.className="empty-cell";td.textContent="No records found.";tr.append(td);tbody.append(tr);return;}
+  for(const item of records){
+   const tr=document.createElement("tr");
+   for(const [,get] of defs){const td=document.createElement("td");td.textContent=String(get(item)??"—");tr.append(td);}
+   if(hasActions){
+    const td=document.createElement("td");
+    const addAction=(label,url)=>{const b=document.createElement("button");b.type="button";b.className="admin-row-action";b.textContent=label;b.addEventListener("click",async()=>{b.disabled=true;try{const response=await fetch(url,{method:"POST",credentials:"same-origin",headers:{"Accept":"application/json"}});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Action failed.");loadAdminSection(location.hash.slice(1)||"overview");}catch(error){adminError(error.message);}finally{b.disabled=false;}});td.append(b);};
+    if((tab==="withdrawals"||tab==="all_withdrawals")&&item.status==="pending"){addAction("Approve","/api/admin/withdrawals/"+encodeURIComponent(item.id)+"/approve");addAction("Reject","/api/admin/withdrawals/"+encodeURIComponent(item.id)+"/reject");}
+    if(tab==="packages"&&["draft","paused"].includes(item.status))addAction("Publish","/api/admin/packages/"+encodeURIComponent(item.id)+"/publish");
+    tr.append(td);
+   }
+   tbody.append(tr);
+  }
  };
  const loadAdminSection=async tab=>{
   const section=tab==="overview"?"overview":tab==="packages"?"packages":tab==="investors"?"investors":tab==="investments"?"investments":tab==="deposits"?"deposits":tab==="withdrawals"?"withdrawals":tab==="all-deposits"?"all_deposits":tab==="successful-deposits"?"successful_deposits":tab==="all-withdrawals"?"all_withdrawals":tab==="successful-withdrawals"?"successful_withdrawals":tab==="active-customers"?"active_customers":tab==="referrals"?"referrals":tab==="audit"?"audit":null;
