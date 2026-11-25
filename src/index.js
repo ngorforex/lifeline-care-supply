@@ -144,6 +144,48 @@ async function authApi(request, env, url) {
   if (!env.DB) return json({ error: "Service temporarily unavailable." }, 503);
   if (!checkOrigin(request, url)) return json({ error: "Request origin rejected." }, 403);
 
+  if (request.method === "POST" && url.pathname === "/api/admin/bootstrap") {
+    const configuredSecret = env.ADMIN_BOOTSTRAP_SECRET;
+    const suppliedSecret = request.headers.get("X-Admin-Bootstrap-Secret") || "";
+    if (typeof configuredSecret !== "string" || configuredSecret.length < 32 ||
+        !constantTimeEqual(suppliedSecret, configuredSecret)) {
+      return json({ error: "Bootstrap is unavailable or unauthorized." }, 404);
+    }
+    const existing = await env.DB.prepare("SELECT COUNT(*) AS count FROM admin_users").first();
+    if (Number(existing?.count || 0) !== 0) {
+      return json({ error: "Initial administrator has already been created." }, 409);
+    }
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    if (!await rateLimit(env, "admin-bootstrap:" + await sha256(ip), 3, 3600)) {
+      return json({ error: "Too many bootstrap attempts. Try again later." }, 429);
+    }
+    let data;
+    try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
+    const email = typeof data.email === "string" ? data.email.trim().toLowerCase() : "";
+    const password = data.password;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !passwordValid(password)) {
+      return json({ error: "Provide a valid email and a password with at least 12 characters including uppercase, lowercase and a number." }, 400);
+    }
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const hash = await passwordHash(password, salt);
+    try {
+      await env.DB.batch([
+        env.DB.prepare("INSERT INTO admin_users (id, email, role, is_active, created_at, updated_at) VALUES (?, ?, 'super_admin', 1, ?, ?)")
+          .bind(id, email, now, now),
+        env.DB.prepare("INSERT INTO admin_credentials (admin_user_id, password_hash, password_salt, password_iterations, password_changed_at) VALUES (?, ?, ?, ?, ?)")
+          .bind(id, hash, bytesToBase64(salt), PASSWORD_ITERATIONS, now),
+        env.DB.prepare("INSERT INTO audit_logs (id, actor_admin_id, action, entity_type, entity_id, metadata, created_at) VALUES (?, ?, 'admin.initial_bootstrap', 'admin_user', ?, ?, ?)")
+          .bind(crypto.randomUUID(), id, id, JSON.stringify({ role: "super_admin" }), now)
+      ]);
+    } catch (error) {
+      console.error("Initial administrator bootstrap failed:", error);
+      return json({ error: "Initial administrator could not be created." }, 500);
+    }
+    return json({ ok: true, message: "Initial super administrator created. Remove ADMIN_BOOTSTRAP_SECRET from Worker secrets now." }, 201);
+  }
+
   if (request.method === "POST" && url.pathname === "/api/admin/auth/login") {
     let data;
     try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
