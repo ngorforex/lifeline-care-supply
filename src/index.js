@@ -288,23 +288,37 @@ async function authApi(request, env, url) {
     const rateKey = "register:" + await sha256(ip);
     if (!await rateLimit(env, rateKey, 5, 3600)) return json({ error: "Too many registration attempts. Try again later." }, 429);
 
+    const referralCodeInput = typeof data.referralCode === "string" ? data.referralCode.trim().toUpperCase() : "";
+    const referrer = referralCodeInput
+      ? await env.DB.prepare("SELECT owner_user_id FROM referral_codes WHERE code = ? AND is_active = 1 LIMIT 1").bind(referralCodeInput).first()
+      : null;
+    if (referralCodeInput && !referrer) return json({ error: "That referral code is invalid or inactive." }, 400);
     const userId = crypto.randomUUID();
     const now = new Date().toISOString();
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const hash = await passwordHash(password, salt);
+    const ownReferralCode = "LCS" + randomToken(9).replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 9);
+    const welcomeTransactionId = crypto.randomUUID();
+    const welcomeAmount = 2000;
     try {
-      await env.DB.batch([
-        env.DB.prepare("INSERT INTO users (id, phone_e164, status, created_at, updated_at) VALUES (?, ?, 'active', ?, ?)")
-          .bind(userId, phone, now, now),
-        env.DB.prepare("INSERT INTO investor_profiles (user_id, first_name, middle_name, last_name, verification_state, created_at, updated_at) VALUES (?, ?, ?, ?, 'not_started', ?, ?)")
-          .bind(userId, firstName, middleName || null, lastName, now, now),
-        env.DB.prepare("INSERT INTO user_credentials (user_id, password_hash, password_salt, password_iterations, password_changed_at) VALUES (?, ?, ?, ?, ?)")
-          .bind(userId, hash, bytesToBase64(salt), PASSWORD_ITERATIONS, now),
+      const statements = [
+        env.DB.prepare("INSERT INTO users (id, phone_e164, status, created_at, updated_at) VALUES (?, ?, 'active', ?, ?)").bind(userId, phone, now, now),
+        env.DB.prepare("INSERT INTO investor_profiles (user_id, first_name, middle_name, last_name, verification_state, created_at, updated_at) VALUES (?, ?, ?, ?, 'not_started', ?, ?)").bind(userId, firstName, middleName || null, lastName, now, now),
+        env.DB.prepare("INSERT INTO user_credentials (user_id, password_hash, password_salt, password_iterations, password_changed_at) VALUES (?, ?, ?, ?, ?)").bind(userId, hash, bytesToBase64(salt), PASSWORD_ITERATIONS, now),
         env.DB.prepare("INSERT INTO ledger_accounts (id, owner_user_id, account_code, currency, account_name, created_at) VALUES (?, ?, 'WALLET_AVAILABLE', 'UGX', 'Available wallet balance', ?)").bind("wallet-" + userId, userId, now),
-        env.DB.prepare("INSERT INTO audit_logs (id, actor_user_id, action, entity_type, entity_id, metadata, created_at) VALUES (?, ?, 'investor.registered', 'user', ?, ?, ?)")
-          .bind(crypto.randomUUID(), userId, userId, JSON.stringify({ channel: "phone_password" }), now)
-      ]);
+        env.DB.prepare("INSERT INTO referral_codes (id, owner_user_id, code, is_active, created_at) VALUES (?, ?, ?, 1, ?)").bind(crypto.randomUUID(), userId, ownReferralCode, now),
+        env.DB.prepare("INSERT INTO ledger_transactions (id, reference, idempotency_key, transaction_type, status, currency, related_entity_type, related_entity_id, description, created_by_user_id, posted_at, created_at) VALUES (?, ?, ?, 'welcome_bonus', 'posted', 'UGX', 'user', ?, 'UGX 2,000 registration welcome bonus', ?, ?, ?)").bind(welcomeTransactionId, "WB-" + userId, "welcome_bonus:" + userId, userId, userId, now, now),
+        env.DB.prepare("INSERT INTO ledger_entries (id, transaction_id, account_id, side, amount_minor, currency, created_at) VALUES (?, ?, 'platform-welcome-bonus-expense', 'debit', ?, 'UGX', ?)").bind(crypto.randomUUID(), welcomeTransactionId, welcomeAmount, now),
+        env.DB.prepare("INSERT INTO ledger_entries (id, transaction_id, account_id, side, amount_minor, currency, created_at) VALUES (?, ?, ?, 'credit', ?, 'UGX', ?)").bind(crypto.randomUUID(), welcomeTransactionId, "wallet-" + userId, welcomeAmount, now),
+        env.DB.prepare("INSERT INTO audit_logs (id, actor_user_id, action, entity_type, entity_id, metadata, created_at) VALUES (?, ?, 'investor.registered', 'user', ?, ?, ?)").bind(crypto.randomUUID(), userId, userId, JSON.stringify({ channel: "phone_password", welcomeBonusUGX: welcomeAmount, referralCodeIssued: true }), now)
+      ];
+      if (referrer) {
+        statements.push(env.DB.prepare("INSERT INTO referrals (id, referral_code_id, referrer_user_id, referred_user_id, status, registered_at) SELECT ?, id, ?, ?, 'registered', ? FROM referral_codes WHERE code = ? AND is_active = 1")
+          .bind(crypto.randomUUID(), referrer.owner_user_id, userId, now, referralCodeInput));
+      }
+      await env.DB.batch(statements);
     } catch (error) {
+      console.error("Investor registration transaction failed:", error);
       if (String(error).includes("UNIQUE")) return json({ error: "Unable to create account with those details. Check the phone number or sign in." }, 409);
       return json({ error: "Account registration could not be completed." }, 500);
     }
