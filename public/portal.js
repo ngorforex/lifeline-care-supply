@@ -50,13 +50,13 @@ function renderDashboard(data){
  const currency=investments[0]?.currency||"UGX";
  const formatMajor=value=>new Intl.NumberFormat("en-UG",{style:"currency",currency,maximumFractionDigits:0}).format(value);
  setText('[data-metric="totalInvested"]',formatMajor(totalInvested));
- setText('[data-metric="totalEarnings"]',"Not available");
+ setText('[data-metric="totalEarnings"]',amountMinor(metrics.totalEarningsMinor||0,"UGX"));
  const walletCurrency=metrics.walletCurrency||"UGX";
  const walletBalance=amountMinor(metrics.walletBalanceMinor||0,walletCurrency);
  setText('[data-metric="availableBalance"]',walletBalance);
  setText("[data-home-wallet-balance]",walletBalance);
  setText("[data-wallet-balance]",walletBalance);
- setText("[data-home-today-earnings]","UGX 0");
+ setText("[data-home-today-earnings]",amountMinor(metrics.todayEarningsMinor||0,"UGX"));
  setText('[data-metric="portfolioValue"]',"Not available");
  setText("[data-portfolio-note]","Portfolio valuation will appear when ledger reporting is configured.");
  const activeTarget=document.querySelector("[data-active-investments]");
