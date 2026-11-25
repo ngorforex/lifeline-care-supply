@@ -634,3 +634,92 @@ body[data-portal="investor"] .profile-banner-image{
 @media(max-width:700px){
   body[data-portal="investor"] .profile-banner-image{border-radius:16px;margin-bottom:13px}
 }
+
+
+/* Integrate live profile details directly into the account hero artwork */
+body[data-portal="investor"] .profile-hero-combined{
+  position:relative;
+  width:100%;
+  margin:0 0 22px;
+  overflow:hidden;
+  border-radius:20px;
+  isolation:isolate;
+  background:#eaf6f0;
+}
+body[data-portal="investor"] .profile-hero-combined .profile-banner-image{
+  display:block;
+  width:100%;
+  height:auto;
+  margin:0;
+  border-radius:0;
+}
+body[data-portal="investor"] .profile-hero-combined .profile-hero{
+  position:absolute;
+  inset:auto 0 0;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:12px 16px;
+  margin:0;
+  min-height:0;
+  border:0;
+  border-radius:0;
+  background:linear-gradient(0deg,rgba(3,67,57,.94),rgba(3,67,57,.76) 78%,rgba(3,67,57,0));
+  color:#fff;
+  box-shadow:none;
+  overflow:visible;
+}
+body[data-portal="investor"] .profile-hero-combined .profile-hero:after{display:none}
+body[data-portal="investor"] .profile-hero-combined .profile-photo-wrap{
+  flex:0 0 74px;
+  width:74px;
+  gap:5px;
+  align-items:center;
+}
+body[data-portal="investor"] .profile-hero-combined .profile-avatar-frame,
+body[data-portal="investor"] .profile-hero-combined .profile-hero-avatar,
+body[data-portal="investor"] .profile-hero-combined .profile-photo{
+  width:66px;
+  height:66px;
+  flex:0 0 66px;
+  border-radius:50%;
+  border:3px solid #9af18e;
+  object-fit:cover;
+}
+body[data-portal="investor"] .profile-hero-combined .profile-upload-button{
+  padding:5px 7px;
+  font-size:9px;
+  color:#fff;
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:20px;
+  white-space:nowrap;
+}
+body[data-portal="investor"] .profile-hero-combined .profile-photo-hint{display:none}
+body[data-portal="investor"] .profile-hero-combined .profile-hero-details{min-width:0}
+body[data-portal="investor"] .profile-hero-combined .profile-status{
+  padding:4px 8px;
+  font-size:8px;
+}
+body[data-portal="investor"] .profile-hero-combined .profile-hero-details h3{
+  margin:4px 0;
+  font-size:17px;
+  color:#fff;
+}
+body[data-portal="investor"] .profile-hero-combined .profile-hero-details p{
+  margin:3px 0;
+  color:#fff;
+  font-size:10px;
+  line-height:1.3;
+}
+body[data-portal="investor"] .profile-hero-combined .profile-detail-icon{width:13px;height:13px;flex:0 0 13px}
+@media(max-width:700px){
+  body[data-portal="investor"] .profile-hero-combined{border-radius:17px;margin-bottom:18px}
+  body[data-portal="investor"] .profile-hero-combined .profile-hero{gap:9px;padding:9px 10px}
+  body[data-portal="investor"] .profile-hero-combined .profile-photo-wrap{flex-basis:62px;width:62px}
+  body[data-portal="investor"] .profile-hero-combined .profile-avatar-frame,
+  body[data-portal="investor"] .profile-hero-combined .profile-hero-avatar,
+  body[data-portal="investor"] .profile-hero-combined .profile-photo{width:54px;height:54px;flex-basis:54px}
+  body[data-portal="investor"] .profile-hero-combined .profile-hero-details h3{font-size:15px}
+  body[data-portal="investor"] .profile-hero-combined .profile-hero-details p{font-size:9px}
+}
