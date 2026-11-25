@@ -310,7 +310,7 @@ async function handleObpayWebhook(request, env) {
     }else if(withdrawal){
       const verified=await obpay(env,"/transactions/"+encodeURIComponent(reference));
       const finalStatus=providerStatus(verified.status||verified.payment_status);
-      if(finalStatus==="success") await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(now,withdrawal.id).run();
+      if(finalStatus==="success"){await settleWithdrawal(env,withdrawal);await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(now,withdrawal.id).run();}
       else if(finalStatus==="failed") await releaseWithdrawal(env,withdrawal,"ObPay payout failed");
     }
     await env.DB.prepare("UPDATE provider_webhook_events SET processed_at=? WHERE provider='obpay' AND provider_event_id=?").bind(new Date().toISOString(),eventId).run();
@@ -355,11 +355,26 @@ async function reconcilePendingObpay(env) {
       if(p.reference&&String(p.reference)!==row.reference)continue;
       if(p.amount!==undefined&&Number(p.amount)!==Number(row.amount_minor))continue;
       if(p.currency&&String(p.currency).toUpperCase()!=="UGX")continue;
-      if(status==="success"){await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),row.id).run();completedWithdrawals++;}
+      if(status==="success"){await settleWithdrawal(env,row);await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),row.id).run();completedWithdrawals++;}
       else if(status==="failed"){await releaseWithdrawal(env,row,"ObPay payout failed");failed++;}
     }catch(error){console.warn("Pending ObPay payout reconciliation deferred:",row.reference,String(error).slice(0,160));}
   }
   return {completedDeposits,completedWithdrawals,failed};
+}
+
+
+async function settleWithdrawal(env, withdrawal) {
+  const gross=Number(withdrawal.amount_minor);
+  const tax=Number(withdrawal.tax_amount_minor||0);
+  const net=Number(withdrawal.payout_amount_minor??(gross-tax));
+  if(!Number.isSafeInteger(gross)||!Number.isSafeInteger(tax)||!Number.isSafeInteger(net)||gross<=0||tax<0||net<=0||net+tax!==gross)throw new Error("Withdrawal tax and payout amounts do not reconcile.");
+  const clearing=await ensurePlatformAccount(env,"PLATFORM_WITHDRAWAL_CLEARING","ObPay withdrawal clearing");
+  const payout=await ensurePlatformAccount(env,"PLATFORM_OBPAY_PAYOUT_SETTLEMENT","ObPay payout settlement");
+  await postLedger(env,{id:"withdrawal-settle-net-"+withdrawal.id,reference:"WNET-"+withdrawal.reference,key:"withdrawal_settlement_net:"+withdrawal.id,type:"withdrawal_settlement",userId:withdrawal.investor_id,description:"Confirmed ObPay payout",debitAccount:clearing,creditAccount:payout,amount:net});
+  if(tax>0){
+    const taxAccount=await ensurePlatformAccount(env,"PLATFORM_WITHDRAWAL_TAX_PAYABLE","Withdrawal tax payable");
+    await postLedger(env,{id:"withdrawal-tax-"+withdrawal.id,reference:"WTAX-"+withdrawal.reference,key:"withdrawal_tax:"+withdrawal.id,type:"withdrawal_tax",userId:withdrawal.investor_id,description:"Withdrawal tax withheld",debitAccount:clearing,creditAccount:taxAccount,amount:tax});
+  }
 }
 
 async function postDailyEarnings(env, scheduledAt = new Date()) {
@@ -518,15 +533,15 @@ async function authApi(request, env, url) {
       const reviewedAt=new Date().toISOString();
       await env.DB.prepare("UPDATE withdrawal_requests SET status='approved',reviewed_by_admin_id=?,reviewed_at=?,updated_at=? WHERE id=? AND status='pending'")
         .bind(admin.id,reviewedAt,reviewedAt,id).run();
-      const result=await obpay(env,"/payouts","POST",{reference:row.reference,amount:Number(row.amount_minor),currency:"UGX",phone:row.payout_phone_e164,callback_url:new URL("/obpay/webhook",url).toString(),description:"Lifeline Care Supply withdrawal"});
+      const result=await obpay(env,"/payouts","POST",{reference:row.reference,amount:Number(row.payout_amount_minor??row.amount_minor),currency:"UGX",phone:row.payout_phone_e164,callback_url:new URL("/obpay/webhook",url).toString(),description:"Lifeline Care Supply withdrawal"});
       await env.DB.prepare("UPDATE withdrawal_requests SET provider_reference=?,provider_status=?,updated_at=? WHERE id=? AND status='approved'")
         .bind(String(result.provider_reference||result.reference||row.reference),String(result.status||"pending"),new Date().toISOString(),id).run();
       const verified=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
       const verifiedStatus=providerStatus(verified.status||verified.payment_status);
       if(verified.reference&&String(verified.reference)!==row.reference)throw new Error("Payout verification reference mismatch.");
-      if(verified.amount!==undefined&&Number(verified.amount)!==Number(row.amount_minor))throw new Error("Payout verification amount mismatch.");
+      if(verified.amount!==undefined&&Number(verified.amount)!==Number(row.payout_amount_minor??row.amount_minor))throw new Error("Payout verification amount mismatch.");
       if(verified.currency&&String(verified.currency).toUpperCase()!=="UGX")throw new Error("Payout verification currency mismatch.");
-      if(verifiedStatus==="success")await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),id).run();
+      if(verifiedStatus==="success"){await settleWithdrawal(env,{...row,payout_amount_minor:row.payout_amount_minor??row.amount_minor,tax_amount_minor:row.tax_amount_minor||0});await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),id).run();}
       if(verifiedStatus==="failed")await releaseWithdrawal(env,{...row,status:"approved"},"ObPay payout failed");
       return json({ok:true,status:verifiedStatus==="success"?"completed":verifiedStatus==="failed"?"rejected":"approved",provider:result});
     }catch(error){console.error("ObPay payout initiation failed:",error);return json({error:"ObPay payout was not accepted. Funds remain reserved; inspect provider status before retrying."},502);}
@@ -756,15 +771,18 @@ async function authApi(request, env, url) {
     const active=await env.DB.prepare("SELECT id FROM investments WHERE investor_id=? AND status='active' LIMIT 1").bind(investor.id).first();
     if(!deposit||!active)return json({error:"Withdrawal eligibility requires a successful deposit and at least one active investment."},403);
     const balance=await walletBalance(env,investor.id);if(balance<amount)return json({error:"Insufficient available wallet balance."},400);
+    const taxBps=Number(await setting(env,"withdrawal_tax_bps","1500"));
+    const tax=Math.floor(amount*taxBps/10000),payoutAmount=amount-tax;
+    if(!Number.isSafeInteger(taxBps)||taxBps<0||taxBps>5000||payoutAmount<=0)return json({error:"Withdrawal tax configuration is invalid."},503);
     const id=crypto.randomUUID(),reference="LCSWDR"+Date.now().toString(36).toUpperCase()+randomToken(5).replace(/[^A-Z0-9]/gi,"").toUpperCase(),now=new Date().toISOString();
     const clearing=await ensurePlatformAccount(env,"PLATFORM_WITHDRAWAL_CLEARING","ObPay withdrawal clearing");
     const wallet="wallet-"+investor.id;
-    await env.DB.prepare("INSERT INTO withdrawal_requests(id,reference,investor_id,amount_minor,currency,payout_method,payout_phone_e164,status,created_at,updated_at) VALUES(?,?,?,?,'UGX','ObPay Mobile Money',?,'pending',?,?)")
-      .bind(id,reference,investor.id,amount,phone,now,now).run();
+    await env.DB.prepare("INSERT INTO withdrawal_requests(id,reference,investor_id,amount_minor,currency,payout_method,payout_phone_e164,payout_amount_minor,tax_amount_minor,status,created_at,updated_at) VALUES(?,?,?,?,'UGX','ObPay Mobile Money',?,?,?,'pending',?,?)")
+      .bind(id,reference,investor.id,amount,phone,payoutAmount,tax,now,now).run();
     try{
       await postLedger(env,{id:"withdrawal-reserve-"+id,reference:"WRES-"+reference,key:"withdrawal_reserve:"+id,type:"withdrawal_reserve",userId:investor.id,description:"Reserve wallet funds for withdrawal request",debitAccount:wallet,creditAccount:clearing,amount});
     }catch(error){await env.DB.prepare("DELETE FROM withdrawal_requests WHERE id=?").bind(id).run();throw error;}
-    return json({ok:true,reference,status:"pending",message:"Withdrawal request submitted for administrator review."},201);
+    return json({ok:true,reference,status:"pending",grossAmount:amount,taxAmount:tax,payoutAmount, taxRateBps:taxBps,message:"Withdrawal request submitted for administrator review."},201);
   }
   if (request.method === "POST" && url.pathname === "/api/investor/investments") {
     const investor=await currentInvestor(request,env);if(!investor)return json({error:"Authentication required."},401);
