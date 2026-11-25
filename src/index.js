@@ -529,81 +529,25 @@ async function authApi(request, env, url) {
   }
 
   if (request.method === "GET" && url.pathname === "/api/admin/obpay/status") {
-    const admin = await currentAdmin(request, env);
-    if (!admin) return json({ error: "Authentication required." }, 401);
-    if (!env.OBPAY_SECRET_KEY || !env.OBPAY_WEBHOOK_SIGNING_SECRET) {
-      return json({ configured: false, error: "ObPay credentials are not fully configured." }, 503);
-    }
-    try {
-      const response = await fetch("https://obpay.online/api/public/v1/ping", {
-        method: "GET",
-        headers: { "Authorization": "Bearer " + env.OBPAY_SECRET_KEY, "Accept": "application/json" }
-      });
-      const raw = await response.text();
-      let providerData = {};
-      try { providerData = JSON.parse(raw); } catch { providerData = {}; }
-      return json({
-        configured: true,
-        reachable: response.ok,
-        authenticated: response.ok,
-        providerHttpStatus: response.status,
-        providerMessage: typeof providerData.message === "string" ? providerData.message.slice(0, 160) : null
-      }, response.ok ? 200 : 502);
-    } catch (error) {
-      console.error("ObPay credential check failed:", error);
-      return json({ configured: true, reachable: false, authenticated: false, error: "Could not reach ObPay." }, 502);
-    }
-  }
-
-  if (request.method === "POST" && url.pathname === "/obpay/webhook") return handleObpayWebhook(request, env);
-
-
-  if (request.method === "POST" && url.pathname.startsWith("/api/admin/withdrawals/") && url.pathname.endsWith("/approve")) {
-    const admin=await currentAdmin(request,env);if(!admin)return json({error:"Authentication required."},401);
-    if(!["super_admin","finance_admin"].includes(admin.role))return json({error:"Your administrator role cannot approve payouts."},403);
-    const id=url.pathname.split("/")[4];const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=? LIMIT 1").bind(id).first();
-    if(!row||row.status!=="pending")return json({error:"Pending withdrawal not found."},404);
+    const admin=await currentAdmin(request,env);
+    if(!admin)return json({error:"Authentication required."},401);
+    if(!env.OBPAY_SECRET_KEY||!env.OBPAY_WEBHOOK_SIGNING_SECRET)return json({configured:false,error:"ObPay credentials are not fully configured."},503);
     try{
-      const reviewedAt=new Date().toISOString();
-      await env.DB.prepare("UPDATE withdrawal_requests SET status='approved',reviewed_by_admin_id=?,reviewed_at=?,updated_at=? WHERE id=? AND status='pending'")
-        .bind(admin.id,reviewedAt,reviewedAt,id).run();
-      const result=await obpay(env,"/payouts","POST",{reference:row.reference,amount:Number(row.payout_amount_minor??row.amount_minor),currency:"UGX",phone:row.payout_phone_e164,callback_url:new URL("/obpay/webhook",url).toString(),description:"Lifeline Care Supply withdrawal"});
-      await env.DB.prepare("UPDATE withdrawal_requests SET provider_reference=?,provider_status=?,updated_at=? WHERE id=? AND status='approved'")
-        .bind(String(result.provider_reference||result.reference||row.reference),String(result.status||"pending"),new Date().toISOString(),id).run();
-      const verified=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
-      const verifiedStatus=providerStatus(verified.status||verified.payment_status);
-      if(verified.reference&&String(verified.reference)!==row.reference)throw new Error("Payout verification reference mismatch.");
-      if(verified.amount!==undefined&&Number(verified.amount)!==Number(row.payout_amount_minor??row.amount_minor))throw new Error("Payout verification amount mismatch.");
-      if(verified.currency&&String(verified.currency).toUpperCase()!=="UGX")throw new Error("Payout verification currency mismatch.");
-      if(verifiedStatus==="success"){await settleWithdrawal(env,{...row,payout_amount_minor:row.payout_amount_minor??row.amount_minor,tax_amount_minor:row.tax_amount_minor||0});await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),id).run();}
-      if(verifiedStatus==="failed")await releaseWithdrawal(env,{...row,status:"approved"},"ObPay payout failed");
-      return json({ok:true,status:verifiedStatus==="success"?"completed":verifiedStatus==="failed"?"rejected":"approved",provider:result});
-    }catch(error){console.error("ObPay payout initiation failed:",error);return json({error:"ObPay payout was not accepted. Funds remain reserved; inspect provider status before retrying."},502);}
+      const ping=await obpay(env,"/ping");
+      let webhookRegistered=false,webhookEvents=[];
+      try{
+        const hooks=await obpay(env,"/webhooks");
+        const list=Array.isArray(hooks.webhooks)?hooks.webhooks:Array.isArray(hooks)?hooks:[];
+        const expected="https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook";
+        const match=list.find(item=>item.url===expected&&item.active!==false);
+        webhookRegistered=Boolean(match);webhookEvents=match?.events||[];
+      }catch(error){console.warn("ObPay webhook inspection failed:",String(error).slice(0,120));}
+      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",webhookRegistered,webhookEvents,message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
+    }catch(error){
+      console.error("ObPay credential check failed:",error);
+      return json({configured:true,reachable:false,authenticated:false,error:"ObPay authentication or connectivity check failed."},502);
+    }
   }
-  if (request.method === "POST" && url.pathname.startsWith("/api/admin/withdrawals/") && url.pathname.endsWith("/reject")) {
-    const admin=await currentAdmin(request,env);if(!admin)return json({error:"Authentication required."},401);
-    if(!["super_admin","finance_admin"].includes(admin.role))return json({error:"Your administrator role cannot reject payouts."},403);
-    const id=url.pathname.split("/")[4];const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=? LIMIT 1").bind(id).first();
-    if(!row||!["pending","approved"].includes(row.status))return json({error:"Withdrawal cannot be rejected in its current state."},409);
-    await releaseWithdrawal(env,row,"Withdrawal rejected by administrator");
-    await env.DB.prepare("UPDATE withdrawal_requests SET reviewed_by_admin_id=?,reviewed_at=?,review_note='Rejected by administrator' WHERE id=?").bind(admin.id,new Date().toISOString(),id).run();
-    return json({ok:true,status:"rejected"});
-  }
-  if (request.method === "POST" && url.pathname.startsWith("/api/admin/packages/") && url.pathname.endsWith("/publish")) {
-    const admin=await currentAdmin(request,env);if(!admin)return json({error:"Authentication required."},401);
-    if(!["super_admin","investment_manager"].includes(admin.role))return json({error:"Your administrator role cannot publish investment packages."},403);
-    const id=url.pathname.split("/")[4];const pkg=await env.DB.prepare("SELECT * FROM investment_packages WHERE id=? AND status IN ('draft','paused')").bind(id).first();
-    if(!pkg)return json({error:"Package not found or cannot be published."},404);
-    const price=Number(pkg.investment_amount),terms=(()=>{try{return JSON.parse(pkg.return_structure||"{}");}catch{return {};}})();
-    if(!Number.isSafeInteger(price)||price<=0||!Number.isSafeInteger(Number(pkg.duration_days))||Number(pkg.duration_days)<=0||!Number.isSafeInteger(Number(terms.daily_income_ugx))||Number(terms.daily_income_ugx)<=0||!pkg.terms_version||!pkg.risk_disclosure)return json({error:"Package terms are incomplete. Update the package before publishing."},409);
-    const now=new Date().toISOString();
-    await env.DB.batch([
-      env.DB.prepare("UPDATE investment_packages SET status='published',published_at=?,updated_at=? WHERE id=?").bind(now,now,id),
-      env.DB.prepare("INSERT INTO audit_logs(id,actor_admin_id,action,entity_type,entity_id,metadata,created_at) VALUES(?,?,'investment_package.published','investment_package',?,?,?)").bind(crypto.randomUUID(),admin.id,id,JSON.stringify({code:pkg.code,termsVersion:pkg.terms_version}),now)
-    ]);
-    return json({ok:true,status:"published"});
-  }
-
 
   if (request.method === "POST" && url.pathname === "/api/admin/obpay/reconcile") {
     const admin=await currentAdmin(request,env);
