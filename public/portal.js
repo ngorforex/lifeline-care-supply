@@ -198,7 +198,7 @@ if(isAdmin){
      successfulDeposits:adminMoney(m.successfulDepositsMinor??0,"UGX"),
      successfulWithdrawals:adminMoney(m.successfulWithdrawalsMinor??0,"UGX"),
       netDeposits:adminMoney((Number(m.successfulDepositsMinor)||0)-(Number(m.successfulWithdrawalsMinor)||0),"UGX"),
-      nextMidnightEarnings:"Not configured",
+      nextMidnightEarnings:adminMoney(m.nextMidnightEarningsMinor??0,"UGX"),
      activeInvestments:String(m.activeInvestments??0),
      todayDeposits:adminMoney(m.todayDepositsMinor??0,"UGX"),
      todayWithdrawals:adminMoney(m.todayWithdrawalsMinor??0,"UGX"),
