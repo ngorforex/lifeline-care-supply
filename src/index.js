@@ -549,6 +549,17 @@ async function authApi(request, env, url) {
     }
   }
 
+
+  if (request.method === "POST" && url.pathname === "/api/admin/earnings/run") {
+    const admin=await currentAdmin(request,env);
+    if(!admin)return json({error:"Authentication required."},401);
+    if(!["super_admin","investment_manager"].includes(admin.role))return json({error:"Your administrator role cannot post investment earnings."},403);
+    const result=await postDailyEarnings(env,new Date());
+    await env.DB.prepare("INSERT INTO audit_logs(id,actor_admin_id,action,entity_type,entity_id,metadata,created_at) VALUES(?,?,'investment_earnings.manual_run','platform','daily_earnings',?,?)")
+      .bind(crypto.randomUUID(),admin.id,JSON.stringify(result),new Date().toISOString()).run();
+    return json({ok:true,...result});
+  }
+
   if (request.method === "POST" && url.pathname === "/api/admin/obpay/reconcile") {
     const admin=await currentAdmin(request,env);
     if(!admin)return json({error:"Authentication required."},401);
