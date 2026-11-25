@@ -236,8 +236,8 @@ async function authApi(request, env, url) {
         env.DB.prepare("SELECT COUNT(*) AS count FROM withdrawal_requests WHERE status IN ('pending','under_review')").first(),
         env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM deposit_requests WHERE status = 'completed'").first(),
         env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM withdrawal_requests WHERE status = 'completed'").first(),
-        env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM deposit_requests WHERE status = 'completed' AND date(created_at) = date('now','+3 hours')").first(),
-        env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM withdrawal_requests WHERE status = 'completed' AND date(created_at) = date('now','+3 hours')").first(),
+        env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM deposit_requests WHERE status = 'completed' AND date(created_at,'+3 hours') = date('now','+3 hours')").first(),
+        env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM withdrawal_requests WHERE status = 'completed' AND date(created_at,'+3 hours') = date('now','+3 hours')").first(),
         env.DB.prepare("SELECT COUNT(*) AS count FROM referrals").first()
       ]);
       return json({ section, metrics: {
