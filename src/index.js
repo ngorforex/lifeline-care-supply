@@ -179,6 +179,47 @@ async function authApi(request, env, url) {
     return json({ authenticated: true, admin: { id: admin.id, email: admin.email, role: admin.role } });
   }
 
+  if (request.method === "GET" && url.pathname === "/api/admin/data") {
+    const admin = await currentAdmin(request, env);
+    if (!admin) return json({ error: "Authentication required." }, 401);
+    const section = url.searchParams.get("section") || "overview";
+    const limit = Math.min(200, Math.max(1, Number(url.searchParams.get("limit")) || 100));
+    const pageLimit = Math.floor(limit);
+    const eat = "Africa/Kampala";
+    if (section === "overview") {
+      const [investors, activeInvestments, pendingDeposits, pendingWithdrawals, deposits, withdrawals, referrals] = await Promise.all([
+        env.DB.prepare("SELECT COUNT(*) AS count FROM users").first(),
+        env.DB.prepare("SELECT COUNT(*) AS count FROM investments WHERE status = 'active'").first(),
+        env.DB.prepare("SELECT COUNT(*) AS count FROM deposit_requests WHERE status IN ('pending','under_review')").first(),
+        env.DB.prepare("SELECT COUNT(*) AS count FROM withdrawal_requests WHERE status IN ('pending','under_review')").first(),
+        env.DB.prepare("SELECT COUNT(*) AS count FROM deposit_requests").first(),
+        env.DB.prepare("SELECT COUNT(*) AS count FROM withdrawal_requests").first(),
+        env.DB.prepare("SELECT COUNT(*) AS count FROM referrals").first()
+      ]);
+      return json({ section, metrics: {
+        totalInvestors: Number(investors?.count || 0),
+        activeInvestments: Number(activeInvestments?.count || 0),
+        pendingDeposits: Number(pendingDeposits?.count || 0),
+        pendingWithdrawals: Number(pendingWithdrawals?.count || 0),
+        totalDeposits: Number(deposits?.count || 0),
+        totalWithdrawals: Number(withdrawals?.count || 0),
+        referrals: Number(referrals?.count || 0)
+      }, timezone: eat, paymentActions: "read_only" });
+    }
+    const queries = {
+      investors: "SELECT u.id, u.phone_e164, u.status, u.created_at, p.first_name, p.middle_name, p.last_name FROM users u JOIN investor_profiles p ON p.user_id=u.id ORDER BY u.created_at DESC LIMIT ?",
+      packages: "SELECT id, code, name, currency, investment_amount, duration_days, return_structure, risk_disclosure, terms_version, status, published_at, created_at, updated_at FROM investment_packages ORDER BY created_at ASC LIMIT ?",
+      investments: "SELECT i.id, i.reference, i.investor_id, u.phone_e164, p.name AS package_name, i.principal_amount, i.currency, i.status, i.started_at, i.matures_at, i.created_at FROM investments i JOIN users u ON u.id=i.investor_id LEFT JOIN investment_packages p ON p.id=i.package_id ORDER BY i.created_at DESC LIMIT ?",
+      deposits: "SELECT d.id, d.reference, d.investor_id, u.phone_e164, d.amount_minor, d.currency, d.payment_method, d.provider_reference, d.status, d.created_at, d.updated_at FROM deposit_requests d JOIN users u ON u.id=d.investor_id ORDER BY d.created_at DESC LIMIT ?",
+      withdrawals: "SELECT w.id, w.reference, w.investor_id, u.phone_e164, w.amount_minor, w.currency, w.payout_method, w.status, w.created_at, w.updated_at FROM withdrawal_requests w JOIN users u ON u.id=w.investor_id ORDER BY w.created_at DESC LIMIT ?",
+      referrals: "SELECT r.id, r.referrer_user_id, ru.phone_e164 AS referrer_phone, r.referred_user_id, vu.phone_e164 AS referred_phone, r.status, r.registered_at, r.qualified_at FROM referrals r JOIN users ru ON ru.id=r.referrer_user_id JOIN users vu ON vu.id=r.referred_user_id ORDER BY r.registered_at DESC LIMIT ?",
+      audit: "SELECT l.id, l.actor_admin_id, l.actor_user_id, a.email AS admin_email, u.phone_e164 AS investor_phone, l.action, l.entity_type, l.entity_id, l.reason, l.metadata, l.created_at FROM audit_logs l LEFT JOIN admin_users a ON a.id=l.actor_admin_id LEFT JOIN users u ON u.id=l.actor_user_id ORDER BY l.created_at DESC LIMIT ?"
+    };
+    if (!queries[section]) return json({ error: "Unknown data section." }, 400);
+    const result = await env.DB.prepare(queries[section]).bind(pageLimit).all();
+    return json({ section, records: result.results || [], timezone: eat, paymentActions: "read_only" });
+  }
+
   if (request.method === "POST" && url.pathname === "/api/admin/auth/logout") {
     const token = cookieValue(request, "lcs_session");
     if (token) await env.DB.prepare("DELETE FROM auth_sessions WHERE token_hash = ?").bind(await sha256(token)).run();
