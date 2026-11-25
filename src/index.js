@@ -229,13 +229,15 @@ async function authApi(request, env, url) {
     const pageLimit = Math.floor(limit);
     const eat = "Africa/Kampala";
     if (section === "overview") {
-      const [investors, activeInvestments, pendingDeposits, pendingWithdrawals, deposits, withdrawals, referrals] = await Promise.all([
+      const [investors, activeInvestments, pendingDeposits, pendingWithdrawals, successfulDeposits, successfulWithdrawals, todayDeposits, todayWithdrawals, referrals] = await Promise.all([
         env.DB.prepare("SELECT COUNT(*) AS count FROM users").first(),
         env.DB.prepare("SELECT COUNT(*) AS count FROM investments WHERE status = 'active'").first(),
         env.DB.prepare("SELECT COUNT(*) AS count FROM deposit_requests WHERE status IN ('pending','under_review')").first(),
         env.DB.prepare("SELECT COUNT(*) AS count FROM withdrawal_requests WHERE status IN ('pending','under_review')").first(),
-        env.DB.prepare("SELECT COUNT(*) AS count FROM deposit_requests").first(),
-        env.DB.prepare("SELECT COUNT(*) AS count FROM withdrawal_requests").first(),
+        env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM deposit_requests WHERE status = 'completed'").first(),
+        env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM withdrawal_requests WHERE status = 'completed'").first(),
+        env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM deposit_requests WHERE status = 'completed' AND date(created_at) = date('now','+3 hours')").first(),
+        env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM withdrawal_requests WHERE status = 'completed' AND date(created_at) = date('now','+3 hours')").first(),
         env.DB.prepare("SELECT COUNT(*) AS count FROM referrals").first()
       ]);
       return json({ section, metrics: {
@@ -243,8 +245,10 @@ async function authApi(request, env, url) {
         activeInvestments: Number(activeInvestments?.count || 0),
         pendingDeposits: Number(pendingDeposits?.count || 0),
         pendingWithdrawals: Number(pendingWithdrawals?.count || 0),
-        totalDeposits: Number(deposits?.count || 0),
-        totalWithdrawals: Number(withdrawals?.count || 0),
+        successfulDepositsMinor: Number(successfulDeposits?.total || 0),
+        successfulWithdrawalsMinor: Number(successfulWithdrawals?.total || 0),
+        todayDepositsMinor: Number(todayDeposits?.total || 0),
+        todayWithdrawalsMinor: Number(todayWithdrawals?.total || 0),
         referrals: Number(referrals?.count || 0)
       }, timezone: eat, paymentActions: "read_only" });
     }
