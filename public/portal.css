@@ -1305,3 +1305,75 @@ body[data-portal="investor"] .topbar-project-name .word-supply{
 @media(max-width:380px){
   body[data-portal="investor"] .topbar-project-name{font-size:10px!important;gap:.22em}
 }
+
+/* Lifeline administrator: responsive, brand-aligned operations layout */
+body[data-portal="admin"]{background:#f3f8f6;color:#173e3b}
+body[data-portal="admin"] .sidebar{
+ position:relative;inset:auto;width:100%;height:auto;padding:14px clamp(14px,3vw,36px) 0;
+ border:0;border-bottom:1px solid #dfeae5;background:linear-gradient(105deg,#fff 0%,#f9fcfa 58%,#edf7f2 100%);
+ box-shadow:0 3px 14px rgba(24,70,59,.045)
+}
+body[data-portal="admin"] .brand{padding:0 0 13px;font-size:15px;gap:11px}
+body[data-portal="admin"] .brand-icon{width:42px;height:42px;border-radius:13px;background:#dff2ec;color:#0d928b}
+body[data-portal="admin"] .side-label,body[data-portal="admin"] .sidebar-bottom{display:none}
+body[data-portal="admin"] .side-nav{
+ display:flex;align-items:stretch;gap:8px;overflow-x:auto;overflow-y:hidden;
+ padding:0 0 11px;scrollbar-width:thin;scrollbar-color:#b7d8cd transparent;
+ -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain
+}
+body[data-portal="admin"] .side-nav a{
+ flex:0 0 auto;min-height:48px;display:flex;align-items:center;gap:9px;
+ padding:11px 15px;border:1px solid #e0ebe6;border-radius:13px;
+ background:#fff;color:#55716a;font-size:12px;font-weight:650;white-space:nowrap
+}
+body[data-portal="admin"] .side-nav a .nav-icon{width:17px;height:17px;color:#168f87}
+body[data-portal="admin"] .side-nav a.active,
+body[data-portal="admin"] .side-nav a:hover{
+ color:#087d77;background:#e4f4ee;border-color:#b8dfd2;box-shadow:0 3px 10px rgba(16,157,146,.08)
+}
+body[data-portal="admin"] .main{margin:0;min-height:calc(100vh - 120px);background:#f3f8f6}
+body[data-portal="admin"] .topbar{
+ height:auto;min-height:76px;padding:15px clamp(14px,3vw,36px);
+ background:#fff;border-bottom:1px solid #e2ebe7;box-shadow:none
+}
+body[data-portal="admin"] .topbar h1{font-size:20px;color:#173e3b}
+body[data-portal="admin"] .breadcrumb{color:#82958e}
+body[data-portal="admin"] .preview-pill{background:#e8f4ef;color:#087d77;letter-spacing:.07em}
+body[data-portal="admin"] .admin-avatar{background:#dff2ec;color:#0d928b;border-radius:12px}
+body[data-portal="admin"] .content{width:min(1240px,100%);padding:22px clamp(14px,3vw,36px) 34px;background:#f3f8f6}
+body[data-portal="admin"] .admin-welcome{
+ background:linear-gradient(112deg,#e4f4ed 0%,#f0f8f4 62%,#e8f3ee 100%);
+ border:1px solid #dcece4;border-radius:17px
+}
+body[data-portal="admin"] .admin-welcome .welcome-art{color:#108f85;background:rgba(255,255,255,.72)}
+body[data-portal="admin"] .admin-metrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+body[data-portal="admin"] .metric,body[data-portal="admin"] .panel{
+ background:#fff;border:1px solid #e0eae5;border-radius:15px;
+ box-shadow:0 5px 18px rgba(28,82,69,.045)
+}
+body[data-portal="admin"] .metric b{color:#087d77;font-size:25px}
+body[data-portal="admin"] .metric span{color:#6e837b}
+body[data-portal="admin"] .kicker{color:#168f87}
+body[data-portal="admin"] .shortcut-icon{background:#e6f4ee;color:#108f85}
+body[data-portal="admin"] .shortcut-icon .nav-icon{stroke:#108f85}
+body[data-portal="admin"] .table-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+body[data-portal="admin"] table{min-width:680px}
+body[data-portal="admin"] th{background:#f4f8f6;color:#688078}
+body[data-portal="admin"] td{color:#31534b}
+body[data-portal="admin"] footer{background:#f3f8f6;border-color:#e0eae5}
+@media(max-width:760px){
+ body[data-portal="admin"] .sidebar{padding:12px 13px 0}
+ body[data-portal="admin"] .brand{padding-bottom:11px}
+ body[data-portal="admin"] .side-nav{gap:7px;padding-bottom:10px}
+ body[data-portal="admin"] .side-nav a{min-height:50px;padding:10px 13px;font-size:12px}
+ body[data-portal="admin"] .topbar{min-height:68px;padding:12px 15px}
+ body[data-portal="admin"] .topbar h1{font-size:17px}
+ body[data-portal="admin"] .content{padding:15px 13px 25px}
+ body[data-portal="admin"] .admin-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ body[data-portal="admin"] .metric{padding:14px 13px;min-height:100px}
+ body[data-portal="admin"] .metric b{font-size:22px}
+ body[data-portal="admin"] .welcome{padding:19px}
+ body[data-portal="admin"] .welcome h2{font-size:22px}
+ body[data-portal="admin"] .two-col{grid-template-columns:1fr}
+ body[data-portal="admin"] .panel{padding:15px}
+}
