@@ -603,8 +603,9 @@ async function authApi(request, env, url) {
         successfulWithdrawalsMinor: Number(successfulWithdrawals?.total || 0),
         todayDepositsMinor: Number(todayDeposits?.total || 0),
         todayWithdrawalsMinor: Number(todayWithdrawals?.total || 0),
-        referrals: Number(referrals?.count || 0)
-      }, timezone: eat, paymentActions: "read_only" });
+        referrals: Number(referrals?.count || 0),
+        nextMidnightEarningsMinor
+      }, timezone: eat, paymentActions: "enabled" });
     }
     const queries = {
       investors: "SELECT u.id, u.phone_e164, u.status, u.created_at, p.first_name, p.middle_name, p.last_name FROM users u JOIN investor_profiles p ON p.user_id=u.id ORDER BY u.created_at DESC LIMIT ?",
