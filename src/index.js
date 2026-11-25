@@ -904,6 +904,8 @@ async function authApi(request, env, url) {
       withdrawals,
       transactions,
       referrals,
+      earnings: earningsHistory.results || [],
+      referralCommissions: commissionHistory.results || [],
       referralCode: referralCode || null,
       packages: packagesResult.results || []
     });
