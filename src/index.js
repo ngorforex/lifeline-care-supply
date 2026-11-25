@@ -189,8 +189,8 @@ async function postLedger(env, {id,reference,key,type,userId,description,debitAc
   const now = new Date().toISOString();
   const txId = id;
   await env.DB.batch([
-    env.DB.prepare("INSERT OR IGNORE INTO ledger_transactions(id,reference,idempotency_key,transaction_type,status,currency,related_entity_type,related_entity_id,description,created_by_user_id,created_by_admin_id,posted_at,created_at) VALUES(?,?,?,?,'posted','UGX','financial_event',?,?,?, ?,?,?)")
-      .bind(txId,reference,key,type,description,userId,adminId,now,now),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_transactions(id,reference,idempotency_key,transaction_type,status,currency,related_entity_type,related_entity_id,description,created_by_user_id,created_by_admin_id,posted_at,created_at) VALUES(?,?,?,?,'posted','UGX','financial_event',?,?,?,?,?,?)")
+      .bind(txId,reference,key,type,reference,description,userId,adminId,now,now),
     env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) VALUES(?,?,?,'debit',?,'UGX',?)")
       .bind(txId+"-dr",txId,debitAccount,amount,now),
     env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) VALUES(?,?,?,'credit',?,'UGX',?)")
@@ -327,6 +327,32 @@ async function releaseWithdrawal(env, withdrawal, reason) {
   const txId="withdrawal-release-"+withdrawal.id;
   await postLedger(env,{id:txId,reference:"WREL-"+withdrawal.reference,key:"withdrawal_release:"+withdrawal.id,type:"withdrawal_release",userId:withdrawal.investor_id,description:reason,debitAccount:clearing,creditAccount:wallet,amount:Number(withdrawal.amount_minor)});
   await env.DB.prepare("UPDATE withdrawal_requests SET status='rejected',provider_status='failed',updated_at=? WHERE id=? AND status NOT IN ('completed','rejected')").bind(new Date().toISOString(),withdrawal.id).run();
+}
+
+
+async function postDailyEarnings(env, scheduledAt = new Date()) {
+  const eatDate = new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Kampala",year:"numeric",month:"2-digit",day:"2-digit"}).format(scheduledAt);
+  const now = scheduledAt.toISOString();
+  const rows = await env.DB.prepare("SELECT id,investor_id,package_snapshot,started_at,matures_at FROM investments WHERE status='active' AND started_at<=? AND matures_at>? ORDER BY id").bind(now,now).all();
+  const expense = await ensurePlatformAccount(env,"PLATFORM_INVESTMENT_EARNINGS_EXPENSE","Investment earnings expense");
+  let posted=0;
+  for (const item of rows.results || []) {
+    let snapshot={}; try { snapshot=JSON.parse(item.package_snapshot||"{}"); } catch {}
+    let terms={}; try { terms=typeof snapshot.returnStructure==="string"?JSON.parse(snapshot.returnStructure):snapshot.returnStructure||{}; } catch {}
+    const amount=Number(terms.daily_income_ugx);
+    if(!Number.isSafeInteger(amount)||amount<=0) continue;
+    const wallet="wallet-"+item.investor_id;
+    await env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts(id,owner_user_id,account_code,currency,account_name,created_at) VALUES(?,?,'WALLET_AVAILABLE','UGX','Available wallet balance',?)")
+      .bind(wallet,item.investor_id,now).run();
+    const earningId="earning-"+item.id+"-"+eatDate;
+    const txId="earning-credit-"+item.id+"-"+eatDate;
+    await postLedger(env,{id:txId,reference:"EARN-"+item.id+"-"+eatDate,key:"investment_earning:"+item.id+":"+eatDate,type:"investment_earning",userId:item.investor_id,description:"Daily investment earnings for "+eatDate,debitAccount:expense,creditAccount:wallet,amount});
+    const insert=await env.DB.prepare("INSERT OR IGNORE INTO investment_earnings(id,investment_id,investor_id,earning_date,amount_minor,ledger_transaction_id,created_at) VALUES(?,?,?,?,?,?,?)")
+      .bind(earningId,item.id,item.investor_id,eatDate,amount,txId,now).run();
+    if(insert.meta?.changes) posted++;
+  }
+  await env.DB.prepare("UPDATE investments SET status='matured',updated_at=? WHERE status='active' AND matures_at<=?").bind(now,now).run();
+  return {earningDate:eatDate,processed:rows.results?.length||0,posted};
 }
 
 async function authApi(request, env, url) {
@@ -813,7 +839,7 @@ async function authApi(request, env, url) {
 }
 
 export default {
-  async fetch(request, env) {
+  async scheduled(controller, env, ctx) {\n    ctx.waitUntil(postDailyEarnings(env, new Date(controller.scheduledTime || Date.now())));\n  },\n  async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === "/admin/setup" || url.pathname === "/admin/setup/") {
       const adminCount = await env.DB.prepare("SELECT COUNT(*) AS count FROM admin_users").first();
