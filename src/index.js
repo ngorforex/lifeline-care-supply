@@ -310,6 +310,9 @@ async function handleObpayWebhook(request, env) {
     }else if(withdrawal){
       const verified=await obpay(env,"/transactions/"+encodeURIComponent(reference));
       const finalStatus=providerStatus(verified.status||verified.payment_status);
+      if(verified.reference&&String(verified.reference)!==reference)throw new Error("Payout webhook reference mismatch.");
+      if(verified.amount!==undefined&&Number(verified.amount)!==Number(withdrawal.payout_amount_minor??withdrawal.amount_minor))throw new Error("Payout webhook amount mismatch.");
+      if(verified.currency&&String(verified.currency).toUpperCase()!=="UGX")throw new Error("Payout webhook currency mismatch.");
       if(finalStatus==="success"){await settleWithdrawal(env,withdrawal);await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(now,withdrawal.id).run();}
       else if(finalStatus==="failed") await releaseWithdrawal(env,withdrawal,"ObPay payout failed");
     }
@@ -353,7 +356,7 @@ async function reconcilePendingObpay(env) {
       const p=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
       const status=providerStatus(p.status||p.payment_status);
       if(p.reference&&String(p.reference)!==row.reference)continue;
-      if(p.amount!==undefined&&Number(p.amount)!==Number(row.amount_minor))continue;
+      if(p.amount!==undefined&&Number(p.amount)!==Number(row.payout_amount_minor??row.amount_minor))continue;
       if(p.currency&&String(p.currency).toUpperCase()!=="UGX")continue;
       if(status==="success"){await settleWithdrawal(env,row);await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),row.id).run();completedWithdrawals++;}
       else if(status==="failed"){await releaseWithdrawal(env,row,"ObPay payout failed");failed++;}
