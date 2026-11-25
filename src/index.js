@@ -824,7 +824,7 @@ async function authApi(request, env, url) {
     const investorId = investor.id;
     const [investmentsResult, depositsResult, withdrawalsResult, referralsResult, referralCode, packagesResult, walletBalance, earningsSummary, referralEarnings, earningsHistory, commissionHistory] = await Promise.all([
       env.DB.prepare(`
-        SELECT i.id, i.reference, i.principal_amount, i.currency, i.status,
+        SELECT i.id, i.reference, i.principal_amount, i.currency, i.status, i.package_snapshot,
                i.terms_version, i.terms_accepted_at, i.started_at, i.matures_at,
                i.created_at, p.name AS package_name
         FROM investments i
