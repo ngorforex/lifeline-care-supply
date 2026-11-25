@@ -217,7 +217,7 @@ async function obpay(env, path, method="GET", payload=null) {
     const message = data.error || data.message || data.detail || "ObPay request failed.";
     throw new Error("ObPay HTTP "+response.status+": "+String(message).slice(0,180));
   }
-  return data.data || data.result || data;
+  return data.data || data.result || data.transaction || data.payment || data;
 }
 function providerStatus(value) {
   const s=String(value||"").toLowerCase();
@@ -284,7 +284,7 @@ async function confirmObpayTransaction(env, reference) {
 async function handleObpayWebhook(request, env) {
   if(!env.OBPAY_WEBHOOK_SIGNING_SECRET) return json({error:"Webhook signing secret is not configured."},503);
   const raw=await request.text();
-  const signature=(request.headers.get("x-obpay-signature")||request.headers.get("x-webhook-signature")||request.headers.get("x-signature")||"").replace(/^sha256=/i,"").trim().toLowerCase();
+  const signature=(request.headers.get("obpay-signature")||request.headers.get("x-obpay-signature")||request.headers.get("x-webhook-signature")||request.headers.get("x-signature")||"").replace(/^sha256=/i,"").trim().toLowerCase();
   if(!signature) return json({error:"Missing webhook signature."},401);
   const key=await crypto.subtle.importKey("raw",encoder.encode(env.OBPAY_WEBHOOK_SIGNING_SECRET),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
   const digest=toHex(new Uint8Array(await crypto.subtle.sign("HMAC",key,encoder.encode(raw))));
@@ -358,6 +358,17 @@ async function postDailyEarnings(env, scheduledAt = new Date()) {
 async function authApi(request, env, url) {
   if (!env.DB) return json({ error: "Service temporarily unavailable." }, 503);
   if (!checkOrigin(request, url)) return json({ error: "Request origin rejected." }, 403);
+
+  if (request.method === "GET" && url.pathname === "/api/obpay/health") {
+    try {
+      const ping=await obpay(env,"/ping");
+      return json({configured:true,authenticated:true,provider:"ObPay",status:"connected",message:typeof ping.message==="string"?ping.message.slice(0,100):null});
+    } catch(error) {
+      console.error("ObPay health check:",error);
+      return json({configured:Boolean(env.OBPAY_SECRET_KEY&&env.OBPAY_WEBHOOK_SIGNING_SECRET),authenticated:false,provider:"ObPay",status:"unavailable",message:"Provider authentication or connectivity check failed."},502);
+    }
+  }
+
 
   if (request.method === "POST" && url.pathname === "/api/admin/bootstrap") {
     const configuredSecret = env.ADMIN_BOOTSTRAP_SECRET;
