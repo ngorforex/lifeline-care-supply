@@ -236,7 +236,9 @@ async function postDepositCredit(env, deposit, provider) {
   const currency=String(provider.currency || deposit.currency || "UGX").toUpperCase();
   const providerRef=String(provider.reference || provider.provider_reference || provider.transaction_reference || provider.merchant_reference || deposit.reference);
   const providerId=String(provider.transaction_id || provider.transactionId || provider.id || provider.provider_transaction_id || providerRef);
-  const providerPhone=String(provider.phone||provider.phone_number||provider.payer_phone||provider.customer_phone||"").replace(/\\D/g,"");\n  const expectedPhone=String(deposit.payment_phone_e164||"").replace(/\\D/g,"");\n  if (amount!==Number(deposit.amount_minor) || currency!=="UGX" || providerRef!==deposit.reference || (providerPhone&&expectedPhone&&providerPhone!==expectedPhone)) {
+  const providerPhone=String(provider.phone||provider.phone_number||provider.payer_phone||provider.customer_phone||"").replace(/\D/g,"");
+  const expectedPhone=String(deposit.payment_phone_e164||"").replace(/\D/g,"");
+  if (amount!==Number(deposit.amount_minor) || currency!=="UGX" || providerRef!==deposit.reference || (providerPhone&&expectedPhone&&providerPhone!==expectedPhone)) {
     throw new Error("ObPay transaction does not match the local deposit reference, amount and currency.");
   }
   const wallet="wallet-"+deposit.investor_id;
