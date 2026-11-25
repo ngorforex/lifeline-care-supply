@@ -102,6 +102,32 @@ async function createAdminSession(env, adminId) {
   `).bind(id, adminId, tokenHash, expires, now, now).run();
   return token;
 }
+async function grantWelcomeBonus(env, userId) {
+  const setting = await env.DB.prepare("SELECT setting_value FROM platform_settings WHERE setting_key = ? LIMIT 1")
+    .bind("welcome_bonus_ugx").first();
+  const amount = Number(setting?.setting_value);
+  if (!Number.isSafeInteger(amount) || amount <= 0) throw new Error("Welcome bonus setting is missing or invalid.");
+  const now = new Date().toISOString();
+  const walletId = "wallet-" + userId;
+  const transactionId = "welcome-bonus-" + userId;
+  const reference = "WB-" + userId;
+  const idempotencyKey = "welcome_bonus:" + userId;
+  await env.DB.batch([
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts (id, owner_user_id, account_code, currency, account_name, created_at) VALUES (?, ?, 'WALLET_AVAILABLE', 'UGX', 'Available wallet balance', ?)")
+      .bind(walletId, userId, now),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts (id, owner_user_id, account_code, currency, account_name, created_at) VALUES ('platform-welcome-bonus-expense', NULL, 'PLATFORM_WELCOME_BONUS_EXPENSE', 'UGX', 'Welcome bonus expense', ?)")
+      .bind(now),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_transactions (id, reference, idempotency_key, transaction_type, status, currency, related_entity_type, related_entity_id, description, created_by_user_id, posted_at, created_at) VALUES (?, ?, ?, 'welcome_bonus', 'posted', 'UGX', 'user', ?, 'Registration welcome bonus after first successful login', ?, ?, ?)")
+      .bind(transactionId, reference, idempotencyKey, userId, userId, now, now),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_entries (id, transaction_id, account_id, side, amount_minor, currency, created_at) VALUES (?, ?, 'platform-welcome-bonus-expense', 'debit', ?, 'UGX', ?)")
+      .bind("welcome-bonus-debit-" + userId, transactionId, amount, now),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_entries (id, transaction_id, account_id, side, amount_minor, currency, created_at) VALUES (?, ?, ?, 'credit', ?, 'UGX', ?)")
+      .bind("welcome-bonus-credit-" + userId, transactionId, walletId, amount, now),
+    env.DB.prepare("INSERT OR IGNORE INTO audit_logs (id, actor_user_id, action, entity_type, entity_id, metadata, created_at) VALUES (?, ?, 'investor.welcome_bonus_credited', 'user', ?, ?, ?)")
+      .bind("welcome-bonus-audit-" + userId, userId, userId, JSON.stringify({ amountUGX: amount, trigger: "first_successful_login" }), now)
+  ]);
+}
+
 async function currentAdmin(request, env) {
   const token = cookieValue(request, "lcs_session");
   if (!token) return null;
@@ -298,12 +324,6 @@ async function authApi(request, env, url) {
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const hash = await passwordHash(password, salt);
     const ownReferralCode = "LCS" + randomToken(9).replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 9);
-    const welcomeTransactionId = crypto.randomUUID();
-    const welcomeSetting = await env.DB.prepare("SELECT setting_value FROM platform_settings WHERE setting_key = ? LIMIT 1").bind("welcome_bonus_ugx").first();
-    const welcomeAmount = Number(welcomeSetting?.setting_value);
-    if (!Number.isSafeInteger(welcomeAmount) || welcomeAmount <= 0) {
-      return json({ error: "Account registration is temporarily unavailable. Please try again later." }, 503);
-    }
     try {
       const statements = [
         env.DB.prepare("INSERT INTO users (id, phone_e164, status, created_at, updated_at) VALUES (?, ?, 'active', ?, ?)").bind(userId, phone, now, now),
@@ -311,10 +331,7 @@ async function authApi(request, env, url) {
         env.DB.prepare("INSERT INTO user_credentials (user_id, password_hash, password_salt, password_iterations, password_changed_at) VALUES (?, ?, ?, ?, ?)").bind(userId, hash, bytesToBase64(salt), PASSWORD_ITERATIONS, now),
         env.DB.prepare("INSERT INTO ledger_accounts (id, owner_user_id, account_code, currency, account_name, created_at) VALUES (?, ?, 'WALLET_AVAILABLE', 'UGX', 'Available wallet balance', ?)").bind("wallet-" + userId, userId, now),
         env.DB.prepare("INSERT INTO referral_codes (id, owner_user_id, code, is_active, created_at) VALUES (?, ?, ?, 1, ?)").bind(crypto.randomUUID(), userId, ownReferralCode, now),
-        env.DB.prepare("INSERT INTO ledger_transactions (id, reference, idempotency_key, transaction_type, status, currency, related_entity_type, related_entity_id, description, created_by_user_id, posted_at, created_at) VALUES (?, ?, ?, 'welcome_bonus', 'posted', 'UGX', 'user', ?, 'UGX 2,000 registration welcome bonus', ?, ?, ?)").bind(welcomeTransactionId, "WB-" + userId, "welcome_bonus:" + userId, userId, userId, now, now),
-        env.DB.prepare("INSERT INTO ledger_entries (id, transaction_id, account_id, side, amount_minor, currency, created_at) VALUES (?, ?, 'platform-welcome-bonus-expense', 'debit', ?, 'UGX', ?)").bind(crypto.randomUUID(), welcomeTransactionId, welcomeAmount, now),
-        env.DB.prepare("INSERT INTO ledger_entries (id, transaction_id, account_id, side, amount_minor, currency, created_at) VALUES (?, ?, ?, 'credit', ?, 'UGX', ?)").bind(crypto.randomUUID(), welcomeTransactionId, "wallet-" + userId, welcomeAmount, now),
-        env.DB.prepare("INSERT INTO audit_logs (id, actor_user_id, action, entity_type, entity_id, metadata, created_at) VALUES (?, ?, 'investor.registered', 'user', ?, ?, ?)").bind(crypto.randomUUID(), userId, userId, JSON.stringify({ channel: "phone_password", welcomeBonusUGX: welcomeAmount, referralCodeIssued: true }), now)
+        env.DB.prepare("INSERT INTO audit_logs (id, actor_user_id, action, entity_type, entity_id, metadata, created_at) VALUES (?, ?, 'investor.registered', 'user', ?, ?, ?)").bind(crypto.randomUUID(), userId, userId, JSON.stringify({ channel: "phone_password", welcomeBonusPending: true, referralCodeIssued: true }), now)
       ];
       if (referrer) {
         statements.push(env.DB.prepare("INSERT INTO referrals (id, referral_code_id, referrer_user_id, referred_user_id, status, registered_at) SELECT ?, id, ?, ?, 'registered', ? FROM referral_codes WHERE code = ? AND is_active = 1")
@@ -363,6 +380,12 @@ async function authApi(request, env, url) {
       await passwordHash(password, crypto.getRandomValues(new Uint8Array(16)));
     }
     if (!row || !valid || row.status !== "active") return json({ error: "Invalid phone number or password." }, 401);
+    try {
+      await grantWelcomeBonus(env, row.id);
+    } catch (error) {
+      console.error("Welcome bonus posting failed after successful authentication:", error);
+      return json({ error: "Sign-in could not be completed because account setup is incomplete. Please try again shortly." }, 503);
+    }
     const sessionToken = await createSession(env, row.id);
     return json({ ok: true }, 200, { "set-cookie": cookie(sessionToken) });
   }
