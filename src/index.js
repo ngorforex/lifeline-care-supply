@@ -839,7 +839,10 @@ async function authApi(request, env, url) {
 }
 
 export default {
-  async scheduled(controller, env, ctx) {\n    ctx.waitUntil(postDailyEarnings(env, new Date(controller.scheduledTime || Date.now())));\n  },\n  async fetch(request, env) {
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(postDailyEarnings(env, new Date(controller.scheduledTime || Date.now())));
+  },
+  async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === "/admin/setup" || url.pathname === "/admin/setup/") {
       const adminCount = await env.DB.prepare("SELECT COUNT(*) AS count FROM admin_users").first();
