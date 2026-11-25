@@ -813,7 +813,7 @@ async function authApi(request, env, url) {
     if (!investor) return json({ error: "Authentication required." }, 401);
 
     const investorId = investor.id;
-    const [investmentsResult, depositsResult, withdrawalsResult, referralsResult, referralCode, packagesResult, walletBalance, earningsSummary, referralEarnings] = await Promise.all([
+    const [investmentsResult, depositsResult, withdrawalsResult, referralsResult, referralCode, packagesResult, walletBalance, earningsSummary, referralEarnings, earningsHistory, commissionHistory] = await Promise.all([
       env.DB.prepare(`
         SELECT i.id, i.reference, i.principal_amount, i.currency, i.status,
                i.terms_version, i.terms_accepted_at, i.started_at, i.matures_at,
@@ -857,7 +857,11 @@ async function authApi(request, env, url) {
       env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total,COALESCE(SUM(CASE WHEN earning_date=? THEN amount_minor ELSE 0 END),0) AS today FROM investment_earnings WHERE investor_id=?")
         .bind(new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Kampala",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()),investorId).first(),
       env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM referral_commissions WHERE referrer_user_id=?")
-        .bind(investorId).first()
+        .bind(investorId).first(),
+      env.DB.prepare("SELECT id,investment_id,earning_date,amount_minor,created_at FROM investment_earnings WHERE investor_id=? ORDER BY earning_date DESC LIMIT 50")
+        .bind(investorId).all(),
+      env.DB.prepare("SELECT id,deposit_request_id,referred_user_id,level,rate_bps,amount_minor,created_at FROM referral_commissions WHERE referrer_user_id=? ORDER BY created_at DESC LIMIT 50")
+        .bind(investorId).all()
     ]);
 
     const investments = investmentsResult.results || [];
