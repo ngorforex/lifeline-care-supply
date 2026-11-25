@@ -581,7 +581,7 @@ async function authApi(request, env, url) {
     const pageLimit = Math.floor(limit);
     const eat = "Africa/Kampala";
     if (section === "overview") {
-      const [investors, activeInvestments, pendingDeposits, pendingWithdrawals, successfulDeposits, successfulWithdrawals, todayDeposits, todayWithdrawals, referrals] = await Promise.all([
+      const [investors, activeInvestments, pendingDeposits, pendingWithdrawals, successfulDeposits, successfulWithdrawals, todayDeposits, todayWithdrawals, referrals, activeInvestmentTerms] = await Promise.all([
         env.DB.prepare("SELECT COUNT(*) AS count FROM users").first(),
         env.DB.prepare("SELECT COUNT(*) AS count FROM investments WHERE status = 'active'").first(),
         env.DB.prepare("SELECT COUNT(*) AS count FROM deposit_requests WHERE status IN ('pending','under_review')").first(),
@@ -590,8 +590,10 @@ async function authApi(request, env, url) {
         env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM withdrawal_requests WHERE status = 'completed'").first(),
         env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM deposit_requests WHERE status = 'completed' AND date(created_at,'+3 hours') = date('now','+3 hours')").first(),
         env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM withdrawal_requests WHERE status = 'completed' AND date(created_at,'+3 hours') = date('now','+3 hours')").first(),
-        env.DB.prepare("SELECT COUNT(*) AS count FROM referrals").first()
+        env.DB.prepare("SELECT COUNT(*) AS count FROM referrals").first(),
+        env.DB.prepare("SELECT package_snapshot FROM investments WHERE status='active'").all()
       ]);
+      const nextMidnightEarningsMinor=(activeInvestmentTerms.results||[]).reduce((sum,item)=>{try{const snapshot=JSON.parse(item.package_snapshot||"{}");const terms=typeof snapshot.returnStructure==="string"?JSON.parse(snapshot.returnStructure):snapshot.returnStructure||{};const amount=Number(terms.daily_income_ugx);return sum+(Number.isSafeInteger(amount)&&amount>0?amount:0);}catch{return sum;}},0);
       return json({ section, metrics: {
         totalInvestors: Number(investors?.count || 0),
         activeInvestments: Number(activeInvestments?.count || 0),
@@ -862,6 +864,7 @@ async function authApi(request, env, url) {
     const withdrawals = withdrawalsResult.results || [];
     const referrals = referralsResult.results || [];
     const activeInvestments = investments.filter(item => item.status === "active").length;
+    const nextEarningsMinor = investments.filter(item => item.status === "active").reduce((sum,item)=>{try{const snapshot=JSON.parse(item.package_snapshot||"{}");const terms=typeof snapshot.returnStructure==="string"?JSON.parse(snapshot.returnStructure):snapshot.returnStructure||{};const amount=Number(terms.daily_income_ugx);return sum+(Number.isSafeInteger(amount)&&amount>0?amount:0);}catch{return sum;}},0);
     const depositCount = deposits.length;
     const withdrawalCount = withdrawals.length;
     const qualifiedReferrals = referrals.filter(item => item.status === "qualified").length;
@@ -889,7 +892,7 @@ async function authApi(request, env, url) {
         referrals: referrals.length,
         qualifiedReferrals,
         walletBalanceMinor: Number(walletBalance?.balance_minor || 0),
-        walletCurrency: "UGX",\n        investmentEarningsMinor: Number(earningsSummary?.total||0),\n        todayEarningsMinor: Number(earningsSummary?.today||0),\n        referralEarningsMinor: Number(referralEarnings?.total||0),\n        totalEarningsMinor: Number(earningsSummary?.total||0)+Number(referralEarnings?.total||0)
+        walletCurrency: "UGX",\n        investmentEarningsMinor: Number(earningsSummary?.total||0),\n        todayEarningsMinor: Number(earningsSummary?.today||0),\n        referralEarningsMinor: Number(referralEarnings?.total||0),\n        totalEarningsMinor: Number(earningsSummary?.total||0)+Number(referralEarnings?.total||0),\n        nextEarningsMinor
       },
       investments,
       deposits,
