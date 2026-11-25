@@ -299,7 +299,11 @@ async function authApi(request, env, url) {
     const hash = await passwordHash(password, salt);
     const ownReferralCode = "LCS" + randomToken(9).replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 9);
     const welcomeTransactionId = crypto.randomUUID();
-    const welcomeAmount = 2000;
+    const welcomeSetting = await env.DB.prepare("SELECT setting_value FROM platform_settings WHERE setting_key = ? LIMIT 1").bind("welcome_bonus_ugx").first();
+    const welcomeAmount = Number(welcomeSetting?.setting_value);
+    if (!Number.isSafeInteger(welcomeAmount) || welcomeAmount < 0) {
+      return json({ error: "Account registration is temporarily unavailable. Please try again later." }, 503);
+    }
     try {
       const statements = [
         env.DB.prepare("INSERT INTO users (id, phone_e164, status, created_at, updated_at) VALUES (?, ?, 'active', ?, ?)").bind(userId, phone, now, now),
