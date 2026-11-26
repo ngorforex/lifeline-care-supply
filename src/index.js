@@ -927,8 +927,8 @@ async function authApi(request, env, url) {
         .bind(investorId).first(),
       env.DB.prepare(`
         SELECT id, code, name, description, currency, investment_amount,
-               duration_days, return_structure, risk_disclosure, terms_version
-        FROM investment_packages WHERE status = 'published'
+               duration_days, return_structure, risk_disclosure, terms_version, status
+        FROM investment_packages WHERE status IN ('published','draft')
         ORDER BY created_at ASC LIMIT 50
       `).all(),
       env.DB.prepare(`
