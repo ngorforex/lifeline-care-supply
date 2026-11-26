@@ -1412,3 +1412,15 @@ body[data-portal="investor"] .payment-dialog-form .dialog-close{z-index:2;width:
  body[data-portal="investor"] #panel-packages .package-card{display:block}
  body[data-portal="investor"] #panel-packages .package-invest-button{min-height:52px}
 }
+
+
+/* Investment action: high-contrast teal primary action */
+body[data-portal="investor"] #panel-packages .package-invest-button{
+ background:linear-gradient(135deg,#16a89a 0%,#0b8f83 100%)!important;
+ color:#ffffff!important;
+ border:1px solid rgba(8,127,117,.18)!important;
+ box-shadow:0 8px 18px rgba(15,158,145,.18);
+}
+body[data-portal="investor"] #panel-packages .package-invest-button:hover{
+ background:linear-gradient(135deg,#0e998e 0%,#08786f 100%)!important;
+}
