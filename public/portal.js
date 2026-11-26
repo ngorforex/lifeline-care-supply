@@ -328,11 +328,19 @@ if(!isAdmin){
    const data=await response.json().catch(()=>({error:"The server returned an invalid response."}));
    if(!response.ok)throw new Error(data.error||"The request could not be completed.");
    if(paymentMode==="deposit"){
-    const next=data.provider?.next_action||data.provider?.instructions||data.provider?.payment_url||data.provider?.checkout_url;
-    result.textContent="Payment request created. Check the mobile-money prompt on "+payload.phone+". Reference: "+data.reference+(typeof next==="string"?" · "+next:"");
-   }else result.textContent="Withdrawal request submitted. Gross: "+amountMinor(data.grossAmount,"UGX")+" · Tax: "+amountMinor(data.taxAmount,"UGX")+" · Net payout: "+amountMinor(data.payoutAmount,"UGX")+". Reference: "+data.reference+". ObPay is processing your payout automatically.";
+    const checkout=typeof data.checkoutUrl==="string"?data.checkoutUrl:(typeof data.provider?.checkout_url==="string"?data.provider.checkout_url:null);
+    const safeCheckout=(()=>{try{const parsed=new URL(checkout);return parsed.protocol==="https:"?parsed.href:null;}catch{return null;}})();
+    if(data.promptSent===true){
+     result.textContent="ObPay sent a mobile-money PIN prompt to "+payload.phone+". Approve it on your phone. Your wallet will only be credited after ObPay confirms successful payment. Reference: "+data.reference;
+    }else if(safeCheckout){
+     result.textContent="ObPay requires hosted checkout. Continue using the secure payment page. Reference: "+data.reference+" ";
+     const link=document.createElement("a");link.href=safeCheckout;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Open secure checkout";result.append(link);
+    }else{
+     result.textContent="ObPay has not confirmed that a PIN prompt was sent. The original payment reference is being checked. Do not submit another deposit. Reference: "+data.reference;
+    }
+   }else result.textContent="Withdrawal request submitted. Gross: "+amountMinor(data.grossAmount,"UGX")+" · Tax: "+amountMinor(data.taxAmount,"UGX")+" · Net payout: "+amountMinor(data.payoutAmount,"UGX")+". Reference: "+data.reference+".";
    submit.textContent="Request submitted";
-   setTimeout(()=>location.reload(),1800);
+   setTimeout(()=>location.reload(),2200);
   }catch(error){result.textContent=error.message||"Payment request failed.";submit.disabled=false;submit.textContent=paymentMode==="deposit"?"Continue to payment":"Submit withdrawal";}
  });
 
