@@ -1,3 +1,8 @@
+const referralInput=document.querySelector('input[name="referralCode"]');
+if(referralInput){
+ const referralFromUrl=new URLSearchParams(location.search).get("ref");
+ if(referralFromUrl&&!referralInput.value)referralInput.value=referralFromUrl.trim().toUpperCase();
+}
 const form=document.querySelector("[data-auth-form]");
 if(form){
  const message=document.querySelector(".message");
