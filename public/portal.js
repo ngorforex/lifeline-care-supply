@@ -391,16 +391,8 @@ if(!isAdmin){
   const chevron=button.querySelector(".profile-chevron");
   if(chevron)chevron.textContent=expanded?"⌄":"⌃";
  });
- document.querySelectorAll("[data-profile-action]").forEach(button=>button.addEventListener("click",()=>{
-  const action=button.dataset.profileAction;
-  const messages={
-   password:"Password management is not available yet. The secure password-change service must be implemented before this control can update credentials.",
-   help:"Help articles are being prepared. For assistance, use the official support channel once its link is configured.",
-   terms:"The platform Terms & Conditions will be published here before investment transactions are enabled.",
-   privacy:"The platform Privacy Policy will be published here before personal-data workflows are enabled.",
-   about:"Lifeline Care Supply is an individual-investor platform focused on fixed investment packages for medical equipment."
-  };
-  window.alert(messages[action]||"This section is not available yet.");
+ document.querySelectorAll("[data-profile-action='password']").forEach(button=>button.addEventListener("click",()=>{
+  window.alert("Password management is not available yet. The secure password-change service must be implemented before this control can update credentials.");
  }));
  document.querySelectorAll("[data-support-placeholder]").forEach(link=>link.addEventListener("click",event=>{
   event.preventDefault();
