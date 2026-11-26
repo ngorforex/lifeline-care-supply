@@ -63,7 +63,11 @@ function cookie(token, maxAge = SESSION_SECONDS) {
 }
 function checkOrigin(request, url) {
   const origin = request.headers.get("Origin");
-  return !origin || origin === url.origin;
+  // Browser state-changing API requests must prove same-origin. GET/HEAD remain
+  // usable by ordinary navigation and health checks; ObPay webhooks are dispatched
+  // separately and authenticated with their provider signature.
+  if (request.method === "GET" || request.method === "HEAD") return !origin || origin === url.origin;
+  return origin === url.origin;
 }
 async function rateLimit(env, key, maxAttempts, windowSeconds) {
   const now = Math.floor(Date.now() / 1000);
