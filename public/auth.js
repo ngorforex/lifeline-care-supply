@@ -15,7 +15,7 @@ if(form){
   }
   const button=form.querySelector("button[type=submit]");
   message.textContent="";message.className="message";button.disabled=true;button.textContent="Please wait…";
-  const payload=mode==="register"?{firstName:values.firstName,middleName:values.middleName||null,lastName:values.lastName,phone:values.phone,password:values.password,referralCode:values.referralCode||""}:{phone:values.phone,password:values.password};
+  const payload=mode==="register"?{phone:values.phone,password:values.password,referralCode:values.referralCode||""}:{phone:values.phone,password:values.password};
   try{
    const response=await fetch("/api/auth/"+mode,{method:"POST",headers:{"content-type":"application/json"},credentials:"same-origin",body:JSON.stringify(payload)});
    const responseText=await response.text();
