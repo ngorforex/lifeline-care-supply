@@ -233,7 +233,10 @@ if(isAdmin){
       const reconcileResponse=await fetch("/api/admin/obpay/reconcile",{method:"POST",credentials:"same-origin"});const reconcile=await reconcileResponse.json().catch(()=>({}));
       if(!reconcileResponse.ok)throw new Error(reconcile.error||"Reconciliation failed.");
       const hook=status.webhookRegistered?"webhook registered":"webhook NOT registered";
-      adminError("ObPay: "+(status.authenticated?"connected":"not authenticated")+" · "+hook+" · Deposits reconciled: "+(reconcile.completedDeposits||0)+" · Withdrawals reconciled: "+(reconcile.completedWithdrawals||0)+". Webhook URL: "+status.webhookUrl);
+      const balance=status.balance&&status.balance.available!==null?"UGX "+Number(status.balance.available).toLocaleString("en-UG"):"UGX balance unavailable";
+      const methods=Array.isArray(status.payoutMethods)?status.payoutMethods.filter(item=>item.enabled).map(item=>item.name||item.code).filter(Boolean):[];
+      const payoutSummary=methods.length?"Enabled payout methods: "+methods.join(", "):"No enabled payout methods confirmed";
+      adminError("ObPay: "+(status.authenticated?"connected":"not authenticated")+" · "+hook+" · "+balance+" · "+payoutSummary+" · Deposits reconciled: "+(reconcile.completedDeposits||0)+" · Withdrawals reconciled: "+(reconcile.completedWithdrawals||0)+". Webhook URL: "+status.webhookUrl);
     }catch(error){adminError(error.message||"ObPay check failed.");}finally{check.disabled=false;check.textContent="Check ObPay & reconcile payments";}});
     const runEarnings=document.createElement("button");runEarnings.type="button";runEarnings.className="admin-row-action";runEarnings.textContent="Post today's daily earnings";
     runEarnings.addEventListener("click",async()=>{runEarnings.disabled=true;try{const response=await fetch("/api/admin/earnings/run",{method:"POST",credentials:"same-origin"});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Earnings posting failed.");adminError("Daily earnings run completed for "+result.earningDate+" (EAT). New credits posted: "+(result.posted||0)+".");loadAdminSection("overview");}catch(error){adminError(error.message);}finally{runEarnings.disabled=false;}});
