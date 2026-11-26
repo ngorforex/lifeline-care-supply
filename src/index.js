@@ -913,18 +913,19 @@ async function authApi(request, env, url) {
       });
       const providerReference=String(provider.reference||reference);
       const providerState=providerStatus(provider.status||provider.payment_status||provider.state);
-      const providerFee=Number(provider.fee??0);
-      const recipientGets=Number(provider.recipient_gets??payoutAmount);
-      const totalDebit=Number(provider.total_debit??(payoutAmount+providerFee));
+      const providerFee=Number(provider.fee);
+      const recipientGets=Number(provider.recipient_gets);
+      const totalDebit=Number(provider.total_debit);
+      const feeMode=String(provider.fee_mode||"");
       if(provider.duplicate===true){
         // An accepted duplicate is a lookup result, not a second payout.
         // Keep the reserved withdrawal in processing until its original reference is reconciled.
       }
-      if(!Number.isFinite(providerFee)||providerFee<0||!Number.isFinite(recipientGets)||recipientGets!==payoutAmount||!Number.isFinite(totalDebit)||totalDebit<payoutAmount){
+      if(!feeMode||provider.fee===undefined||provider.recipient_gets===undefined||provider.total_debit===undefined||!Number.isFinite(providerFee)||providerFee<0||!Number.isFinite(recipientGets)||recipientGets!==payoutAmount||!Number.isFinite(totalDebit)||totalDebit<payoutAmount){
         throw new Error("ObPay payout response did not confirm the requested recipient amount and total debit.");
       }
       await env.DB.prepare("UPDATE withdrawal_requests SET payout_details_private=?,provider_transaction_id=?,provider_status=?,updated_at=? WHERE id=? AND status='approved'")
-        .bind(JSON.stringify({recipientName,phone:payoutPhone,currency:"UGX",providerFee,totalDebit,recipientGets,feeMode:String(provider.fee_mode||"unknown")}),String(provider.transaction_id||provider.id||providerReference),providerState==="success"?"successful":providerState==="failed"?"failed":"pending",new Date().toISOString(),id).run();
+        .bind(JSON.stringify({recipientName,phone:payoutPhone,currency:"UGX",providerFee,totalDebit,recipientGets,feeMode}),String(provider.transaction_id||provider.id||providerReference),providerState==="success"?"successful":providerState==="failed"?"failed":"pending",new Date().toISOString(),id).run();
       await env.DB.prepare("UPDATE withdrawal_requests SET provider_status=?,updated_at=? WHERE id=? AND status='approved'")
         .bind(providerState==="success"?"successful":providerState==="failed"?"failed":"pending",new Date().toISOString(),id).run();
       if(providerState==="success"){
