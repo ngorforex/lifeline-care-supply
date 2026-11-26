@@ -895,7 +895,7 @@ async function authApi(request, env, url) {
     if(verifiedRecipient.name_found!==true||!verifiedName) {
       return json({error:"ObPay confirmed the number but did not provide its registered name. Ask the account holder to confirm the registered name before requesting a withdrawal."},422);
     }
-    const normalizeRecipientName=value=>String(value||"").normalize("NFKC").trim().replace(/\\s+/g," ").toLocaleLowerCase("en");
+    const normalizeRecipientName=value=>String(value||"").normalize("NFKC").trim().replace(/\s+/g," ").toLocaleLowerCase("en");
     if(normalizeRecipientName(recipientName)!==normalizeRecipientName(verifiedName)) {
       return json({error:"The name does not match the name registered to this mobile-money number. Verified name: "+verifiedName},422);
     }
