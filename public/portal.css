@@ -1600,3 +1600,40 @@ body[data-portal="investor"] #panel-packages .package-detail b{font-size:11px!im
 body[data-portal="investor"] #panel-packages .package-risk-note{font-size:10px!important;line-height:1.4!important;margin:2px 0 5px!important}
 body[data-portal="investor"] #panel-packages .package-invest-button{min-height:40px!important;padding:9px 12px!important;font-size:12px!important;border-radius:10px!important}
 @media(max-width:700px){body[data-portal="investor"] #panel-packages .package-card{display:flex!important;flex-direction:column!important}body[data-portal="investor"] #panel-packages .package-image{width:100%!important;height:clamp(128px,39vw,168px)!important;min-height:128px!important;max-height:168px!important;aspect-ratio:2/1!important;object-fit:contain!important}body[data-portal="investor"] #panel-packages .package-card-body{padding:10px 11px 11px!important}}
+
+
+/* Two-column product catalogue inspired by compact sports-shop cards */
+body[data-portal="investor"] #panel-packages .package-grid{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:12px!important;align-items:stretch!important;
+}
+body[data-portal="investor"] #panel-packages>.panel{padding:10px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+body[data-portal="investor"] #panel-packages .package-card{
+ display:flex!important;flex-direction:column!important;width:100%!important;min-width:0!important;
+ overflow:hidden!important;border:1px solid #dce8e3!important;border-radius:15px!important;
+ background:#fff!important;box-shadow:0 4px 14px rgba(24,60,59,.055)!important;
+}
+body[data-portal="investor"] #panel-packages .package-image{
+ display:block!important;width:100%!important;height:auto!important;aspect-ratio:1.4/1!important;
+ min-height:0!important;max-height:none!important;object-fit:contain!important;
+ object-position:center!important;background:#f0f6f3!important;padding:7px!important;
+}
+body[data-portal="investor"] #panel-packages .package-card-body{
+ display:flex!important;flex:1!important;flex-direction:column!important;gap:7px!important;
+ min-width:0!important;padding:10px!important;
+}
+body[data-portal="investor"] #panel-packages .package-card h3{font-size:12px!important;line-height:1.3!important;margin:0!important;min-height:30px}
+body[data-portal="investor"] #panel-packages .package-status{align-self:flex-start;font-size:9px!important;padding:4px 7px!important;margin:0!important}
+body[data-portal="investor"] #panel-packages .package-details{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+body[data-portal="investor"] #panel-packages .package-detail{min-width:0!important;padding:7px!important;border-radius:8px!important;overflow-wrap:anywhere}
+body[data-portal="investor"] #panel-packages .package-detail span{display:block;font-size:8px!important;line-height:1.25!important;margin:0 0 4px!important}
+body[data-portal="investor"] #panel-packages .package-detail b{display:block;font-size:10px!important;line-height:1.3!important;overflow-wrap:anywhere}
+body[data-portal="investor"] #panel-packages .package-risk-note{font-size:9px!important;line-height:1.35!important;margin:0!important}
+body[data-portal="investor"] #panel-packages .package-invest-button{width:100%!important;min-height:38px!important;margin-top:auto!important;padding:8px 6px!important;font-size:11px!important;border-radius:9px!important}
+@media(max-width:360px){
+ body[data-portal="investor"] #panel-packages .package-grid{gap:8px!important}
+ body[data-portal="investor"] #panel-packages .package-card-body{padding:8px!important}
+ body[data-portal="investor"] #panel-packages .package-detail{padding:6px!important}
+ body[data-portal="investor"] #panel-packages .package-detail b{font-size:9px!important}
+}
+@media(min-width:701px){body[data-portal="investor"] #panel-packages .package-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important}}
