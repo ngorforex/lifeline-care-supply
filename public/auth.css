@@ -392,3 +392,11 @@ body.auth-page:has(form[data-auth-form="register"]) .access-card-bottom{
 .register-signin{padding-top:17px;margin-top:2px;border-top:1px solid #e5efea;text-align:center;color:#71847e;font-size:12px;line-height:1.5}
 .register-signin a{color:#0d928b;font-weight:800;text-decoration:underline;text-underline-offset:3px;margin-left:5px}
 @media(max-width:650px){.register-brand{gap:6px;margin-bottom:19px}.register-brand svg{width:58px;height:49px}.register-brand-name{font-size:22px}.register-brand-sub{font-size:8px;letter-spacing:.23em}.register-signin{font-size:11px;padding-top:14px}}
+
+/* Registration uses the exact heartbeat logo lockup from the sign-in/home access brand. */
+body.auth-page:has(form[data-auth-form="register"]) .card-topline:before,
+body.auth-page:has(form[data-auth-form="register"]) .card-topline:after{content:none!important;display:none!important}
+body.auth-page:has(form[data-auth-form="register"]) .reference-brand{display:block!important;text-align:center!important;margin:0 auto clamp(12px,2vh,20px)!important}
+body.auth-page:has(form[data-auth-form="register"]) .reference-brand svg{display:block!important;width:70px!important;height:58px!important;margin:0 auto 6px!important}
+body.auth-page:has(form[data-auth-form="register"]) .reference-brand-name{font-size:clamp(21px,5vw,25px)!important}
+body.auth-page:has(form[data-auth-form="register"]) .reference-brand-sub{display:flex!important;margin-top:9px!important;font-size:9px!important}
