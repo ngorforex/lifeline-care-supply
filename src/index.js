@@ -877,6 +877,7 @@ async function authApi(request, env, url) {
     let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
     const pkg=await env.DB.prepare("SELECT * FROM investment_packages WHERE id=? AND status='published' LIMIT 1").bind(String(data.packageId||"")).first();
     if(!pkg)return json({error:"This investment package is not currently available."},404);
+    if(data.acceptTerms!==true||String(data.termsVersion||"")!==String(pkg.terms_version||""))return json({error:"Review and accept the current package terms before investing."},400);
     const amount=Number(pkg.investment_amount);if(!Number.isSafeInteger(amount)||amount<=0)return json({error:"Package configuration is invalid."},409);
     const balance=await walletBalance(env,investor.id);if(balance<amount)return json({error:"Insufficient wallet balance. Deposit first."},400);
     const id=crypto.randomUUID(),reference="LCSINV"+Date.now().toString(36).toUpperCase()+randomToken(5).replace(/[^A-Z0-9]/gi,"").toUpperCase();
