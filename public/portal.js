@@ -160,7 +160,7 @@ function renderDashboard(data){
   const submit=purchaseDialog.querySelector("[data-package-submit]"),result=purchaseDialog.querySelector("[data-package-result]");
   submit.disabled=true;submit.textContent="Processing…";result.textContent="";
   try{
-   const response=await fetch("/api/investor/investments",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({packageId:selectedPackage.id})});
+   const response=await fetch("/api/investor/investments",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({packageId:selectedPackage.id,termsVersion:selectedPackage.terms_version,acceptTerms:purchaseDialog.querySelector("[data-package-accept]").checked})});
    const data=await response.json().catch(()=>({error:"The server returned an invalid response."}));
    if(!response.ok)throw new Error(data.error||"Investment could not be completed.");
    result.textContent="Investment successful. Reference: "+data.reference;
