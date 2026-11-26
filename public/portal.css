@@ -1398,3 +1398,17 @@ body[data-portal="admin"] .overview-metrics .metric small{margin-top:8px}
 }
 
 .payment-dialog{width:min(92vw,440px);border:0;border-radius:20px;padding:0;box-shadow:0 24px 80px #071a1590;color:#17342d}.payment-dialog::backdrop{background:#071a1590;backdrop-filter:blur(4px)}.payment-dialog-form{position:relative;display:grid;gap:12px;padding:26px}.payment-dialog-form h2{margin:0;font-size:23px}.payment-dialog-form p{margin:0;color:#66756f;line-height:1.5}.payment-dialog-form label{font-size:13px;font-weight:700;color:#314d43;margin-top:5px}.payment-dialog-form input{width:100%;min-height:48px;padding:12px 14px;border:1px solid #d5e0db;border-radius:10px;background:#fff;color:#17342d;font:inherit}.payment-dialog-form .primary-button{border:0;border-radius:11px;padding:14px;background:#124c3d;color:#fff;font-weight:700;font:inherit;cursor:pointer}.payment-dialog-form .primary-button:disabled{opacity:.55}.payment-dialog-form .dialog-close{position:absolute;right:16px;top:12px;border:0;background:transparent;font-size:28px;color:#53665f;cursor:pointer}.payment-result{min-height:20px;font-size:13px;overflow-wrap:anywhere}.admin-row-action{border:1px solid #d4e0da;background:#f5faf7;color:#174d3c;border-radius:8px;padding:7px 10px;margin:2px;font-weight:700;cursor:pointer}.admin-row-action:disabled{opacity:.5;cursor:wait}.wallet-actions{margin-bottom:14px}
+
+
+/* Investor product catalogue: one full-width plan card per row */
+body[data-portal="investor"] #panel-packages .package-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+body[data-portal="investor"] #panel-packages .package-card{width:100%;min-width:0}
+body[data-portal="investor"] #panel-packages .package-invest-button{display:block;width:100%;min-height:50px;margin-top:16px;border-radius:12px;text-align:center;font-weight:750}
+body[data-portal="investor"] dialog.payment-dialog{z-index:10000;max-width:calc(100vw - 28px);max-height:calc(100dvh - 28px);overflow:auto;pointer-events:auto}
+body[data-portal="investor"] dialog.payment-dialog::backdrop{pointer-events:auto}
+body[data-portal="investor"] .payment-dialog-form .dialog-close{z-index:2;width:42px;height:42px;display:grid;place-items:center;padding:0;line-height:1;pointer-events:auto;touch-action:manipulation}
+@media(max-width:700px){
+ body[data-portal="investor"] #panel-packages .package-grid{grid-template-columns:minmax(0,1fr)}
+ body[data-portal="investor"] #panel-packages .package-card{display:block}
+ body[data-portal="investor"] #panel-packages .package-invest-button{min-height:52px}
+}
