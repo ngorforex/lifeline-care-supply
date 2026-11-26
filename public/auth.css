@@ -184,3 +184,9 @@ body[data-portal="investor"] .profile-logout{
 }
 body[data-portal="investor"] .profile-logout .ui-icon{width:19px!important;height:19px!important;flex:0 0 19px}
 body[data-portal="investor"] .profile-logout-group [data-logout-feedback]:empty{display:none}
+
+/* Brand lockup centered above the access form */
+.card-topline{display:flex!important;flex-direction:column!important;gap:5px!important}
+.card-topline:before{content:"♡";display:block;font:400 66px/1 Arial,sans-serif;color:#18b99f;text-shadow:0 3px 15px rgba(24,185,159,.14)}
+.card-topline:after{content:"Lifeline Care Supply";display:block;font:800 clamp(20px,4vw,25px)/1.15 Manrope,sans-serif;letter-spacing:-.045em;color:#123d36}
+.card-topline-mark{display:none!important}
