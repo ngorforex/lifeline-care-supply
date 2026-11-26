@@ -381,3 +381,14 @@ body.auth-page:has(form[data-auth-form="register"]) .access-card-bottom{
  }
  body.auth-page:has(form[data-auth-form="register"]) .access-card{border-radius:22px!important}
 }
+
+
+/* Registration brand lockup and returning-investor sign-in */
+.register-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;margin:0 auto 24px;text-decoration:none;color:#173e3b;text-align:center}
+.register-brand svg{width:70px;height:59px;display:block;filter:drop-shadow(0 4px 10px rgba(13,146,139,.12))}
+.register-brand-name{font:800 25px/1.15 Manrope,sans-serif;letter-spacing:-.055em;color:#173e3b}
+.register-brand-sub{display:flex;align-items:center;justify-content:center;gap:12px;color:#287f75;font:800 9px/1 "DM Sans",sans-serif;letter-spacing:.28em;margin-top:3px}
+.register-brand-sub i{display:block;width:28px;height:2px;border-radius:2px;background:#38bca5}
+.register-signin{padding-top:17px;margin-top:2px;border-top:1px solid #e5efea;text-align:center;color:#71847e;font-size:12px;line-height:1.5}
+.register-signin a{color:#0d928b;font-weight:800;text-decoration:underline;text-underline-offset:3px;margin-left:5px}
+@media(max-width:650px){.register-brand{gap:6px;margin-bottom:19px}.register-brand svg{width:58px;height:49px}.register-brand-name{font-size:22px}.register-brand-sub{font-size:8px;letter-spacing:.23em}.register-signin{font-size:11px;padding-top:14px}}
