@@ -578,7 +578,7 @@ async function authApi(request, env, url) {
         balance={currency:"UGX",available:Number.isFinite(amount)?amount:null,pending:result.pending_balance??result.pending??null};
         balanceStatus="available";
       }catch(error){console.warn("ObPay UGX balance inspection failed:",String(error).slice(0,120));}
-      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",webhookRegistered,webhookEvents,payoutMethodsStatus,payoutMethods,balanceStatus,balance,message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
+      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",webhookRegistered,webhookEvents,payoutMethodsStatus,payoutMethods,balanceStatus,balance,payoutsEnabled:env.OBPAY_PAYOUTS_ENABLED==="true",payoutFeeModeConfigured:env.OBPAY_PAYOUT_FEE_MODE==="wallet",payoutReadiness:env.OBPAY_PAYOUTS_ENABLED==="true"&&env.OBPAY_PAYOUT_FEE_MODE==="wallet"&&webhookRegistered&&payoutMethodsStatus==="available"?"configured":"blocked",message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
     }catch(error){
       console.error("ObPay credential check failed:",error);
       return json({configured:true,reachable:false,authenticated:false,error:"ObPay authentication or connectivity check failed."},502);
@@ -875,7 +875,7 @@ async function authApi(request, env, url) {
     const investor=await currentInvestor(request,env); if(!investor)return json({error:"Authentication required."},401);
     // Do not submit live payouts until ObPay's exact payout request, network code,
     // recipient-name verification and fee quote have been validated for this merchant.
-    if(env.OBPAY_PAYOUTS_ENABLED!=="true")return json({error:"Automatic withdrawals are temporarily unavailable while ObPay payout settings are being verified. Your wallet has not been debited."},503);
+    if(env.OBPAY_PAYOUTS_ENABLED!=="true"||env.OBPAY_PAYOUT_FEE_MODE!=="wallet")return json({error:"Automatic withdrawals are paused until ObPay payouts are enabled and the merchant fee mode is confirmed as wallet-paid (fees charged on top). Your wallet has not been debited."},503);
     let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
     const amount=Number(data.amount),phone=typeof data.phone==="string"?data.phone.trim():investor.phone_e164;
     const recipientName=typeof data.recipientName==="string"?data.recipientName.trim():"";
