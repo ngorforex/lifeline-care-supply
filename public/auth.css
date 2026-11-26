@@ -207,3 +207,46 @@ body.auth-page{background:#eaf7f3!important}
 @media(max-width:650px){
  .access-page{background-position:center center!important;background-size:cover!important;background-attachment:scroll!important}
 }
+
+/* Compact reference-matched investor sign-in */
+.reference-login{min-height:100svh!important;padding:18px 5.5%!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.reference-login .access-content{display:block!important;width:min(100%,430px)!important;margin:auto!important;padding:0!important}
+.reference-login .access-card{width:100%!important;padding:24px 22px 21px!important;border-radius:26px!important;background:rgba(255,255,255,.80)!important;box-shadow:0 16px 48px rgba(25,84,73,.12),inset 0 1px 0 rgba(255,255,255,.95)!important}
+.reference-brand{text-align:center;margin:0 auto 25px}
+.reference-brand svg{display:block;width:76px;height:68px;margin:0 auto 7px}
+.reference-brand-name{font:800 clamp(21px,5vw,27px)/1.15 Manrope,sans-serif;letter-spacing:-.045em;color:#103e37}
+.reference-brand-sub{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px;font:700 10px/1 "DM Sans",sans-serif;letter-spacing:.28em;color:#214d46}
+.reference-brand-sub span{width:34px;height:2px;border-radius:2px;background:#1bbba5}
+.reference-heading{text-align:center;margin:0 0 25px}
+.reference-heading h1{margin:0 0 5px;font:800 clamp(27px,6vw,34px)/1.1 Manrope,sans-serif;letter-spacing:-.055em;color:#103e37}
+.reference-heading p{margin:0;font:400 14px/1.5 "DM Sans",sans-serif;color:#435c57}
+.reference-form{gap:14px!important}
+.reference-form .access-field{gap:0!important}
+.reference-form .access-input{height:49px!important;min-height:49px!important;padding:0 14px!important;border-radius:13px!important;background:rgba(255,255,255,.88)!important;border-color:#dce8e3!important}
+.reference-form .access-input input{font:400 14px "DM Sans",sans-serif!important}
+.reference-form .field-icon{width:20px;height:20px;stroke:#174f46!important}
+.reference-form .reveal-password .field-icon{stroke:#66746f!important}
+.reference-options{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 2px 1px;font:500 12px "DM Sans",sans-serif;color:#174f46}
+.reference-options label{display:flex;align-items:center;gap:7px}
+.reference-options input{width:17px;height:17px;margin:0;accent-color:#0e9d8e}
+.reference-options a,.reference-register a{color:#078f83;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.reference-submit,.reference-form .access-submit{height:49px!important;min-height:49px!important;justify-content:center!important;gap:12px!important;border:0!important;border-radius:14px!important;background:linear-gradient(110deg,#20cbb5,#07958c)!important;color:white!important;font:700 15px "DM Sans",sans-serif!important;box-shadow:0 8px 22px rgba(8,158,145,.16)!important}
+.reference-signin-icon{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.reference-form .message{font-size:10px!important;margin:0!important}
+.reference-register{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:12px;padding-top:13px;border-top:1px solid #e1ebe6;font:400 11px "DM Sans",sans-serif;color:#294d46}
+.reference-register a{white-space:nowrap}
+@media(max-width:650px){
+ .reference-login{padding:16px 6%!important;background-position:center!important}
+ .reference-login .access-content{width:100%!important;max-width:430px!important}
+ .reference-login .access-card{padding:22px 18px 19px!important;border-radius:25px!important}
+ .reference-brand{margin-bottom:20px}
+ .reference-brand svg{width:70px;height:61px}
+ .reference-brand-name{font-size:23px}
+ .reference-brand-sub{font-size:9px;margin-top:10px}
+ .reference-heading{margin-bottom:21px}
+ .reference-heading h1{font-size:29px}
+ .reference-heading p{font-size:13px}
+ .reference-form{gap:12px!important}
+ .reference-form .access-input{height:47px!important;min-height:47px!important}
+ .reference-form .access-submit{height:48px!important;min-height:48px!important}
+}
