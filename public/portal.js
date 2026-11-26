@@ -476,5 +476,5 @@ if(!isAdmin){
   };
   reader.readAsDataURL(file);
  });
-document.querySelector("[data-logout]")?.addEventListener("click",async event=>{event.preventDefault();try{await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin"});}finally{location.replace("/login/");}});
+document.querySelectorAll("[data-logout]").forEach(button=>{button.addEventListener("click",async event=>{event.preventDefault();if(button.dataset.loggingOut==="true")return;button.dataset.loggingOut="true";button.setAttribute("aria-busy","true");button.style.pointerEvents="none";try{const response=await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin",headers:{"Accept":"application/json"}});if(!response.ok)throw new Error("Logout request failed");location.replace("/login/?logged_out=1");}catch(error){button.dataset.loggingOut="false";button.removeAttribute("aria-busy");button.style.pointerEvents="";const feedback=document.querySelector("[data-logout-feedback]");if(feedback)feedback.textContent="Unable to log out. Check your connection and try again.";else alert("Unable to log out. Check your connection and try again.");}});});
 }
