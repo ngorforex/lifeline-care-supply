@@ -295,7 +295,7 @@ if(!isAdmin){
 
  const paymentDialog=document.createElement("dialog");
  paymentDialog.className="payment-dialog";
- paymentDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" value="cancel" aria-label="Close">×</button><span class="kicker">LIFELINE CARE SUPPLY</span><h2 data-payment-title>Deposit</h2><p data-payment-description>Pay securely using MTN or Airtel Mobile Money.</p><label for="payment-amount">Amount (UGX)</label><input id="payment-amount" name="amount" type="number" min="10000" step="1" required inputmode="numeric"><label for="payment-phone">Mobile money number</label><input id="payment-phone" name="phone" type="tel" required placeholder="+2567XXXXXXXX" autocomplete="tel"><button class="primary-button" type="submit" data-payment-submit>Continue</button><p class="payment-result" role="status" data-payment-result></p></form>';
+ paymentDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" value="cancel" aria-label="Close">×</button><span class="kicker">LIFELINE CARE SUPPLY</span><h2 data-payment-title>Deposit</h2><p data-payment-description>Pay securely using MTN or Airtel Mobile Money.</p><label for="payment-amount">Amount (UGX)</label><input id="payment-amount" name="amount" type="number" min="10000" step="1" required inputmode="numeric"><label for="payment-phone">Mobile money number</label><input id="payment-phone" name="phone" type="tel" required placeholder="+2567XXXXXXXX" autocomplete="tel"><label for="payment-recipient-name">Registered mobile-money account name</label><input id="payment-recipient-name" name="recipientName" type="text" required maxlength="80" placeholder="Name registered with MTN or Airtel" autocomplete="name"><button class="primary-button" type="submit" data-payment-submit>Continue</button><p class="payment-result" role="status" data-payment-result></p></form>';
  document.body.append(paymentDialog);
  const paymentForm=paymentDialog.querySelector("form");
  let paymentMode="deposit";
@@ -306,6 +306,7 @@ if(!isAdmin){
   paymentDialog.querySelector("#payment-amount").min=mode==="deposit"?"10000":"2000";
   paymentDialog.querySelector("#payment-amount").value="";
   paymentDialog.querySelector("#payment-phone").value="";
+  paymentDialog.querySelector("#payment-recipient-name").value="";
   paymentDialog.querySelector("[data-payment-result]").textContent="";
   paymentDialog.querySelector("[data-payment-submit]").disabled=false;
   paymentDialog.querySelector("[data-payment-submit]").textContent=mode==="deposit"?"Continue to payment":"Submit withdrawal";
@@ -316,7 +317,7 @@ if(!isAdmin){
   event.preventDefault();
   const submit=paymentDialog.querySelector("[data-payment-submit]"),result=paymentDialog.querySelector("[data-payment-result]");
   submit.disabled=true;submit.textContent="Processing…";result.textContent="";
-  const payload={amount:Number(paymentForm.elements.amount.value),phone:paymentForm.elements.phone.value.trim()};
+  const payload={amount:Number(paymentForm.elements.amount.value),phone:paymentForm.elements.phone.value.trim(),recipientName:paymentForm.elements.recipientName.value.trim()};
   try{
    const response=await fetch("/api/investor/"+(paymentMode==="deposit"?"deposits":"withdrawals"),{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)});
    const data=await response.json().catch(()=>({error:"The server returned an invalid response."}));
@@ -324,7 +325,7 @@ if(!isAdmin){
    if(paymentMode==="deposit"){
     const next=data.provider?.next_action||data.provider?.instructions||data.provider?.payment_url||data.provider?.checkout_url;
     result.textContent="Payment request created. Check the mobile-money prompt on "+payload.phone+". Reference: "+data.reference+(typeof next==="string"?" · "+next:"");
-   }else result.textContent="Withdrawal request submitted. Gross: "+amountMinor(data.grossAmount,"UGX")+" · Tax: "+amountMinor(data.taxAmount,"UGX")+" · Net payout: "+amountMinor(data.payoutAmount,"UGX")+". Reference: "+data.reference+". It will be processed after administrator review.";
+   }else result.textContent="Withdrawal request submitted. Gross: "+amountMinor(data.grossAmount,"UGX")+" · Tax: "+amountMinor(data.taxAmount,"UGX")+" · Net payout: "+amountMinor(data.payoutAmount,"UGX")+". Reference: "+data.reference+". ObPay is processing your payout automatically.";
    submit.textContent="Request submitted";
    setTimeout(()=>location.reload(),1800);
   }catch(error){result.textContent=error.message||"Payment request failed.";submit.disabled=false;submit.textContent=paymentMode==="deposit"?"Continue to payment":"Submit withdrawal";}
