@@ -250,3 +250,51 @@ body.auth-page{background:#eaf7f3!important}
  .reference-form .access-input{height:47px!important;min-height:47px!important}
  .reference-form .access-submit{height:48px!important;min-height:48px!important}
 }
+
+/* Full-viewport authentication canvas: no trailing page gap or vertical scroll */
+html:has(body.auth-page),body.auth-page{
+ width:100%!important;height:100%!important;min-height:0!important;margin:0!important;
+ overflow:hidden!important;overscroll-behavior:none!important;
+}
+body.auth-page{position:fixed!important;inset:0!important}
+body.auth-page .reference-login{
+ width:100%!important;height:100vh!important;height:100svh!important;min-height:0!important;
+ max-height:100vh!important;max-height:100svh!important;overflow:hidden!important;
+ box-sizing:border-box!important;padding:clamp(8px,2vh,18px) 5%!important;
+ background-image:url("/background.png")!important;background-color:#eaf7f3!important;
+ background-position:center center!important;background-size:cover!important;
+ background-repeat:no-repeat!important;background-attachment:scroll!important;
+}
+body.auth-page .reference-login .access-content{
+ width:min(100%,430px)!important;max-height:100%!important;margin:auto!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+}
+body.auth-page .reference-login .access-card{
+ width:100%!important;max-height:100%!important;box-sizing:border-box!important;
+ overflow:hidden!important;padding:clamp(14px,2.2vh,22px) clamp(16px,4vw,22px)!important;
+}
+body.auth-page .reference-brand{margin:0 auto clamp(10px,1.8vh,18px)!important}
+body.auth-page .reference-brand svg{width:clamp(48px,7vh,66px)!important;height:clamp(44px,6.5vh,60px)!important;margin-bottom:4px!important}
+body.auth-page .reference-brand-name{font-size:clamp(19px,3.3vh,24px)!important}
+body.auth-page .reference-brand-sub{margin-top:7px!important;font-size:9px!important}
+body.auth-page .reference-heading{margin-bottom:clamp(12px,2vh,19px)!important}
+body.auth-page .reference-heading h1{font-size:clamp(25px,4.4vh,31px)!important;margin-bottom:4px!important}
+body.auth-page .reference-heading p{font-size:clamp(12px,1.9vh,14px)!important}
+body.auth-page .reference-form{gap:clamp(8px,1.35vh,12px)!important}
+body.auth-page .reference-form .access-input{height:clamp(42px,6.3vh,49px)!important;min-height:clamp(42px,6.3vh,49px)!important}
+body.auth-page .reference-options{font-size:clamp(10px,1.7vh,12px)!important}
+body.auth-page .reference-form .access-submit{height:clamp(43px,6.4vh,49px)!important;min-height:clamp(43px,6.4vh,49px)!important}
+body.auth-page .reference-register{margin-top:clamp(7px,1.2vh,11px)!important;padding-top:clamp(8px,1.3vh,12px)!important;font-size:clamp(10px,1.6vh,11px)!important}
+body.auth-page .reference-form .message:empty{display:none!important}
+@media(max-width:650px){
+ body.auth-page .reference-login{padding:8px 6%!important;background-size:cover!important;background-position:center center!important}
+ body.auth-page .reference-login .access-content{width:100%!important;max-width:430px!important}
+ body.auth-page .reference-login .access-card{border-radius:23px!important}
+}
+@media(max-height:700px){
+ body.auth-page .reference-login{padding:5px 5%!important}
+ body.auth-page .reference-brand{margin-bottom:7px!important}
+ body.auth-page .reference-heading{margin-bottom:9px!important}
+ body.auth-page .reference-form{gap:7px!important}
+ body.auth-page .reference-register{margin-top:5px!important;padding-top:6px!important}
+}
