@@ -727,14 +727,15 @@ async function authApi(request, env, url) {
   if (request.method === "POST" && url.pathname === "/api/auth/register") {
     let data;
     try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
-    const firstName = typeof data.firstName === "string" ? data.firstName.trim() : "";
-    const middleName = typeof data.middleName === "string" ? data.middleName.trim() : null;
-    const lastName = typeof data.lastName === "string" ? data.lastName.trim() : "";
+    // Registration intentionally collects no personal name fields.
+    // Keep the required profile columns populated with a neutral account label.
+    const firstName = "Investor";
+    const middleName = null;
+    const lastName = "Account";
     const phone = typeof data.phone === "string" ? data.phone.trim() : "";
     const password = data.password;
-    if (!validName(firstName) || !validName(lastName) || !validName(middleName, true) ||
-        !validPhone(phone) || !passwordValid(password)) {
-      return json({ error: "Enter your first and last names, a valid international phone number, and a password with at least 12 characters including uppercase, lowercase and a number." }, 400);
+    if (!validPhone(phone) || !passwordValid(password)) {
+      return json({ error: "Enter a valid international phone number and a password with at least 12 characters including uppercase, lowercase and a number." }, 400);
     }
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
     const rateKey = "register:" + await sha256(ip);
