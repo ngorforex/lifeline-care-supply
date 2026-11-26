@@ -927,8 +927,28 @@ async function authApi(request, env, url) {
         callback_url:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",
         description:"Lifeline Care Supply investor withdrawal",
         metadata:{investor_id:investor.id,withdrawal_id:id}
-      });
+      },true);
       const providerReference=String(provider.reference||reference);
+      if(provider.duplicate===true){
+        const existing=await obpay(env,"/transactions/"+encodeURIComponent(reference));
+        if(existing.reference&&String(existing.reference)!==reference)throw new Error("Duplicate payout lookup reference mismatch.");
+        if(existing.amount!==undefined&&Number(existing.amount)!==payoutAmount)throw new Error("Duplicate payout lookup amount mismatch.");
+        if(existing.currency&&String(existing.currency).toUpperCase()!=="UGX")throw new Error("Duplicate payout lookup currency mismatch.");
+        const existingState=providerStatus(existing.status||existing.payment_status||existing.state);
+        if(existingState==="success"){
+          const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=?").bind(id).first();
+          await settleWithdrawal(env,row);
+          await env.DB.prepare("UPDATE withdrawal_requests SET provider_status='successful',status='completed',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),id).run();
+          return json({ok:true,reference,status:"completed",grossAmount:amount,taxAmount:tax,payoutAmount,message:"The existing ObPay payout was confirmed successfully."},201);
+        }
+        if(existingState==="failed"){
+          const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=?").bind(id).first();
+          await releaseWithdrawal(env,row,"Existing ObPay payout was confirmed failed");
+          return json({error:"ObPay confirmed the existing payout failed. Reserved funds were released.",reference},502);
+        }
+        await env.DB.prepare("UPDATE withdrawal_requests SET provider_status='pending',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),id).run();
+        return json({ok:true,reference,status:"processing",message:"ObPay found an existing payout reference. Its status is being checked; do not submit another request."},202);
+      }
       const providerState=providerStatus(provider.status||provider.payment_status||provider.state);
       const providerFee=Number(provider.fee);
       const recipientGets=Number(provider.recipient_gets);
