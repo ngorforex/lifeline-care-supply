@@ -1538,3 +1538,29 @@ body[data-portal="investor"] .profile-logout-group .profile-menu{padding:10px!im
 body[data-portal="investor"] .profile-logout{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;width:100%!important;min-height:48px!important;padding:10px 16px!important;border:1px solid #f0c9c5!important;border-radius:12px!important;background:linear-gradient(110deg,#fff8f7,#fff)!important;color:#b84642!important;font:800 13px "DM Sans",sans-serif!important;box-shadow:0 4px 13px rgba(165,74,66,.05)!important}
 body[data-portal="investor"] .profile-logout .ui-icon{width:19px!important;height:19px!important;flex:0 0 19px}
 body[data-portal="investor"] .profile-logout-group [data-logout-feedback]:empty{display:none}
+
+
+/* Redesigned investor purchase confirmation dialog */
+body[data-portal="investor"] dialog.payment-dialog{
+ width:min(92vw,420px)!important;max-width:calc(100vw - 28px)!important;
+ max-height:min(82dvh,680px)!important;overflow:auto!important;
+ border:1px solid #e1eee8!important;border-radius:24px!important;
+ background:linear-gradient(155deg,#ffffff 0%,#f7fcf9 100%)!important;
+ box-shadow:0 28px 90px rgba(8,42,34,.28)!important;color:#173e3b!important;
+}
+body[data-portal="investor"] dialog.payment-dialog::backdrop{background:rgba(8,34,29,.62)!important;backdrop-filter:blur(7px)!important}
+body[data-portal="investor"] .payment-dialog-form{gap:14px!important;padding:27px 24px 23px!important}
+body[data-portal="investor"] .payment-dialog-form>.kicker{display:block;color:#168e81!important;font-size:9px!important;letter-spacing:.18em!important;font-weight:800!important;padding-right:38px!important}
+body[data-portal="investor"] .payment-dialog-form h2{font:800 clamp(21px,5vw,25px)/1.2 Manrope,"DM Sans",sans-serif!important;letter-spacing:-.045em!important;color:#153f38!important;padding-right:30px!important}
+body[data-portal="investor"] .payment-dialog-form [data-package-terms]{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important}
+body[data-portal="investor"] .payment-dialog-form [data-package-terms]>p{margin:0!important;padding:12px!important;border:1px solid #e3eee8!important;border-radius:13px!important;background:#f2f8f5!important;color:#62756e!important;font-size:11px!important;line-height:1.5!important;overflow-wrap:anywhere!important}
+body[data-portal="investor"] .payment-dialog-form [data-package-terms]>p:nth-child(-n+4){min-height:68px!important}
+body[data-portal="investor"] .payment-dialog-form [data-package-terms]>p:nth-child(-n+4)::first-line{color:#71847d!important}
+body[data-portal="investor"] .payment-dialog-form [data-package-terms]>p:nth-child(5){grid-column:1/-1!important;background:#fff8ef!important;border-color:#f1e5d5!important;color:#806c55!important;font-size:11px!important}
+body[data-portal="investor"] .purchase-confirm-note{display:flex!important;align-items:flex-start!important;gap:10px!important;padding:11px 12px!important;border-radius:12px!important;background:#eaf7f2!important;color:#4b6e63!important}
+body[data-portal="investor"] .purchase-confirm-note>span{display:grid;place-items:center;flex:0 0 22px;height:22px;border-radius:50%;background:#d2eee4;color:#138e80;font-weight:900!important}
+body[data-portal="investor"] .purchase-confirm-note p{font-size:11px!important;line-height:1.45!important;color:#4b6e63!important}
+body[data-portal="investor"] .payment-dialog-form .primary-button{min-height:50px!important;border:0!important;border-radius:13px!important;background:linear-gradient(115deg,#18b9a7,#078e84)!important;color:#fff!important;font:750 14px Manrope,"DM Sans",sans-serif!important;box-shadow:0 9px 20px rgba(10,153,139,.18)!important}
+body[data-portal="investor"] .payment-dialog-form .dialog-close{right:14px!important;top:13px!important;width:38px!important;height:38px!important;border-radius:50%!important;background:#eef6f2!important;color:#49665e!important;font-size:25px!important}
+body[data-portal="investor"] .payment-dialog-form .payment-result{font-size:11px!important;color:#526c64!important;min-height:0!important}
+@media(max-width:480px){body[data-portal="investor"] .payment-dialog-form{padding:24px 18px 19px!important;gap:12px!important}body[data-portal="investor"] .payment-dialog-form [data-package-terms]{gap:7px!important}body[data-portal="investor"] .payment-dialog-form [data-package-terms]>p{padding:10px!important;font-size:10px!important;min-height:62px!important}}
