@@ -206,7 +206,7 @@ async function postLedger(env, {id,reference,key,type,userId,description,debitAc
   if (Number(totals?.debit)!==Number(totals?.credit) || Number(totals?.debit)!==amount) throw new Error("Ledger transaction failed balance validation.");
   return txId;
 }
-async function obpay(env, path, method="GET", payload=null) {
+async function obpay(env, path, method="GET", payload=null, allowUncertain=false) {
   if (!env.OBPAY_SECRET_KEY) throw new Error("ObPay secret key is not configured.");
   const response = await fetch("https://obpay.online/api/public/v1"+path, {
     method,
@@ -219,6 +219,10 @@ async function obpay(env, path, method="GET", payload=null) {
   });
   const raw = await response.text();
   let data={}; try { data=raw ? JSON.parse(raw) : {}; } catch { throw new Error("ObPay returned an unreadable response."); }
+  // ObPay documents HTTP 202 and 409 as uncertain/duplicate collection outcomes.
+  // Preserve the saved reference so the caller can look it up; never classify these as
+  // a failed initiation or create a replacement collection.
+  if (allowUncertain && (response.status===202 || response.status===409)) return data.data || data.result || data;
   if (!response.ok || data.success===false || data.ok===false || String(data.status||"").toLowerCase()==="error") {
     const message = data.error || data.message || data.detail || "ObPay request failed.";
     throw new Error("ObPay HTTP "+response.status+": "+String(message).slice(0,180));
@@ -849,7 +853,7 @@ async function authApi(request, env, url) {
         currency:"UGX",
         callback_url:new URL("/obpay/webhook",url).toString(),
         metadata:{investor_id:investor.id,deposit_id:id}
-      });
+      },true);
       const providerReference=String(result.reference||reference);
       const providerState=providerStatus(result.status||result.payment_status||result.state);
       await env.DB.prepare("UPDATE deposit_requests SET provider_reference=?,provider_status=?,updated_at=? WHERE id=?")
