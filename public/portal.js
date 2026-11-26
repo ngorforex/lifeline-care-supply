@@ -51,6 +51,7 @@ function renderDashboard(data){
  const formatMajor=value=>new Intl.NumberFormat("en-UG",{style:"currency",currency,maximumFractionDigits:0}).format(value);
  setText('[data-metric="totalInvested"]',formatMajor(totalInvested));
  setText('[data-metric="totalEarnings"]',amountMinor(metrics.totalEarningsMinor||0,"UGX"));
+ setText('[data-referral-rewards]',amountMinor(metrics.referralEarningsMinor||0,"UGX"));
  setText("[data-total-earnings]",amountMinor(metrics.totalEarningsMinor||0,"UGX"));
  setText("[data-next-earnings]",amountMinor(metrics.nextEarningsMinor||0,"UGX"));
  const walletCurrency=metrics.walletCurrency||"UGX";
@@ -409,7 +410,8 @@ if(!isAdmin){
  const button=event.currentTarget;const code=button.dataset.code;
  if(!code)return;
  const feedback=document.querySelector("[data-referral-feedback]");
- try{await navigator.clipboard.writeText(code);if(feedback)feedback.textContent="Referral code copied.";}
+ const inviteUrl=new URL("/register/",location.origin);inviteUrl.searchParams.set("ref",code);
+ try{await navigator.clipboard.writeText(inviteUrl.href);if(feedback)feedback.textContent="Personal invite link copied. Share it with a new investor.";}
  catch{if(feedback)feedback.textContent="Copy is unavailable in this browser. Select and copy the code above.";}
 });
 
