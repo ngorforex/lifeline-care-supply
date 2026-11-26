@@ -432,3 +432,13 @@ body.auth-page:has(form[data-auth-form="register"]) .reference-brand-sub {
   display:flex!important;
   visibility:visible!important;
 }
+
+
+/* Registration logo mirrors the compact heartbeat mark and wordmark in the investor homepage header. */
+.register-home-brand{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 auto 20px;min-height:48px}
+.register-home-heart{display:block;width:48px;height:48px;flex:0 0 48px}
+.register-home-wordmark{display:flex;align-items:baseline;gap:3px;white-space:nowrap;font:750 16px/1 Manrope,sans-serif;letter-spacing:-.035em;color:#173e3b}
+.register-home-wordmark .word-lifeline{font-weight:800}
+.register-home-wordmark .word-care{font-weight:600;color:#238f80}
+.register-home-wordmark .word-supply{font-family:Georgia,serif;font-style:italic;font-weight:700;letter-spacing:-.02em}
+@media(max-width:420px){.register-home-brand{gap:9px}.register-home-heart{width:43px;height:43px;flex-basis:43px}.register-home-wordmark{font-size:14px}}
