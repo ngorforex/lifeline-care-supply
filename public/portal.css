@@ -1433,3 +1433,10 @@ body[data-portal="investor"] #panel-packages .package-invest-button:hover{
 .referral-share-button svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .referral-share-button:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:420px){.referral-link-row{gap:8px}.referral-url-display{padding:14px 12px;font-size:12px}.referral-share-button{flex-basis:52px;min-height:54px}}
+
+/* Compact, clean investor sign-out control */
+body[data-portal="investor"] .profile-logout-group{margin:16px 0 10px!important}
+body[data-portal="investor"] .profile-logout-group .profile-menu{padding:8px!important;border-radius:18px!important;overflow:hidden!important}
+body[data-portal="investor"] .profile-logout{width:100%!important;min-height:48px!important;height:48px!important;margin:0!important;padding:8px 14px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:9px!important;border:1.5px solid #e34a4a!important;border-radius:13px!important;background:#fff5f4!important;color:#c62828!important;font:750 14px "DM Sans",Arial,sans-serif!important;line-height:1!important;white-space:nowrap!important}
+body[data-portal="investor"] .profile-logout .ui-icon{width:19px!important;height:19px!important;flex:0 0 19px!important;stroke:currentColor!important}
+body[data-portal="investor"] .profile-logout-group [data-logout-feedback]:empty{display:none}
