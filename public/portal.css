@@ -1531,3 +1531,10 @@ body[data-portal="investor"] #panel-packages .package-invest-button:active{trans
  body[data-portal="investor"] #panel-packages .package-card-body{padding:8px!important}
  body[data-portal="investor"] #panel-packages .package-detail b{font-size:9px}
 }
+
+
+/* Compact sign-out control */
+body[data-portal="investor"] .profile-logout-group .profile-menu{padding:10px!important;border-radius:17px!important}
+body[data-portal="investor"] .profile-logout{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;width:100%!important;min-height:48px!important;padding:10px 16px!important;border:1px solid #f0c9c5!important;border-radius:12px!important;background:linear-gradient(110deg,#fff8f7,#fff)!important;color:#b84642!important;font:800 13px "DM Sans",sans-serif!important;box-shadow:0 4px 13px rgba(165,74,66,.05)!important}
+body[data-portal="investor"] .profile-logout .ui-icon{width:19px!important;height:19px!important;flex:0 0 19px}
+body[data-portal="investor"] .profile-logout-group [data-logout-feedback]:empty{display:none}
