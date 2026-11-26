@@ -84,3 +84,19 @@ body.auth-page{background:#eef7f3;color:#173e3b}
 .admin-access .message{color:#b94c46}
 .admin-access .message:empty{display:none}
 @media(max-width:760px){.admin-access .access-content{width:min(100%,460px);gap:16px;padding:28px 0 34px}.admin-access .access-intro h1{font-size:36px}.admin-access .access-card{padding:24px 20px}}
+
+
+/* Lifeline visual system refresh: compact surfaces and editorial typography */
+:root{--lcs-font-body:"DM Sans","Segoe UI",sans-serif;--lcs-font-display:"Manrope","DM Sans",sans-serif;--lcs-ink:#173d39;--lcs-muted:#74857f;--lcs-line:#e4ede9;--lcs-mint:#e9f5f0;--lcs-teal:#109b8f;--lcs-radius:17px;--lcs-shadow:0 8px 24px rgba(25,72,62,.055)}
+html,body{font-family:var(--lcs-font-body)!important;font-size:14px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,h4,.page-title,.section-title,.brand-name,.topbar-brand-name{font-family:var(--lcs-font-display)!important;letter-spacing:-.035em!important;color:var(--lcs-ink)}
+p,small,.muted,.description{letter-spacing:-.008em}
+button,input,select,textarea{font:inherit}
+button,a,[role=button]{-webkit-tap-highlight-color:transparent}
+@media(max-width:760px){h1{font-size:clamp(22px,6vw,29px)!important;line-height:1.15!important}h2{font-size:clamp(18px,4.8vw,23px)!important;line-height:1.2!important}h3{font-size:16px!important;line-height:1.25!important}}
+
+
+/* Refined typography for investor and administrator access screens */
+.access-page,.admin-access{font-family:var(--lcs-font-body)!important}.access-content,.access-card,.access-intro h1,.access-card h2,.access-brand{font-family:var(--lcs-font-display)!important}
+.access-intro h1{font-size:clamp(27px,5vw,39px)!important;letter-spacing:-.055em!important;line-height:1.08!important}.access-card{border-radius:19px!important;padding:clamp(18px,3vw,27px)!important;box-shadow:0 12px 36px rgba(24,70,60,.08)!important}
+.access-field input,.access-field select{min-height:46px!important;border-radius:11px!important;font-size:13px!important}.access-submit{min-height:46px!important;border-radius:12px!important;font-size:13px!important;font-weight:750!important}.access-footer{font-size:10px!important;letter-spacing:.025em}
