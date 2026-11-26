@@ -1424,3 +1424,12 @@ body[data-portal="investor"] #panel-packages .package-invest-button{
 body[data-portal="investor"] #panel-packages .package-invest-button:hover{
  background:linear-gradient(135deg,#0e998e 0%,#08786f 100%)!important;
 }
+
+
+/* Referral invitation URL and native share action */
+.referral-link-row{display:flex;align-items:stretch;gap:10px;width:100%;margin:18px 0 12px}
+.referral-url-display{display:flex;align-items:center;min-width:0;flex:1;padding:17px 18px;border:1px solid #dce9e5;border-radius:18px;background:#f3faf7;color:#15594f;font-size:14px;font-weight:700;line-height:1.5;overflow-wrap:anywhere;text-decoration:none;word-break:break-word}
+.referral-share-button{display:grid;place-items:center;flex:0 0 58px;min-height:58px;border:0;border-radius:17px;background:linear-gradient(135deg,#16a89a,#0b8f83);color:#fff;box-shadow:0 8px 18px rgba(15,158,145,.18);cursor:pointer}
+.referral-share-button svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.referral-share-button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:420px){.referral-link-row{gap:8px}.referral-url-display{padding:14px 12px;font-size:12px}.referral-share-button{flex-basis:52px;min-height:54px}}
