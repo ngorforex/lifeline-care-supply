@@ -115,7 +115,6 @@ function renderDashboard(data){
   }
   for(const p of items){
    let terms={};try{terms=JSON.parse(p.return_structure||"{}");}catch{}
-   const published=p.status==="published";
    const price=Number(p.investment_amount);
    const daily=Number(terms.daily_income_ugx||0);
    const total=Number(terms.total_return_ugx||0);
@@ -123,18 +122,15 @@ function renderDashboard(data){
    const image=document.createElement("img");image.className="package-image";image.src=productImageByCode[p.code]||"/product-01.jpg";image.alt=p.name||"Investment package";image.loading="lazy";image.decoding="async";
    const body=document.createElement("div");body.className="package-card-body";
    const heading=document.createElement("h3");heading.textContent=p.name||"Investment package";
-   const status=document.createElement("span");status.className="package-status";status.textContent=published?"Available":"Awaiting approval";
+   const status=document.createElement("span");status.className="package-status";status.textContent="Available";
    const details=document.createElement("div");details.className="package-details";
-   const fields=[["Investment amount",price],["Duration",Number(p.duration_days||0)+" days"]];
-   if(published){fields.push(["Daily income",daily],["Total projected return",total]);}
+   const fields=[["Investment amount",price],["Duration",Number(p.duration_days||0)+" days"],["Daily income",daily],["Total projected return",total]];
    for(const [label,value] of fields){const item=document.createElement("div");item.className="package-detail";const caption=document.createElement("span");caption.textContent=label;const amount=document.createElement("b");amount.textContent=typeof value==="number"?new Intl.NumberFormat("en-UG").format(value)+" UGX":value;item.append(caption,amount);details.append(item);}
    const note=document.createElement("p");note.className="package-risk-note";
-   note.textContent=published?"Figures are subject to the published investment terms and disclosed risks. Review all terms before investing.":"This package is not yet approved for investment. Income and return figures are withheld until its terms are approved.";
+   note.textContent="Review the investment terms and disclosed risks before investing.";
    body.append(heading,status,details,note);
-   if(published){
-    const buy=document.createElement("button");buy.type="button";buy.className="primary-button package-invest-button";buy.textContent="Invest now";
-    buy.addEventListener("click",()=>openPackagePurchase(p));body.append(buy);
-   }
+   const buy=document.createElement("button");buy.type="button";buy.className="primary-button package-invest-button";buy.textContent="Invest now";
+   buy.addEventListener("click",()=>openPackagePurchase(p));body.append(buy);
    card.append(image,body);packages.append(card);
   }
  }
