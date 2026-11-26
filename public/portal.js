@@ -102,23 +102,34 @@ function renderDashboard(data){
   "PATIENT-MONITOR":"/product-07.jpg",MICROSCOPE:"/product-08.jpg",
   "OXYGEN-CONCENTRATOR":"/product-09.jpg","ULTRASOUND-SCANNER":"/product-10.jpg"
  };
- const catalogue=(data.packages||[]).map(item=>{
-  let terms={};try{terms=JSON.parse(item.return_structure||"{}");}catch{}
-  return {name:item.name,price:Number(item.investment_amount),daily:Number(terms.daily_income_ugx||0),duration:Number(item.duration_days||90),total:Number(terms.total_return_ugx||0),image:productImageByCode[item.code]||"/product-01.jpg"};
- });
  if(packages){
   packages.replaceChildren();
-  const items=catalogue;
+  const items=Array.isArray(data.packages)?data.packages:[];
+  if(!items.length){
+   const empty=document.createElement("div");empty.className="empty-state";
+   const symbol=document.createElement("span");symbol.className="empty-symbol";symbol.textContent="◇";
+   const heading=document.createElement("b");heading.textContent="Investment packages are being prepared";
+   const message=document.createElement("p");message.textContent="No packages are currently available. Please check again later.";
+   empty.append(symbol,heading,message);packages.append(empty);
+  }
   for(const p of items){
-   const card=document.createElement("article");card.className="panel package-card";
-   const image=document.createElement("img");image.className="package-image";image.src=p.image;image.alt="Medical equipment";image.loading="lazy";image.decoding="async";
+   let terms={};try{terms=JSON.parse(p.return_structure||"{}");}catch{}
+   const published=p.status==="published";
+   const price=Number(p.investment_amount);
+   const daily=Number(terms.daily_income_ugx||0);
+   const total=Number(terms.total_return_ugx||0);
+   const card=document.createElement("article");card.className="package-card panel";
+   const image=document.createElement("img");image.className="package-image";image.src=productImageByCode[p.code]||"/product-01.jpg";image.alt=p.name||"Investment package";image.loading="lazy";image.decoding="async";
    const body=document.createElement("div");body.className="package-card-body";
-   const heading=document.createElement("h3");heading.textContent=p.name;
+   const heading=document.createElement("h3");heading.textContent=p.name||"Investment package";
+   const status=document.createElement("span");status.className="package-status";status.textContent=published?"Available":"Awaiting approval";
    const details=document.createElement("div");details.className="package-details";
-   const fields=[["Purchase price",p.price],["Daily income",p.daily],["Duration",p.duration+" days"],["Total projected return",p.total]];
+   const fields=[["Investment amount",price],["Duration",Number(p.duration_days||0)+" days"]];
+   if(published){fields.push(["Daily income",daily],["Total projected return",total]);}
    for(const [label,value] of fields){const item=document.createElement("div");item.className="package-detail";const caption=document.createElement("span");caption.textContent=label;const amount=document.createElement("b");amount.textContent=typeof value==="number"?new Intl.NumberFormat("en-UG").format(value)+" UGX":value;item.append(caption,amount);details.append(item);}
-   const note=document.createElement("p");note.className="package-risk-note";note.textContent="Catalogue figures only. Projected returns are not guaranteed. Investment activation and earnings are not yet enabled.";
-   body.append(heading,details,note);card.append(image,body);packages.append(card);
+   const note=document.createElement("p");note.className="package-risk-note";
+   note.textContent=published?"Figures are subject to the published investment terms and disclosed risks. Review all terms before investing.":"This package is not yet approved for investment. Income and return figures are withheld until its terms are approved.";
+   body.append(heading,status,details,note);card.append(image,body);packages.append(card);
   }
  }
  const recent=document.querySelector("[data-recent-activity]");
