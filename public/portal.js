@@ -129,9 +129,45 @@ function renderDashboard(data){
    for(const [label,value] of fields){const item=document.createElement("div");item.className="package-detail";const caption=document.createElement("span");caption.textContent=label;const amount=document.createElement("b");amount.textContent=typeof value==="number"?new Intl.NumberFormat("en-UG").format(value)+" UGX":value;item.append(caption,amount);details.append(item);}
    const note=document.createElement("p");note.className="package-risk-note";
    note.textContent=published?"Figures are subject to the published investment terms and disclosed risks. Review all terms before investing.":"This package is not yet approved for investment. Income and return figures are withheld until its terms are approved.";
-   body.append(heading,status,details,note);card.append(image,body);packages.append(card);
+   body.append(heading,status,details,note);
+   if(published){
+    const buy=document.createElement("button");buy.type="button";buy.className="primary-button package-invest-button";buy.textContent="Invest now";
+    buy.addEventListener("click",()=>openPackagePurchase(p));body.append(buy);
+   }
+   card.append(image,body);packages.append(card);
   }
  }
+ const purchaseDialog=document.createElement("dialog");purchaseDialog.className="payment-dialog";
+ purchaseDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" value="cancel" aria-label="Close">×</button><span class="kicker">INVESTMENT CONFIRMATION</span><h2 data-package-title>Investment package</h2><div data-package-terms></div><label class="package-accept-row"><input type="checkbox" data-package-accept required> I have reviewed and accept the package terms and risk disclosure.</label><button class="primary-button" type="submit" data-package-submit>Confirm investment</button><p class="payment-result" role="status" data-package-result></p></form>';
+ document.body.append(purchaseDialog);
+ const purchaseForm=purchaseDialog.querySelector("form");
+ let selectedPackage=null;
+ function openPackagePurchase(pkg){
+  selectedPackage=pkg;
+  purchaseDialog.querySelector("[data-package-title]").textContent=pkg.name||"Investment package";
+  let terms={};try{terms=JSON.parse(pkg.return_structure||"{}");}catch{}
+  const host=purchaseDialog.querySelector("[data-package-terms]");host.replaceChildren();
+  const rows=[["Investment amount",Number(pkg.investment_amount)],["Duration",Number(pkg.duration_days)+" days"],["Daily income",Number(terms.daily_income_ugx||0)],["Total projected return",Number(terms.total_return_ugx||0)]];
+  for(const [label,value] of rows){const line=document.createElement("p");line.textContent=label+": "+(typeof value==="number"?new Intl.NumberFormat("en-UG").format(value)+" UGX":value);host.append(line);}
+  const risk=document.createElement("p");risk.textContent=pkg.risk_disclosure||"Review the investment risks before proceeding.";host.append(risk);
+  purchaseDialog.querySelector("[data-package-accept]").checked=false;
+  purchaseDialog.querySelector("[data-package-result]").textContent="";
+  const submit=purchaseDialog.querySelector("[data-package-submit]");submit.disabled=false;submit.textContent="Confirm investment";
+  purchaseDialog.showModal();
+ }
+ purchaseForm.addEventListener("submit",async event=>{
+  event.preventDefault();if(!selectedPackage)return;
+  const submit=purchaseDialog.querySelector("[data-package-submit]"),result=purchaseDialog.querySelector("[data-package-result]");
+  submit.disabled=true;submit.textContent="Processing…";result.textContent="";
+  try{
+   const response=await fetch("/api/investor/investments",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({packageId:selectedPackage.id})});
+   const data=await response.json().catch(()=>({error:"The server returned an invalid response."}));
+   if(!response.ok)throw new Error(data.error||"Investment could not be completed.");
+   result.textContent="Investment successful. Reference: "+data.reference;
+   submit.textContent="Investment completed";
+   setTimeout(()=>location.reload(),1400);
+  }catch(error){result.textContent=error.message||"Investment could not be completed.";submit.disabled=false;submit.textContent="Confirm investment";}
+ });
  const recent=document.querySelector("[data-recent-activity]");
  if(recent){recent.replaceChildren();const span=document.createElement("span");span.textContent="⌁";const b=document.createElement("b");b.textContent=data.investments?.length?data.investments.length+" investment record(s)":"No investment activity yet";const small=document.createElement("small");small.textContent="Account records are up to date";recent.append(span,b,small);}
  const recentTx=document.querySelector("[data-recent-transactions]");
