@@ -1008,6 +1008,14 @@ async function authApi(request, env, url) {
     if (!investor) return json({ error: "Authentication required." }, 401);
 
     const investorId = investor.id;
+    // Issue a referral code for legacy accounts that were created before code issuance was enabled.
+    const existingReferralCode = await env.DB.prepare("SELECT id,code,is_active,created_at FROM referral_codes WHERE owner_user_id=? LIMIT 1").bind(investorId).first();
+    if (!existingReferralCode) {
+      const referralNow = new Date().toISOString();
+      const newReferralCode = "LCS" + randomToken(9).replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 9);
+      await env.DB.prepare("INSERT OR IGNORE INTO referral_codes(id,owner_user_id,code,is_active,created_at) VALUES(?,?,?,1,?)")
+        .bind(crypto.randomUUID(),investorId,newReferralCode,referralNow).run();
+    }
     const [investmentsResult, depositsResult, withdrawalsResult, referralsResult, referralCode, packagesResult, walletBalance, earningsSummary, referralEarnings, earningsHistory, commissionHistory] = await Promise.all([
       env.DB.prepare(`
         SELECT i.id, i.reference, i.principal_amount, i.currency, i.status, i.package_snapshot,
