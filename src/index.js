@@ -870,6 +870,9 @@ async function authApi(request, env, url) {
   }
   if (request.method === "POST" && url.pathname === "/api/investor/withdrawals") {
     const investor=await currentInvestor(request,env); if(!investor)return json({error:"Authentication required."},401);
+    // Do not submit live payouts until ObPay's exact payout request, network code,
+    // recipient-name verification and fee quote have been validated for this merchant.
+    if(env.OBPAY_PAYOUTS_ENABLED!=="true")return json({error:"Automatic withdrawals are temporarily unavailable while ObPay payout settings are being verified. Your wallet has not been debited."},503);
     let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
     const amount=Number(data.amount),phone=typeof data.phone==="string"?data.phone.trim():investor.phone_e164;
     const recipientName=typeof data.recipientName==="string"?data.recipientName.trim():"";
