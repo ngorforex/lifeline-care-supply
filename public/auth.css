@@ -298,3 +298,86 @@ body.auth-page .reference-form .message:empty{display:none!important}
  body.auth-page .reference-form{gap:7px!important}
  body.auth-page .reference-register{margin-top:5px!important;padding-top:6px!important}
 }
+
+/* Registration: compact, readable form with natural vertical scrolling */
+body.auth-page:has(form[data-auth-form="register"]){
+ position:relative!important;inset:auto!important;width:100%!important;height:auto!important;
+ min-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;
+ overscroll-behavior-y:contain!important;
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-page{
+ width:100%!important;min-height:100svh!important;height:auto!important;
+ box-sizing:border-box!important;overflow:visible!important;
+ padding:clamp(12px,2.5vh,22px) 5% clamp(20px,4vh,36px)!important;
+ background-image:url("/background.png")!important;background-size:cover!important;
+ background-position:center top!important;background-repeat:no-repeat!important;
+ background-attachment:fixed!important;
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-header,
+body.auth-page:has(form[data-auth-form="register"]) .access-footer,
+body.auth-page:has(form[data-auth-form="register"]) .background-stamp,
+body.auth-page:has(form[data-auth-form="register"]) .access-intro{display:none!important}
+body.auth-page:has(form[data-auth-form="register"]) .access-content{
+ display:block!important;width:min(100%,520px)!important;max-width:520px!important;
+ margin:0 auto!important;padding:0!important;
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-card{
+ width:100%!important;max-width:520px!important;box-sizing:border-box!important;
+ padding:clamp(15px,2.5vh,23px) clamp(16px,4vw,24px)!important;
+ border-radius:24px!important;background:rgba(255,255,255,.88)!important;
+}
+body.auth-page:has(form[data-auth-form="register"]) .card-topline{margin-bottom:8px!important;font-size:9px!important}
+body.auth-page:has(form[data-auth-form="register"]) .access-tabs{margin-bottom:12px!important}
+body.auth-page:has(form[data-auth-form="register"]) .form-heading{margin:0 0 13px!important}
+body.auth-page:has(form[data-auth-form="register"]) .form-kicker{
+ font-size:9px!important;letter-spacing:.18em!important;line-height:1.25!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .form-heading h2{
+ font-size:clamp(23px,5vw,29px)!important;line-height:1.12!important;margin:5px 0!important;
+ letter-spacing:-.045em!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .form-heading p{
+ font-size:12px!important;line-height:1.4!important;margin:0!important
+}
+body.auth-page:has(form[data-auth-form="register"]) form.access-form{
+ display:flex!important;flex-direction:column!important;gap:8px!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-field{
+ display:flex!important;flex-direction:column!important;gap:4px!important;min-width:0!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-field>label{
+ font-size:9px!important;line-height:1.2!important;letter-spacing:.09em!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-input{
+ display:flex!important;align-items:center!important;min-height:43px!important;height:43px!important;
+ box-sizing:border-box!important;padding:0 11px!important;border-radius:12px!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-input input{
+ min-width:0!important;width:100%!important;height:100%!important;
+ font-size:13px!important;line-height:1.25!important;padding:0 7px!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-input .field-icon{
+ width:17px!important;height:17px!important;flex:0 0 17px!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .reveal-password{
+ width:30px!important;height:30px!important;flex:0 0 30px!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-field small{
+ font-size:9px!important;line-height:1.25!important;margin-top:1px!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-submit{
+ min-height:45px!important;height:45px!important;margin-top:3px!important;
+ font-size:13px!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-assist{
+ margin-top:10px!important;padding:9px 11px!important;font-size:10px!important
+}
+body.auth-page:has(form[data-auth-form="register"]) .access-card-bottom{
+ margin-top:9px!important;padding-top:8px!important;font-size:8px!important
+}
+@media(max-width:650px){
+ body.auth-page:has(form[data-auth-form="register"]) .access-page{
+  padding:12px 4.2% 22px!important;background-attachment:scroll!important
+ }
+ body.auth-page:has(form[data-auth-form="register"]) .access-card{border-radius:22px!important}
+}
