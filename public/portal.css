@@ -1642,3 +1642,16 @@ body[data-portal="investor"] #panel-packages .package-invest-button{width:100%!i
 /* Rounded package thumbnails */
 body[data-portal="investor"] #panel-packages .package-card{overflow:hidden!important;border-radius:16px!important}
 body[data-portal="investor"] #panel-packages .package-image{border-radius:13px!important;overflow:hidden!important;clip-path:inset(0 round 13px)!important}
+
+
+/* Final package image sizing: fill the card width while preserving the complete product */
+.package-grid .package-card{min-width:0!important;overflow:hidden!important}
+.package-grid .package-card .package-image{
+ display:block!important;box-sizing:border-box!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ height:clamp(116px,34vw,156px)!important;min-height:116px!important;max-height:156px!important;
+ aspect-ratio:auto!important;object-fit:contain!important;object-position:center!important;
+ margin:0!important;padding:6px!important;background:#f0f6f3!important;
+ border-radius:12px!important;clip-path:inset(0 round 12px)!important;
+}
+@media(min-width:701px){.package-grid .package-card .package-image{height:170px!important;max-height:170px!important}}
