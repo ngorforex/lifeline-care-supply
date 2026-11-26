@@ -837,7 +837,7 @@ async function authApi(request, env, url) {
     let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
     const amount=Number(data.amount), phone=typeof data.phone==="string"?data.phone.trim():investor.phone_e164;
     const min=Number(await setting(env,"minimum_deposit_ugx","10000"));
-    if(!Number.isSafeInteger(amount)||amount<min||amount>100000000||!validPhone(phone))return json({error:"Enter a valid mobile-money number and deposit amount of at least UGX "+min+"."},400);
+    if(!Number.isSafeInteger(amount)||amount<min||amount>10000000||!validPhone(phone))return json({error:"Enter a valid mobile-money number and a whole-UGX deposit between UGX "+min+" and UGX 10,000,000."},400);
     const id=crypto.randomUUID(),reference="LCSDEP"+Date.now().toString(36).toUpperCase()+randomToken(5).replace(/[^A-Z0-9]/gi,"").toUpperCase();
     const now=new Date().toISOString();
     await env.DB.prepare("INSERT INTO deposit_requests(id,reference,investor_id,amount_minor,currency,payment_method,provider_reference,status,payment_phone_e164,created_at,updated_at) VALUES(?,?,?,?,'UGX','ObPay Mobile Money',?,'pending',?,?,?)")
@@ -848,7 +848,6 @@ async function authApi(request, env, url) {
         amount,
         phone_number:phone,
         customer_name:customerName,
-        customer_email:"",
         reference,
         currency:"UGX",
         callback_url:new URL("/obpay/webhook",url).toString(),
