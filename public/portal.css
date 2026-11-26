@@ -168,7 +168,7 @@ body[data-portal="investor"] .package-grid{display:grid;grid-template-columns:re
 body[data-portal="investor"] .package-card{padding:0;overflow:hidden;border-radius:16px}
 body[data-portal="investor"] .package-image{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#eaf4f0}
 body[data-portal="investor"] .package-card-body{padding:16px}
-body[data-portal="investor"] .package-card h3{font-size:17px;margin:0 0 13px;color:#173e3b}
+body[data-portal="investor"] .package-card h3{font-size:17px;margin:0 0 13px;color:#173e3b}body[data-portal="investor"] .package-status{display:inline-flex;align-items:center;padding:5px 9px;margin:0 0 12px;border-radius:999px;background:#fff4e6;color:#936b36;font-size:9px;font-weight:800;letter-spacing:.04em}body[data-portal="investor"] .package-card:has(.package-status){border:1px solid #e2ebe7}
 body[data-portal="investor"] .package-details{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 body[data-portal="investor"] .package-detail{padding:10px;background:#f4f8f6;border-radius:10px;min-width:0}
 body[data-portal="investor"] .package-detail span{display:block;color:#718580;font-size:10px;margin-bottom:5px}
