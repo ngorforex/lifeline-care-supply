@@ -839,10 +839,25 @@ async function authApi(request, env, url) {
     await env.DB.prepare("INSERT INTO deposit_requests(id,reference,investor_id,amount_minor,currency,payment_method,provider_reference,status,payment_phone_e164,created_at,updated_at) VALUES(?,?,?,?,'UGX','ObPay Mobile Money',?,'pending',?,?,?)")
       .bind(id,reference,investor.id,amount,reference,phone,now,now).run();
     try{
-      const result=await obpay(env,"/collect","POST",{reference,amount,currency:"UGX",phone,callback_url:new URL("/obpay/webhook",url).toString(),description:"Lifeline Care Supply wallet deposit"});
+      const customerName=[investor.first_name,investor.middle_name,investor.last_name].filter(Boolean).join(" ").trim() || "Lifeline Investor";
+      const result=await obpay(env,"/collect","POST",{
+        amount,
+        phone_number:phone,
+        customer_name:customerName,
+        customer_email:"",
+        reference,
+        currency:"UGX",
+        callback_url:new URL("/obpay/webhook",url).toString(),
+        metadata:{investor_id:investor.id,deposit_id:id}
+      });
+      const providerReference=String(result.reference||reference);
+      const providerState=providerStatus(result.status||result.payment_status||result.state);
       await env.DB.prepare("UPDATE deposit_requests SET provider_reference=?,provider_status=?,updated_at=? WHERE id=?")
-        .bind(String(result.provider_reference||result.reference||reference),String(result.status||"pending"),new Date().toISOString(),id).run();
-      return json({ok:true,reference,status:"pending",provider:result},201);
+        .bind(providerReference,providerState==="success"?"successful":providerState==="failed"?"failed":"pending",new Date().toISOString(),id).run();
+      // ObPay may return HTTP 200 with a pending PIN prompt or HTTP 202/409 for an
+      // uncertain/duplicate reference. Keep the original reference and never create
+      // a second collection for the same customer action.
+      return json({ok:true,reference,status:providerState==="success"?"verification_required":"pending",promptSent:result.prompt_sent===true,duplicate:result.duplicate===true,checkoutUrl:typeof result.checkout_url==="string"?result.checkout_url:null,message:typeof result.message==="string"?result.message:"Check the payment prompt on your phone.",provider:result},201);
     }catch(error){
       console.error("ObPay collection initiation failed:",error);
       await env.DB.prepare("UPDATE deposit_requests SET provider_status='initiation_failed',updated_at=? WHERE id=?").bind(new Date().toISOString(),id).run();
