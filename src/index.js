@@ -881,6 +881,24 @@ async function authApi(request, env, url) {
     const recipientName=typeof data.recipientName==="string"?data.recipientName.trim():"";
     const min=Number(await setting(env,"minimum_withdrawal_ugx","2000"));
     if(!Number.isSafeInteger(amount)||amount<min||amount>100000000||!validPhone(phone)||!validName(recipientName))return json({error:"Enter a valid amount, registered mobile-money number and recipient account name."},400);
+    // Verify the Uganda MTN/Airtel recipient on the server before reserving any funds.
+    // ObPay's name-check endpoint never moves money; never trust a name typed by the investor.
+    const payoutPhone=phone.startsWith("+256")?"0"+phone.slice(4):phone;
+    let verifiedRecipient;
+    try {
+      verifiedRecipient=await obpay(env,"/verify-name","POST",{phone_number:payoutPhone,currency:"UGX",country:"UG"});
+    } catch(error) {
+      console.warn("ObPay recipient name verification failed:",String(error).slice(0,180));
+      return json({error:"We could not verify this mobile-money number with ObPay. No withdrawal was created. Check the number and try again shortly."},503);
+    }
+    const verifiedName=String(verifiedRecipient.customer_name||"").trim();
+    if(verifiedRecipient.name_found!==true||!verifiedName) {
+      return json({error:"ObPay confirmed the number but did not provide its registered name. Ask the account holder to confirm the registered name before requesting a withdrawal."},422);
+    }
+    const normalizeRecipientName=value=>String(value||"").normalize("NFKC").trim().replace(/\\s+/g," ").toLocaleLowerCase("en");
+    if(normalizeRecipientName(recipientName)!==normalizeRecipientName(verifiedName)) {
+      return json({error:"The name does not match the name registered to this mobile-money number. Verified name: "+verifiedName},422);
+    }
     const deposit=await env.DB.prepare("SELECT id FROM deposit_requests WHERE investor_id=? AND status='completed' LIMIT 1").bind(investor.id).first();
     const active=await env.DB.prepare("SELECT id FROM investments WHERE investor_id=? AND status='active' LIMIT 1").bind(investor.id).first();
     if(!deposit||!active)return json({error:"Withdrawal eligibility requires a successful deposit and at least one active investment."},403);
@@ -891,8 +909,7 @@ async function authApi(request, env, url) {
     const id=crypto.randomUUID(),reference="LCSWDR"+Date.now().toString(36).toUpperCase()+randomToken(5).replace(/[^A-Z0-9]/gi,"").toUpperCase(),now=new Date().toISOString();
     const clearing=await ensurePlatformAccount(env,"PLATFORM_WITHDRAWAL_CLEARING","ObPay withdrawal clearing");
     const wallet="wallet-"+investor.id;
-    const payoutPhone=phone.startsWith("+256")?"0"+phone.slice(4):phone;
-    const details=JSON.stringify({recipientName,phone:payoutPhone,currency:"UGX"});
+    const details=JSON.stringify({recipientName:verifiedName,phone:payoutPhone,currency:"UGX",nameVerified:true,verifiedNetwork:verifiedRecipient.network||null});
     await env.DB.prepare("INSERT INTO withdrawal_requests(id,reference,investor_id,amount_minor,currency,payout_method,payout_details_private,payout_phone_e164,payout_amount_minor,tax_amount_minor,status,created_at,updated_at) VALUES(?,?,?,?,'UGX','ObPay Mobile Money',?,?,?,?,'pending',?,?)")
       .bind(id,reference,investor.id,amount,details,phone,payoutAmount,tax,now,now).run();
     try{
@@ -905,7 +922,7 @@ async function authApi(request, env, url) {
         amount:payoutAmount,
         currency:"UGX",
         phone_number:payoutPhone,
-        customer_name:recipientName,
+        customer_name:verifiedName,
         reference,
         callback_url:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",
         description:"Lifeline Care Supply investor withdrawal",
