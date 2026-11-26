@@ -224,7 +224,7 @@ if(isAdmin){
     const td=document.createElement("td");
     const addAction=(label,url)=>{const b=document.createElement("button");b.type="button";b.className="admin-row-action";b.textContent=label;b.addEventListener("click",async()=>{b.disabled=true;try{const response=await fetch(url,{method:"POST",credentials:"same-origin",headers:{"Accept":"application/json"}});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Action failed.");loadAdminSection(location.hash.slice(1)||"overview");}catch(error){adminError(error.message);}finally{b.disabled=false;}});td.append(b);};
     if((tab==="withdrawals"||tab==="all_withdrawals")&&item.status==="pending"){addAction("Approve","/api/admin/withdrawals/"+encodeURIComponent(item.id)+"/approve");addAction("Reject","/api/admin/withdrawals/"+encodeURIComponent(item.id)+"/reject");}
-    if(tab==="packages"&&["draft","paused"].includes(item.status))addAction("Publish","/api/admin/packages/"+encodeURIComponent(item.id)+"/publish");
+    
     tr.append(td);
    }
    tbody.append(tr);
