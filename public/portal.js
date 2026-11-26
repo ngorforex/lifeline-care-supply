@@ -137,7 +137,7 @@ function renderDashboard(data){
   }
  }
  const purchaseDialog=document.createElement("dialog");purchaseDialog.className="payment-dialog";
- purchaseDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" type="button" aria-label="Close dialog">×</button><span class="kicker">INVESTMENT CONFIRMATION</span><h2 data-package-title>Investment package</h2><div data-package-terms></div><label class="package-accept-row"><input type="checkbox" data-package-accept required> I have reviewed and accept the package terms and risk disclosure.</label><button class="primary-button" type="submit" data-package-submit>Confirm investment</button><p class="payment-result" role="status" data-package-result></p></form>';
+ purchaseDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" type="button" aria-label="Close dialog">×</button><span class="kicker">INVESTMENT CONFIRMATION</span><h2 data-package-title>Investment package</h2><div data-package-terms></div><div class="purchase-confirm-note"><span aria-hidden="true">✓</span><p>Review the package details and risk disclosure before confirming.</p></div><button class="primary-button" type="submit" data-package-submit>Confirm investment</button><p class="payment-result" role="status" data-package-result></p></form>';
  document.body.append(purchaseDialog);
  purchaseDialog.querySelector(".dialog-close").addEventListener("click",()=>{if(purchaseDialog.open)purchaseDialog.close("cancel");selectedPackage=null;});
  purchaseDialog.addEventListener("click",event=>{if(event.target===purchaseDialog){purchaseDialog.close("cancel");selectedPackage=null;}});
@@ -152,7 +152,6 @@ function renderDashboard(data){
   const rows=[["Investment amount",Number(pkg.investment_amount)],["Duration",Number(pkg.duration_days)+" days"],["Daily income",Number(terms.daily_income_ugx||0)],["Total projected return",Number(terms.total_return_ugx||0)]];
   for(const [label,value] of rows){const line=document.createElement("p");line.textContent=label+": "+(typeof value==="number"?new Intl.NumberFormat("en-UG").format(value)+" UGX":value);host.append(line);}
   const risk=document.createElement("p");risk.textContent=pkg.risk_disclosure||"Review the investment risks before proceeding.";host.append(risk);
-  purchaseDialog.querySelector("[data-package-accept]").checked=false;
   purchaseDialog.querySelector("[data-package-result]").textContent="";
   const submit=purchaseDialog.querySelector("[data-package-submit]");submit.disabled=false;submit.textContent="Confirm investment";
   purchaseDialog.showModal();
@@ -162,7 +161,7 @@ function renderDashboard(data){
   const submit=purchaseDialog.querySelector("[data-package-submit]"),result=purchaseDialog.querySelector("[data-package-result]");
   submit.disabled=true;submit.textContent="Processing…";result.textContent="";
   try{
-   const response=await fetch("/api/investor/investments",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({packageId:selectedPackage.id,termsVersion:selectedPackage.terms_version,acceptTerms:purchaseDialog.querySelector("[data-package-accept]").checked})});
+   const response=await fetch("/api/investor/investments",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({packageId:selectedPackage.id,termsVersion:selectedPackage.terms_version,acceptTerms:true})});
    const data=await response.json().catch(()=>({error:"The server returned an invalid response."}));
    if(!response.ok)throw new Error(data.error||"Investment could not be completed.");
    result.textContent="Investment successful. Reference: "+data.reference;
