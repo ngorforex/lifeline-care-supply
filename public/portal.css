@@ -1637,3 +1637,8 @@ body[data-portal="investor"] #panel-packages .package-invest-button{width:100%!i
  body[data-portal="investor"] #panel-packages .package-detail b{font-size:9px!important}
 }
 @media(min-width:701px){body[data-portal="investor"] #panel-packages .package-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important}}
+
+
+/* Rounded package thumbnails */
+body[data-portal="investor"] #panel-packages .package-card{overflow:hidden!important;border-radius:16px!important}
+body[data-portal="investor"] #panel-packages .package-image{border-radius:13px!important;overflow:hidden!important;clip-path:inset(0 round 13px)!important}
