@@ -304,6 +304,11 @@ if(!isAdmin){
   paymentDialog.querySelector("[data-payment-title]").textContent=mode==="deposit"?"Deposit funds":"Withdraw funds";
   paymentDialog.querySelector("[data-payment-description]").textContent=mode==="deposit"?"Request an MTN or Airtel Mobile Money payment to fund your wallet.":"Submit a withdrawal to your registered mobile-money number. A 15% withdrawal tax is deducted. Eligibility requires a successful deposit and at least one active investment.";
   paymentDialog.querySelector("#payment-amount").min=mode==="deposit"?"10000":"2000";
+  const recipientNameField=paymentDialog.querySelector("#payment-recipient-name");
+  const recipientNameLabel=paymentDialog.querySelector('label[for="payment-recipient-name"]');
+  recipientNameField.required=mode==="withdrawal";
+  recipientNameField.hidden=mode==="deposit";
+  recipientNameLabel.hidden=mode==="deposit";
   paymentDialog.querySelector("#payment-amount").value="";
   paymentDialog.querySelector("#payment-phone").value="";
   paymentDialog.querySelector("#payment-recipient-name").value="";
