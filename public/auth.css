@@ -100,3 +100,87 @@ button,a,[role=button]{-webkit-tap-highlight-color:transparent}
 .access-page,.admin-access{font-family:var(--lcs-font-body)!important}.access-content,.access-card,.access-intro h1,.access-card h2,.access-brand{font-family:var(--lcs-font-display)!important}
 .access-intro h1{font-size:clamp(27px,5vw,39px)!important;letter-spacing:-.055em!important;line-height:1.08!important}.access-card{border-radius:19px!important;padding:clamp(18px,3vw,27px)!important;box-shadow:0 12px 36px rgba(24,70,60,.08)!important}
 .access-field input,.access-field select{min-height:46px!important;border-radius:11px!important;font-size:13px!important}.access-submit{min-height:46px!important;border-radius:12px!important;font-size:13px!important;font-weight:750!important}.access-footer{font-size:10px!important;letter-spacing:.025em}
+
+
+/* New Lifeline medical artwork authentication experience */
+body.auth-page{background:#eaf7f3!important;color:#173e3b}
+.access-page{
+ min-height:100svh!important;padding:clamp(14px,3vw,34px)!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ background-image:linear-gradient(180deg,rgba(234,249,245,.12),rgba(255,239,233,.16)),url("/auth-bg.svg")!important;
+ background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important;background-attachment:fixed!important;
+}
+.access-page:before,.access-page:after,.background-stamp{display:none!important}
+.access-header,.access-footer,.access-intro{display:none!important}
+.access-content{
+ display:block!important;width:min(100%,510px)!important;margin:auto!important;padding:0!important;
+}
+.access-card{
+ width:100%;padding:clamp(22px,5vw,42px)!important;border-radius:30px!important;
+ background:rgba(255,255,255,.78)!important;border:1px solid rgba(255,255,255,.86)!important;
+ box-shadow:0 22px 70px rgba(23,91,80,.13),inset 0 1px 0 rgba(255,255,255,.96)!important;
+ backdrop-filter:blur(22px)!important;-webkit-backdrop-filter:blur(22px)!important;
+}
+.access-card:before{display:none}
+.card-topline{justify-content:center!important;padding:0!important;margin:0 0 18px!important;border:0!important}
+.card-topline>span:first-child{display:none}
+.card-topline-mark{font:800 10px Manrope,sans-serif!important;letter-spacing:.22em!important;color:#138f86!important}
+.access-tabs{display:none!important}
+.access-brand{justify-content:center!important;color:#173e3b!important}
+.heart-brand-icon{width:58px!important;height:58px!important;flex-basis:58px!important}
+.access-brand-text{font-size:clamp(19px,4vw,25px)!important;color:#123b35!important}
+.access-brand-text b{color:#138f86!important}
+.form-heading{text-align:center!important;margin:0 0 25px!important}
+.form-kicker{font-size:9px!important;letter-spacing:.2em!important;color:#168e83!important}
+.form-heading h2{font-size:clamp(27px,6vw,36px)!important;letter-spacing:-.055em!important;color:#123d36!important;margin:9px 0!important}
+.form-heading h2 span{color:#1ab49f!important}
+.form-heading p{font-size:13px!important;color:#637b74!important;line-height:1.55!important}
+.access-form{gap:17px!important}
+.access-field{gap:7px!important}
+.access-field label{font-size:9px!important;color:#315f55!important;letter-spacing:.1em!important}
+.access-input{height:56px!important;border-radius:14px!important;background:rgba(255,255,255,.84)!important;border:1px solid #dcebe6!important;padding:0 16px!important}
+.access-input:focus-within{background:#fff!important;border-color:#28b5a2!important;box-shadow:0 0 0 3px rgba(30,177,158,.11)!important}
+.access-input input{font-size:14px!important;color:#173e3b!important}
+.access-input input::placeholder{color:#899b95!important}
+.field-icon,.reveal-password .field-icon{stroke:#167d70!important}
+.access-field small{font-size:10px!important;color:#71877f!important}
+.access-submit{height:57px!important;min-height:57px!important;justify-content:center!important;gap:13px!important;border:0!important;border-radius:15px!important;background:linear-gradient(110deg,#20cbb5,#07958c)!important;color:#fff!important;font-size:15px!important;box-shadow:0 10px 25px rgba(8,158,145,.2)!important}
+.access-submit .arrow-icon{stroke:#fff!important}
+.access-submit:hover{filter:brightness(1.04)!important;transform:translateY(-1px)}
+.message{font-size:11px!important;color:#b64040!important}
+.message.success{color:#16805f!important}
+.access-assist{margin-top:19px!important;padding:13px 14px!important;border:1px solid #e1eee8!important;border-radius:13px!important;background:rgba(240,249,245,.8)!important}
+.assist-icon{background:#e2f5ee!important;color:#118f83!important;border-color:#d4eee4!important}
+.access-assist p,.access-assist p b{color:#627b72!important}
+.access-card-bottom{justify-content:center!important;margin-top:18px!important;padding-top:14px!important;border-top:1px solid #e5efea!important;color:#78918a!important;font-size:8px!important}
+.access-card-bottom .bottom-mark{color:#13a99a!important}
+.access-card-bottom span:last-child{display:none}
+@media(max-width:650px){
+ .access-page{min-height:100svh!important;padding:18px 16px!important;background-attachment:scroll!important}
+ .access-content{width:min(100%,440px)!important}
+ .access-card{padding:27px 21px 22px!important;border-radius:25px!important}
+ .heart-brand-icon{width:53px!important;height:53px!important;flex-basis:53px!important}
+ .access-brand-text{font-size:20px!important}
+ .form-heading{margin-bottom:22px!important}
+ .form-heading h2{font-size:29px!important}
+ .access-input{height:54px!important}
+ .access-submit{height:55px!important;min-height:55px!important}
+}
+@media(max-width:360px){
+ .access-page{padding:12px!important}
+ .access-card{padding:22px 16px 19px!important}
+ .access-brand{gap:8px!important}
+ .access-brand-text{font-size:18px!important}
+}
+
+/* Profile sign-out action matches the new glass authentication identity */
+body[data-portal="investor"] .profile-logout-group .profile-menu{padding:10px!important;border-radius:17px!important}
+body[data-portal="investor"] .profile-logout{
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;
+ width:100%!important;min-height:48px!important;padding:10px 16px!important;
+ border:1px solid #f0c9c5!important;border-radius:12px!important;
+ background:linear-gradient(110deg,#fff8f7,#fff)!important;color:#b84642!important;
+ font:800 13px "DM Sans",sans-serif!important;box-shadow:0 4px 13px rgba(165,74,66,.05)!important;
+}
+body[data-portal="investor"] .profile-logout .ui-icon{width:19px!important;height:19px!important;flex:0 0 19px}
+body[data-portal="investor"] .profile-logout-group [data-logout-feedback]:empty{display:none}
