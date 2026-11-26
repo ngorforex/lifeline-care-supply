@@ -135,8 +135,11 @@ function renderDashboard(data){
   }
  }
  const purchaseDialog=document.createElement("dialog");purchaseDialog.className="payment-dialog";
- purchaseDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" value="cancel" aria-label="Close">×</button><span class="kicker">INVESTMENT CONFIRMATION</span><h2 data-package-title>Investment package</h2><div data-package-terms></div><label class="package-accept-row"><input type="checkbox" data-package-accept required> I have reviewed and accept the package terms and risk disclosure.</label><button class="primary-button" type="submit" data-package-submit>Confirm investment</button><p class="payment-result" role="status" data-package-result></p></form>';
+ purchaseDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" type="button" aria-label="Close dialog">×</button><span class="kicker">INVESTMENT CONFIRMATION</span><h2 data-package-title>Investment package</h2><div data-package-terms></div><label class="package-accept-row"><input type="checkbox" data-package-accept required> I have reviewed and accept the package terms and risk disclosure.</label><button class="primary-button" type="submit" data-package-submit>Confirm investment</button><p class="payment-result" role="status" data-package-result></p></form>';
  document.body.append(purchaseDialog);
+ purchaseDialog.querySelector(".dialog-close").addEventListener("click",()=>{if(purchaseDialog.open)purchaseDialog.close("cancel");selectedPackage=null;});
+ purchaseDialog.addEventListener("click",event=>{if(event.target===purchaseDialog){purchaseDialog.close("cancel");selectedPackage=null;}});
+ purchaseDialog.addEventListener("cancel",()=>{selectedPackage=null;});
  const purchaseForm=purchaseDialog.querySelector("form");
  let selectedPackage=null;
  function openPackagePurchase(pkg){
@@ -300,6 +303,8 @@ if(!isAdmin){
  paymentDialog.className="payment-dialog";
  paymentDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" value="cancel" aria-label="Close">×</button><span class="kicker">LIFELINE CARE SUPPLY</span><h2 data-payment-title>Deposit</h2><p data-payment-description>Pay securely using MTN or Airtel Mobile Money.</p><label for="payment-amount">Amount (UGX)</label><input id="payment-amount" name="amount" type="number" min="10000" step="1" required inputmode="numeric"><label for="payment-phone">Mobile money number</label><input id="payment-phone" name="phone" type="tel" required placeholder="+2567XXXXXXXX" autocomplete="tel"><label for="payment-recipient-name">Registered mobile-money account name</label><input id="payment-recipient-name" name="recipientName" type="text" required maxlength="80" placeholder="Name registered with MTN or Airtel" autocomplete="name"><button class="primary-button" type="submit" data-payment-submit>Continue</button><p class="payment-result" role="status" data-payment-result></p></form>';
  document.body.append(paymentDialog);
+ paymentDialog.querySelector(".dialog-close").addEventListener("click",()=>{if(paymentDialog.open)paymentDialog.close("cancel");});
+ paymentDialog.addEventListener("click",event=>{if(event.target===paymentDialog)paymentDialog.close("cancel");});
  const paymentForm=paymentDialog.querySelector("form");
  let paymentMode="deposit";
  const openPayment=mode=>{
