@@ -1655,3 +1655,14 @@ body[data-portal="investor"] #panel-packages .package-image{border-radius:13px!i
  border-radius:12px!important;clip-path:inset(0 round 12px)!important;
 }
 @media(min-width:701px){.package-grid .package-card .package-image{height:170px!important;max-height:170px!important}}
+
+
+/* Remove blank bands around product photos; preserve the full source image ratio */
+.package-grid .package-card .package-image{
+ display:block!important;box-sizing:border-box!important;
+ width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+ aspect-ratio:auto!important;object-fit:contain!important;object-position:center!important;
+ margin:0!important;padding:0!important;background:transparent!important;
+ border-radius:12px!important;clip-path:inset(0 round 12px)!important;
+}
+@media(min-width:701px){.package-grid .package-card .package-image{height:auto!important;max-height:none!important}}
