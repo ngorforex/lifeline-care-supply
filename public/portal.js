@@ -80,7 +80,7 @@ function renderDashboard(data){
  }
 
  fillTable("[data-investments]",data.investments||[],[x=>x.reference,x=>x.package_name||"—",x=>String(x.principal_amount||"—")+" "+(x.currency||""),x=>x.status,x=>dateEAT(x.started_at)],"No investment records yet.");
- fillTable("[data-wallet-activity]",data.transactions||[],[x=>x.reference,x=>x.type,x=>amountMinor(x.amountMinor,x.currency),x=>x.status,dateEAT],"No wallet transactions have been recorded yet.");
+ fillTable("[data-wallet-activity]",data.transactions||[],[x=>x.reference,x=>x.type,x=>amountMinor(x.amountMinor,x.currency),x=>x.status,x=>dateEAT(x.createdAt)],"No wallet transactions have been recorded yet.");
  fillTable("[data-transactions]",data.transactions||[],[x=>x.reference,x=>x.type,x=>dateEAT(x.createdAt),x=>amountMinor(x.amountMinor,x.currency),x=>x.status],"No transactions have been recorded.");
  fillTable("[data-referrals]",data.referrals||[],[x=>x.phone_e164,x=>dateEAT(x.registered_at),x=>x.status],"No referrals are linked to this account.");
  fillTable("[data-earnings]",data.earnings||[],[x=>x.earning_date,x=>String(x.investment_id||"").slice(0,8),x=>amountMinor(x.amount_minor,"UGX")],"No daily earnings have been posted yet.");
