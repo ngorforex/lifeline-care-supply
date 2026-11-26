@@ -23,5 +23,10 @@
       "enabled": true,
       "head_sampling_rate": 0.1
     }
+  },
+  "triggers": {
+    "crons": [
+      "0 21 * * *"
+    ]
   }
 }
