@@ -223,7 +223,10 @@ if(isAdmin){
    if(hasActions){
     const td=document.createElement("td");
     const addAction=(label,url)=>{const b=document.createElement("button");b.type="button";b.className="admin-row-action";b.textContent=label;b.addEventListener("click",async()=>{b.disabled=true;try{const response=await fetch(url,{method:"POST",credentials:"same-origin",headers:{"Accept":"application/json"}});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Action failed.");loadAdminSection(location.hash.slice(1)||"overview");}catch(error){adminError(error.message);}finally{b.disabled=false;}});td.append(b);};
-    if((tab==="withdrawals"||tab==="all_withdrawals")&&item.status==="pending"){addAction("Approve","/api/admin/withdrawals/"+encodeURIComponent(item.id)+"/approve");addAction("Reject","/api/admin/withdrawals/"+encodeURIComponent(item.id)+"/reject");}
+    if((tab==="withdrawals"||tab==="all_withdrawals")&&item.status==="pending"){
+      const paused=document.createElement("span");paused.className="admin-status-note";paused.textContent="Payout processing paused";td.append(paused);
+      addAction("Reject","/api/admin/withdrawals/"+encodeURIComponent(item.id)+"/reject");
+    }
     
     tr.append(td);
    }
