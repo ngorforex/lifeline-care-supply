@@ -400,3 +400,35 @@ body.auth-page:has(form[data-auth-form="register"]) .reference-brand{display:blo
 body.auth-page:has(form[data-auth-form="register"]) .reference-brand svg{display:block!important;width:70px!important;height:58px!important;margin:0 auto 6px!important}
 body.auth-page:has(form[data-auth-form="register"]) .reference-brand-name{font-size:clamp(21px,5vw,25px)!important}
 body.auth-page:has(form[data-auth-form="register"]) .reference-brand-sub{display:flex!important;margin-top:9px!important;font-size:9px!important}
+
+
+/* Registration brand: retain only the exact SVG lockup shared with sign-in.
+   Suppress the legacy CSS-generated heart/title that caused a duplicate logo. */
+body.auth-page:has(form[data-auth-form="register"]) .card-topline,
+body.auth-page:has(form[data-auth-form="register"]) .card-topline::before,
+body.auth-page:has(form[data-auth-form="register"]) .card-topline::after {
+  display:none!important;
+  content:none!important;
+}
+body.auth-page:has(form[data-auth-form="register"]) .reference-brand {
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  margin:0 auto 18px!important;
+}
+body.auth-page:has(form[data-auth-form="register"]) .reference-brand svg {
+  display:block!important;
+  width:76px!important;
+  height:68px!important;
+  margin:0 auto 7px!important;
+}
+body.auth-page:has(form[data-auth-form="register"]) .reference-brand-name {
+  display:block!important;
+  font:800 clamp(21px,5vw,27px)/1.15 Manrope,sans-serif!important;
+  letter-spacing:-.045em!important;
+  color:#103e37!important;
+}
+body.auth-page:has(form[data-auth-form="register"]) .reference-brand-sub {
+  display:flex!important;
+  visibility:visible!important;
+}
