@@ -362,7 +362,7 @@ body[data-portal="investor"] .profile-menu-item>span:nth-child(2){display:flex;f
 body[data-portal="investor"] .profile-menu-item b{font-size:13px;font-weight:750}
 body[data-portal="investor"] .profile-menu-item small{font-size:10px;color:#7c8f88;line-height:1.4}
 body[data-portal="investor"] .profile-chevron{font-size:25px;color:#84958f;line-height:1}
-body[data-portal="investor"] .profile-logout{width:100%;min-height:58px;margin:28px 0 8px;border:1.5px solid #e34a4a;border-radius:16px;background:#fff5f4;color:#c62828;display:flex;align-items:center;justify-content:center;gap:11px;font:750 15px "DM Sans",Arial,sans-serif}
+body[data-portal="investor"] .profile-logout-group{display:block!important;visibility:visible!important;margin:24px 0 12px!important}body[data-portal="investor"] .profile-logout-group .profile-menu{display:block!important;visibility:visible!important;padding:0 14px 8px!important;overflow:visible!important}body[data-portal="investor"] .profile-logout{width:100%!important;min-height:64px!important;margin:12px 0 8px!important;padding:12px 18px!important;border:1.5px solid #e34a4a!important;border-radius:16px!important;background:#fff5f4!important;color:#c62828!important;display:flex!important;visibility:visible!important;align-items:center!important;justify-content:center!important;gap:11px!important;font:750 15px "DM Sans",Arial,sans-serif!important;opacity:1!important}
 body[data-portal="investor"] .profile-logout .ui-icon{width:21px;height:21px}
 body[data-portal="investor"] [data-support-placeholder]{cursor:pointer}
 @media(max-width:700px){
