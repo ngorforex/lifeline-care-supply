@@ -232,14 +232,21 @@ function providerStatus(value) {
   return "pending";
 }
 async function postDepositCredit(env, deposit, provider) {
-  const amount=Number(provider.amount ?? provider.amount_minor ?? deposit.amount_minor);
-  const currency=String(provider.currency || deposit.currency || "UGX").toUpperCase();
-  const providerRef=String(provider.reference || provider.provider_reference || provider.transaction_reference || provider.merchant_reference || deposit.reference);
-  const providerId=String(provider.transaction_id || provider.transactionId || provider.id || provider.provider_transaction_id || providerRef);
-  const providerPhone=String(provider.phone||provider.phone_number||provider.payer_phone||provider.customer_phone||"").replace(/\D/g,"");
-  const expectedPhone=String(deposit.payment_phone_e164||"").replace(/\D/g,"");
-  if (amount!==Number(deposit.amount_minor) || currency!=="UGX" || providerRef!==deposit.reference || (providerPhone&&expectedPhone&&providerPhone!==expectedPhone)) {
-    throw new Error("ObPay transaction does not match the local deposit reference, amount and currency.");
+  const rawAmount=provider.amount ?? provider.amount_minor ?? provider.transaction_amount;
+  const rawCurrency=provider.currency;
+  const rawReference=provider.reference ?? provider.provider_reference ?? provider.transaction_reference ?? provider.merchant_reference;
+  const rawPhone=provider.phone ?? provider.phone_number ?? provider.payer_phone ?? provider.customer_phone;
+  if (rawAmount===undefined || rawAmount===null || rawCurrency===undefined || !rawReference || !rawPhone) {
+    throw new Error("ObPay verification omitted required amount, currency, merchant reference or payer phone; deposit remains uncredited.");
+  }
+  const amount=Number(rawAmount);
+  const currency=String(rawCurrency).toUpperCase();
+  const providerRef=String(rawReference);
+  const providerId=String(provider.transaction_id || provider.transactionId || provider.id || provider.provider_transaction_id || "");
+  const providerPhone=String(rawPhone).replace(/\\D/g,"");
+  const expectedPhone=String(deposit.payment_phone_e164||"").replace(/\\D/g,"");
+  if (!Number.isSafeInteger(amount) || amount!==Number(deposit.amount_minor) || currency!=="UGX" || providerRef!==deposit.reference || !providerPhone || !expectedPhone || providerPhone!==expectedPhone || !providerId) {
+    throw new Error("ObPay transaction does not exactly match the local deposit reference, amount, currency, payer phone and provider transaction ID.");
   }
   const wallet="wallet-"+deposit.investor_id;
   await env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts(id,owner_user_id,account_code,currency,account_name,created_at) VALUES(?,?,'WALLET_AVAILABLE','UGX','Available wallet balance',?)")
