@@ -45,6 +45,25 @@ async function passwordHash(password, salt) {
   }, key, 256);
   return bytesToBase64(new Uint8Array(bits));
 }
+async function yoolaVerify(env, endpoint, payload) {
+  if (typeof env.YOOLA_API_KEY !== "string" || env.YOOLA_API_KEY.length < 16) {
+    throw new Error("Yoola SMS is not configured.");
+  }
+  const response = await fetch("https://yoolasms.com/api/v1/" + endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify({ ...payload, api_key: env.YOOLA_API_KEY })
+  });
+  const raw = await response.text();
+  let data = {};
+  try { data = raw ? JSON.parse(raw) : {}; } catch {
+    throw new Error("Yoola SMS returned an unreadable response.");
+  }
+  if (!response.ok || data.status !== "success") {
+    throw new Error("Yoola SMS verification request failed.");
+  }
+  return data;
+}
 function normalizeUgandaPhone(value) {
   if (typeof value !== "string") return null;
   const phone = value.trim().replace(/[\s()-]/g, "");
@@ -882,6 +901,158 @@ async function authApi(request, env, url) {
     }
     const sessionToken = await createSession(env, row.id);
     return json({ ok: true }, 200, { "set-cookie": cookie(sessionToken) });
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/investor/password/change") {
+    const investor = await currentInvestor(request, env);
+    if (!investor) return json({ error: "Authentication required." }, 401);
+    let data;
+    try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
+    const currentPassword = typeof data.currentPassword === "string" ? data.currentPassword : "";
+    const newPassword = typeof data.newPassword === "string" ? data.newPassword : "";
+    if (!currentPassword || currentPassword.length > 128 || !passwordValid(newPassword)) {
+      return json({ error: "Enter your current password and a new password with at least 12 characters, including uppercase, lowercase and a number." }, 400);
+    }
+    if (currentPassword === newPassword) return json({ error: "Your new password must be different from your current password." }, 400);
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    if (!await rateLimit(env, "password-change:" + await sha256(investor.id + ":" + ip), 5, 900)) {
+      return json({ error: "Too many password-change attempts. Try again in 15 minutes." }, 429);
+    }
+    const credentials = await env.DB.prepare("SELECT password_hash,password_salt,password_iterations FROM user_credentials WHERE user_id=? LIMIT 1")
+      .bind(investor.id).first();
+    let valid = false;
+    if (credentials) {
+      const key = await crypto.subtle.importKey("raw", encoder.encode(currentPassword), "PBKDF2", false, ["deriveBits"]);
+      const bits = await crypto.subtle.deriveBits({
+        name: "PBKDF2",
+        salt: base64ToBytes(credentials.password_salt),
+        iterations: credentials.password_iterations,
+        hash: "SHA-256"
+      }, key, 256);
+      valid = constantTimeEqual(bytesToBase64(new Uint8Array(bits)), credentials.password_hash);
+    }
+    if (!valid) return json({ error: "Your current password is incorrect." }, 401);
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const hash = await passwordHash(newPassword, salt);
+    const now = new Date().toISOString();
+    const sessionToken = cookieValue(request, "lcs_session");
+    const sessionHash = sessionToken ? await sha256(sessionToken) : "";
+    try {
+      await env.DB.batch([
+        env.DB.prepare("UPDATE user_credentials SET password_hash=?,password_salt=?,password_iterations=?,password_changed_at=? WHERE user_id=?")
+          .bind(hash, bytesToBase64(salt), PASSWORD_ITERATIONS, now, investor.id),
+        env.DB.prepare("DELETE FROM auth_sessions WHERE user_id=? AND token_hash<>?")
+          .bind(investor.id, sessionHash),
+        env.DB.prepare("INSERT INTO audit_logs(id,actor_user_id,action,entity_type,entity_id,metadata,created_at) VALUES(?,?,'investor.password_changed','user',?,'{}',?)")
+          .bind(crypto.randomUUID(), investor.id, investor.id, now)
+      ]);
+    } catch (error) {
+      console.error("Investor password change failed:", error);
+      return json({ error: "Your password could not be updated. Please try again." }, 500);
+    }
+    return json({ ok: true, message: "Password updated successfully. Other signed-in devices have been logged out." });
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/auth/password-reset/request") {
+    let data;
+    try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
+    const phone = normalizeUgandaPhone(data.phone) || "";
+    if (!validPhone(phone)) return json({ error: "Enter a Ugandan mobile number as 07XXXXXXXX or +2567XXXXXXXX." }, 400);
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    const phoneHash = await sha256(phone);
+    if (!await rateLimit(env, "password-reset-ip:" + await sha256(ip), 5, 900) ||
+        !await rateLimit(env, "password-reset-phone:" + phoneHash, 3, 3600)) {
+      return json({ error: "Too many recovery requests. Please wait before trying again." }, 429);
+    }
+    const user = await env.DB.prepare("SELECT id FROM users WHERE phone_e164=? AND status='active' LIMIT 1").bind(phone).first();
+    let providerRequestId = null;
+    if (user) {
+      try {
+        const sent = await yoolaVerify(env, "verify-send", {
+          phone: phone.slice(1),
+          brand_name: "Lifeline Care Supply",
+          channel: "sms",
+          purpose: "password_reset"
+        });
+        if (typeof sent.request_id !== "string" || !sent.request_id ||
+            (typeof sent.phone === "string" && sent.phone.replace(/\D/g, "") !== phone.slice(1))) {
+          throw new Error("Yoola SMS returned an invalid verification request.");
+        }
+        providerRequestId = sent.request_id;
+      } catch (error) {
+        console.error("Yoola password recovery SMS failed:", String(error).slice(0, 180));
+        return json({ error: "Password recovery is temporarily unavailable. Please try again later." }, 503);
+      }
+    }
+    const challengeToken = randomToken(32);
+    const challengeHash = await sha256(challengeToken);
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 10 * 60 * 1000).toISOString();
+    await env.DB.prepare("INSERT INTO password_reset_challenges(id,challenge_hash,user_id,phone_e164,yoola_request_id,expires_at,created_at) VALUES(?,?,?,?,?,?,?)")
+      .bind(crypto.randomUUID(), challengeHash, user?.id || null, phone, providerRequestId, expiresAt, now.toISOString()).run();
+    return json({
+      ok: true,
+      challengeToken,
+      message: "If an active account matches that number, a verification code has been sent by SMS. The code expires in 10 minutes."
+    }, 200);
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/auth/password-reset/complete") {
+    let data;
+    try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
+    const challengeToken = typeof data.challengeToken === "string" ? data.challengeToken : "";
+    const code = typeof data.code === "string" ? data.code.trim() : "";
+    const newPassword = typeof data.newPassword === "string" ? data.newPassword : "";
+    if (!challengeToken || challengeToken.length > 128 || !/^\d{4,8}$/.test(code) || !passwordValid(newPassword)) {
+      return json({ error: "Enter the SMS verification code and a password with at least 12 characters, including uppercase, lowercase and a number." }, 400);
+    }
+    const challengeHash = await sha256(challengeToken);
+    const challenge = await env.DB.prepare("SELECT id,user_id,phone_e164,yoola_request_id,expires_at,used_at,failed_attempts FROM password_reset_challenges WHERE challenge_hash=? LIMIT 1")
+      .bind(challengeHash).first();
+    if (!challenge || !challenge.user_id || !challenge.yoola_request_id || challenge.used_at ||
+        Date.parse(challenge.expires_at) <= Date.now() || Number(challenge.failed_attempts) >= 5) {
+      return json({ error: "The verification code is invalid or expired. Request a new code." }, 400);
+    }
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    if (!await rateLimit(env, "password-reset-check:" + await sha256(challengeHash + ":" + ip), 5, 600)) {
+      return json({ error: "Too many code attempts. Request a new verification code." }, 429);
+    }
+    let checked;
+    try {
+      checked = await yoolaVerify(env, "verify-check", {
+        request_id: challenge.yoola_request_id,
+        code
+      });
+    } catch (error) {
+      console.warn("Yoola password recovery verification rejected:", String(error).slice(0, 160));
+      await env.DB.prepare("UPDATE password_reset_challenges SET failed_attempts=failed_attempts+1 WHERE id=? AND failed_attempts<5")
+        .bind(challenge.id).run();
+      return json({ error: "The verification code is incorrect or has expired. Check the code or request a new one." }, 400);
+    }
+    const verifiedPhone = typeof checked.phone === "string" ? checked.phone.replace(/\D/g, "") : "";
+    if (checked.verified !== true || verifiedPhone !== challenge.phone_e164.slice(1)) {
+      await env.DB.prepare("UPDATE password_reset_challenges SET failed_attempts=failed_attempts+1 WHERE id=? AND failed_attempts<5")
+        .bind(challenge.id).run();
+      return json({ error: "The verification code is incorrect or has expired. Check the code or request a new one." }, 400);
+    }
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const hash = await passwordHash(newPassword, salt);
+    const now = new Date().toISOString();
+    try {
+      await env.DB.batch([
+        env.DB.prepare("UPDATE user_credentials SET password_hash=?,password_salt=?,password_iterations=?,password_changed_at=? WHERE user_id=?")
+          .bind(hash, bytesToBase64(salt), PASSWORD_ITERATIONS, now, challenge.user_id),
+        env.DB.prepare("UPDATE password_reset_challenges SET used_at=? WHERE id=? AND used_at IS NULL")
+          .bind(now, challenge.id),
+        env.DB.prepare("DELETE FROM auth_sessions WHERE user_id=?").bind(challenge.user_id),
+        env.DB.prepare("INSERT INTO audit_logs(id,actor_user_id,action,entity_type,entity_id,metadata,created_at) VALUES(?,?,'investor.password_reset','user',?,'{}',?)")
+          .bind(crypto.randomUUID(), challenge.user_id, challenge.user_id, now)
+      ]);
+    } catch (error) {
+      console.error("Investor password reset could not be saved:", error);
+      return json({ error: "Your password could not be reset. Please request a new code and try again." }, 500);
+    }
+    return json({ ok: true, message: "Password reset successfully. Sign in using your new password." }, 200, { "set-cookie": cookie("", 0) });
   }
 
   if ((request.method === "GET" || request.method === "PUT") && url.pathname === "/api/investor/profile-photo") {
