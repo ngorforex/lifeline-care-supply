@@ -229,7 +229,7 @@ body.auth-page{background:#eaf7f3!important}
 .reference-options{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 2px 1px;font:500 12px "DM Sans",sans-serif;color:#174f46}
 .reference-options label{display:flex;align-items:center;gap:7px}
 .reference-options input{width:17px;height:17px;margin:0;accent-color:#0e9d8e}
-.reference-options a,.reference-register a{color:#078f83;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.reference-options a,.reference-register a{color:#078f83;font-weight:700;text-decoration:none;transition:color .18s ease}.reference-options a:hover,.reference-register a:hover{color:#0b756d}
 .reference-submit,.reference-form .access-submit{height:49px!important;min-height:49px!important;justify-content:center!important;gap:12px!important;border:0!important;border-radius:14px!important;background:linear-gradient(110deg,#20cbb5,#07958c)!important;color:white!important;font:700 15px "DM Sans",sans-serif!important;box-shadow:0 8px 22px rgba(8,158,145,.16)!important}
 .reference-signin-icon{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .reference-form .message{font-size:10px!important;margin:0!important}
@@ -390,7 +390,7 @@ body.auth-page:has(form[data-auth-form="register"]) .access-card-bottom{
 .register-brand-sub{display:flex;align-items:center;justify-content:center;gap:12px;color:#287f75;font:800 9px/1 "DM Sans",sans-serif;letter-spacing:.28em;margin-top:3px}
 .register-brand-sub i{display:block;width:28px;height:2px;border-radius:2px;background:#38bca5}
 .register-signin{padding-top:17px;margin-top:2px;border-top:1px solid #e5efea;text-align:center;color:#71847e;font-size:12px;line-height:1.5}
-.register-signin a{color:#0d928b;font-weight:800;text-decoration:underline;text-underline-offset:3px;margin-left:5px}
+.register-signin a{color:#0d928b;font-weight:800;text-decoration:none;margin-left:5px;transition:color .18s ease}.register-signin a:hover{color:#087d77}
 @media(max-width:650px){.register-brand{gap:6px;margin-bottom:19px}.register-brand svg{width:58px;height:49px}.register-brand-name{font-size:22px}.register-brand-sub{font-size:8px;letter-spacing:.23em}.register-signin{font-size:11px;padding-top:14px}}
 
 /* Registration uses the exact heartbeat logo lockup from the sign-in/home access brand. */
@@ -447,3 +447,8 @@ body.auth-page:has(form[data-auth-form="register"]) .reference-brand-sub {
 [data-reset-complete][hidden], [data-reset-request][hidden]{display:none!important}
 [data-reset-complete] .access-field label{font-size:11px;font-weight:700;color:#52736b}
 [data-reset-complete] .access-input input{width:100%;min-width:0}
+
+
+/* Consistent, clean link styling across sign-in, registration and recovery pages */
+body.auth-page a,body.auth-page a:visited,body.auth-page a:hover,body.auth-page a:active,body.auth-page a:focus{text-decoration:none}
+body.auth-page a:focus-visible{outline:2px solid #71e6b0;outline-offset:3px;border-radius:4px}
