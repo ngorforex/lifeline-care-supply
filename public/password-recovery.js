@@ -1,7 +1,7 @@
 function normalizeRecoveryPhone(value){
- const phone=String(value||"").trim().replace(/[\\s()-]/g,"");
+ const phone=String(value||"").trim().replace(/[\s()-]/g,"");
  if(/^07[0-9]{8}$/.test(phone))return "+256"+phone.slice(1);
- if(/^\\+2567[0-9]{8}$/.test(phone))return phone;
+ if(/^\+2567[0-9]{8}$/.test(phone))return phone;
  return "";
 }
 const requestForm=document.querySelector("[data-reset-request]");
