@@ -471,30 +471,79 @@ if(!isAdmin){
   }
  });
  let deferredInstallPrompt=null;
+ const installButton=document.querySelector("[data-install-app]");
+ const isInstalled=()=>window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
+ const installDialog=document.createElement("dialog");
+ installDialog.className="payment-dialog lifeline-install-dialog";
+ installDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" type="button" aria-label="Close">×</button><span class="kicker">LIFELINE CARE SUPPLY</span><h2 data-install-title>Install Lifeline</h2><p data-install-message></p><button class="primary-button" type="button" data-install-confirm>Install now</button><p class="payment-result" role="status" data-install-help></p></form>';
+ document.body.append(installDialog);
+ const installTitle=installDialog.querySelector("[data-install-title]");
+ const installMessage=installDialog.querySelector("[data-install-message]");
+ const installConfirm=installDialog.querySelector("[data-install-confirm]");
+ const installHelp=installDialog.querySelector("[data-install-help]");
+ const closeInstallDialog=()=>{if(installDialog.open)installDialog.close();};
+ installDialog.querySelector(".dialog-close").addEventListener("click",closeInstallDialog);
+ installDialog.addEventListener("click",event=>{if(event.target===installDialog)closeInstallDialog();});
  window.addEventListener("beforeinstallprompt",event=>{
   event.preventDefault();
   deferredInstallPrompt=event;
  });
  window.addEventListener("appinstalled",()=>{
   deferredInstallPrompt=null;
-  const installButton=document.querySelector("[data-install-app]");
-  if(installButton){installButton.querySelector("b").textContent="Lifeline installed";installButton.disabled=true;}
+  if(installButton){const label=installButton.querySelector("b");if(label)label.textContent="Lifeline installed";}
+  installTitle.textContent="Lifeline installed";
+  installMessage.textContent="Lifeline has been added to this device. You can open it from your home screen or app list.";
+  installConfirm.hidden=true;installHelp.textContent="";
+  if(!installDialog.open)installDialog.showModal();
  });
- document.querySelector("[data-install-app]")?.addEventListener("click",async()=>{
+ installButton?.addEventListener("click",async()=>{
+  installHelp.textContent="";
+  installConfirm.hidden=false;
+  if(isInstalled()){
+   installTitle.textContent="Lifeline is already installed";
+   installMessage.textContent="You can open Lifeline directly from your home screen or app list.";
+   installConfirm.hidden=true;
+   installDialog.showModal();
+   return;
+  }
+  installTitle.textContent="Install Lifeline";
+  installMessage.textContent="Add Lifeline to your device for quick access from your home screen.";
+  installConfirm.textContent="Install now";
+  installDialog.showModal();
   if(deferredInstallPrompt){
+   installConfirm.disabled=false;
+   installHelp.textContent="Tap Install now to add the app to your device.";
+  }else{
+   const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+   installHelp.textContent=isIOS
+    ?"On iPhone or iPad: tap Share in Safari, then choose Add to Home Screen."
+    :"In Chrome: open the browser menu (⋮), choose Install app or Add to Home screen, then confirm.";
+  }
+ });
+ installConfirm.addEventListener("click",async()=>{
+  if(!deferredInstallPrompt){
+   const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+   installHelp.textContent=isIOS
+    ?"Use Safari's Share menu, then select Add to Home Screen."
+    :"Open Chrome's ⋮ menu and select Install app or Add to Home screen.";
+   return;
+  }
+  installConfirm.disabled=true;installConfirm.textContent="Opening installer…";
+  try{
    deferredInstallPrompt.prompt();
-   await deferredInstallPrompt.userChoice;
+   const choice=await deferredInstallPrompt.userChoice;
    deferredInstallPrompt=null;
-   return;
+   if(choice?.outcome==="accepted"){
+    installMessage.textContent="Installation started. Follow your device's confirmation steps.";
+    installHelp.textContent="";
+   }else{
+    installHelp.textContent="Installation was not completed. Tap Install now to try again.";
+   }
+  }catch(error){
+   installHelp.textContent="Your browser could not open the installer. Use the browser menu to install Lifeline.";
+  }finally{
+   installConfirm.disabled=false;installConfirm.textContent="Install now";
   }
-  if(window.matchMedia("(display-mode: standalone)").matches){
-   window.alert("Lifeline is already installed on this device.");
-   return;
-  }
-  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  window.alert(isIOS
-   ?"To install Lifeline, tap Share in Safari, then choose Add to Home Screen."
-   :"To install Lifeline, open your browser menu (⋮) and choose Install app or Add to Home screen.");
  });
  if("serviceWorker" in navigator){
   window.addEventListener("load",()=>navigator.serviceWorker.register("/service-worker.js").catch(()=>{}));
