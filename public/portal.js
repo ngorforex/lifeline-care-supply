@@ -470,10 +470,35 @@ if(!isAdmin){
    submit.disabled=false;submit.textContent="Update password";
   }
  });
- document.querySelectorAll("[data-support-placeholder]").forEach(link=>link.addEventListener("click",event=>{
+ let deferredInstallPrompt=null;
+ window.addEventListener("beforeinstallprompt",event=>{
   event.preventDefault();
-  window.alert("The official Telegram and live-support links have not been configured in this project yet.");
- }));
+  deferredInstallPrompt=event;
+ });
+ window.addEventListener("appinstalled",()=>{
+  deferredInstallPrompt=null;
+  const installButton=document.querySelector("[data-install-app]");
+  if(installButton){installButton.querySelector("b").textContent="Lifeline installed";installButton.disabled=true;}
+ });
+ document.querySelector("[data-install-app]")?.addEventListener("click",async()=>{
+  if(deferredInstallPrompt){
+   deferredInstallPrompt.prompt();
+   await deferredInstallPrompt.userChoice;
+   deferredInstallPrompt=null;
+   return;
+  }
+  if(window.matchMedia("(display-mode: standalone)").matches){
+   window.alert("Lifeline is already installed on this device.");
+   return;
+  }
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  window.alert(isIOS
+   ?"To install Lifeline, tap Share in Safari, then choose Add to Home Screen."
+   :"To install Lifeline, open your browser menu (⋮) and choose Install app or Add to Home screen.");
+ });
+ if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("/service-worker.js").catch(()=>{}));
+ }
 
  document.querySelector("[data-copy-referral]")?.addEventListener("click",async event=>{
  const button=event.currentTarget;const url=button.dataset.url;
