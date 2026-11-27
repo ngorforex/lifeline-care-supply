@@ -452,3 +452,24 @@ body.auth-page:has(form[data-auth-form="register"]) .reference-brand-sub {
 /* Consistent, clean link styling across sign-in, registration and recovery pages */
 body.auth-page a,body.auth-page a:visited,body.auth-page a:hover,body.auth-page a:active,body.auth-page a:focus{text-decoration:none}
 body.auth-page a:focus-visible{outline:2px solid #71e6b0;outline-offset:3px;border-radius:4px}
+
+
+/* Final access-screen polish — visual-only refinements */
+body.auth-page .access-card{border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.07)}
+body.auth-page .access-input{transition:border-color .18s,box-shadow .18s,background .18s}
+body.auth-page .access-input:focus-within{border-color:rgba(119,236,169,.72);box-shadow:0 0 0 3px rgba(75,213,133,.11);background:rgba(7,36,28,.94)}
+body.auth-page .access-input input{min-width:0}
+body.auth-page .access-submit{min-height:48px;border-radius:12px;box-shadow:0 10px 25px rgba(40,202,112,.16);transition:transform .18s,filter .18s,box-shadow .18s}
+body.auth-page .access-submit:hover{filter:brightness(1.06);box-shadow:0 13px 30px rgba(40,202,112,.22);transform:translateY(-1px)}
+body.auth-page .access-submit:active{transform:translateY(0)}
+body.auth-page .access-tabs{overflow:hidden}
+body.auth-page .access-tabs a{border-radius:9px;transition:background .18s,color .18s}
+body.auth-page .access-tabs a.selected{box-shadow:0 3px 12px rgba(0,0,0,.14)}
+body.auth-page .message:empty{display:none}
+body.auth-page input:focus-visible,body.auth-page button:focus-visible,body.auth-page a:focus-visible{outline:2px solid #a8ef78;outline-offset:3px}
+@media(max-width:650px){
+ body.auth-page .access-content{width:100%;padding-top:28px;padding-bottom:32px}
+ body.auth-page .access-card{border-radius:19px;padding:23px 19px 20px}
+ body.auth-page .access-submit{min-height:46px}
+}
+@media(prefers-reduced-motion:reduce){body.auth-page *,body.auth-page *:before,body.auth-page *:after{transition:none!important}}
