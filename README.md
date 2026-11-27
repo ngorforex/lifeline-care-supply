@@ -17,7 +17,7 @@ Individual-investor fixed-package investment platform.
 - Phone numbers are normalized to Uganda international format (`+2567XXXXXXXX`); local `07XXXXXXXX` input is accepted and normalized.
 - Investor names and email addresses are not required for account registration.
 - Administrator accounts are provisioned separately.
-- Password recovery uses Yoola Verify SMS. The D1 migration `0010_password_recovery.sql` and Worker secret `YOOLA_API_KEY` are required for that feature. The Yoola key must be stored as the Worker secret `YOOLA_SMS_KEY`, never as a plain variable or committed value.
+- Password recovery uses Yoola Verify SMS. The D1 migration `0010_password_recovery.sql` and Worker secret `YOOLA_SMS_KEY` are required for that feature. The Yoola key must be stored as the Worker secret `YOOLA_SMS_KEY`, never as a plain variable or committed value.
 
 ## Customer financial flows
 
