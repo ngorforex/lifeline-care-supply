@@ -80,6 +80,9 @@ function validName(value, optional = false) {
   if (optional && (value === undefined || value === null || value === "")) return true;
   return typeof value === "string" && value.trim().length >= 1 && value.trim().length <= 80 && !/[<>]/.test(value);
 }
+function userPasswordValid(value) {
+  return typeof value === "string" && value.length >= 6 && value.length <= 128;
+}
 function passwordValid(value) {
   return typeof value === "string" && value.length >= 12 && value.length <= 128 &&
     /[a-z]/.test(value) && /[A-Z]/.test(value) && /\d/.test(value);
@@ -821,8 +824,8 @@ async function authApi(request, env, url) {
     const lastName = "Account";
     const phone = normalizeUgandaPhone(data.phone) || "";
     const password = data.password;
-    if (!validPhone(phone) || !passwordValid(password)) {
-      return json({ error: "Enter a valid international phone number and a password with at least 12 characters including uppercase, lowercase and a number." }, 400);
+    if (!validPhone(phone) || !userPasswordValid(password)) {
+      return json({ error: "Enter a valid Ugandan mobile number as 07XXXXXXXX or +2567XXXXXXXX, and a password with at least 6 characters." }, 400);
     }
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
     const rateKey = "register:" + await sha256(ip);
@@ -912,8 +915,8 @@ async function authApi(request, env, url) {
     try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
     const currentPassword = typeof data.currentPassword === "string" ? data.currentPassword : "";
     const newPassword = typeof data.newPassword === "string" ? data.newPassword : "";
-    if (!currentPassword || currentPassword.length > 128 || !passwordValid(newPassword)) {
-      return json({ error: "Enter your current password and a new password with at least 12 characters, including uppercase, lowercase and a number." }, 400);
+    if (!currentPassword || currentPassword.length > 128 || !userPasswordValid(newPassword)) {
+      return json({ error: "Enter your current password and a new password with at least 6 characters." }, 400);
     }
     if (currentPassword === newPassword) return json({ error: "Your new password must be different from your current password." }, 400);
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
@@ -1005,8 +1008,8 @@ async function authApi(request, env, url) {
     const challengeToken = typeof data.challengeToken === "string" ? data.challengeToken : "";
     const code = typeof data.code === "string" ? data.code.trim() : "";
     const newPassword = typeof data.newPassword === "string" ? data.newPassword : "";
-    if (!challengeToken || challengeToken.length > 128 || !/^\d{4,8}$/.test(code) || !passwordValid(newPassword)) {
-      return json({ error: "Enter the SMS verification code and a password with at least 12 characters, including uppercase, lowercase and a number." }, 400);
+    if (!challengeToken || challengeToken.length > 128 || !/^\d{4,8}$/.test(code) || !userPasswordValid(newPassword)) {
+      return json({ error: "Enter the SMS verification code and a password with at least 6 characters." }, 400);
     }
     const challengeHash = await sha256(challengeToken);
     const challenge = await env.DB.prepare("SELECT id,user_id,phone_e164,yoola_request_id,expires_at,used_at,failed_attempts FROM password_reset_challenges WHERE challenge_hash=? LIMIT 1")
