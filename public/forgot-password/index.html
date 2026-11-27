@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#eaf7f2">
+<title>Password Recovery | Lifeline Care Supply</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth.css?v=password-recovery-20261127">
+<script src="/password-recovery.js?v=password-recovery-20261127" defer></script>
+</head>
+<body class="auth-page">
+<main class="access-page reference-login">
+<section class="access-content">
+<section class="access-card">
+<div class="reference-brand">
+<svg viewBox="0 0 120 100" role="img" aria-label="Lifeline Care Supply heartbeat logo">
+<defs><linearGradient id="brandHeart" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#13cbb0"/><stop offset="1" stop-color="#43bd68"/></linearGradient></defs>
+<path d="M60 89 17 48C-7 23 19 -2 43 14c8 5 13 12 17 19 5-9 12-17 23-19 27-5 45 23 21 47Z" fill="none" stroke="url(#brandHeart)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M20 47h24l12-21 14 43 11-22h20" fill="none" stroke="url(#brandHeart)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+<div class="reference-brand-name">Lifeline Care Supply</div>
+<div class="reference-brand-sub"><span></span> INVESTOR PORTAL <span></span></div>
+</div>
+<header class="reference-heading">
+<h1>Password recovery</h1>
+<p>Verify your registered mobile number to reset your password.</p>
+</header>
+<form class="access-form reference-form" data-reset-request>
+<div class="access-field">
+<label for="recovery-phone">Registered mobile number</label>
+<div class="access-input">
+<svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM9 6h6M10 18h4"/></svg>
+<input id="recovery-phone" name="phone" type="tel" autocomplete="tel" placeholder="07XXXXXXXX or +2567XXXXXXXX" required pattern="(?:07[0-9]{8}|\+2567[0-9]{8})">
+</div>
+</div>
+<button class="access-submit" type="submit"><span>Send verification code</span></button>
+<div class="message" role="status" aria-live="polite" data-reset-request-message></div>
+</form>
+<form class="access-form reference-form" data-reset-complete hidden>
+<input type="hidden" name="challengeToken">
+<div class="access-field">
+<label for="recovery-code">SMS verification code</label>
+<div class="access-input"><input id="recovery-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter the code sent by SMS" pattern="[0-9]{4,8}" minlength="4" maxlength="8" required></div>
+</div>
+<div class="access-field">
+<label for="recovery-new-password">New password</label>
+<div class="access-input"><input id="recovery-new-password" name="newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="At least 12 characters" required></div>
+</div>
+<div class="access-field">
+<label for="recovery-confirm-password">Confirm new password</label>
+<div class="access-input"><input id="recovery-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="Enter the new password again" required></div>
+</div>
+<small class="recovery-hint">Your code expires after 10 minutes. Use uppercase, lowercase and a number in your new password.</small>
+<button class="access-submit" type="submit"><span>Reset password</span></button>
+<div class="message" role="status" aria-live="polite" data-reset-complete-message></div>
+</form>
+<div class="reference-register"><a href="/login/">Back to sign in</a></div>
+</section>
+</section>
+</main>
+</body>
+</html>
