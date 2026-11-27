@@ -1,7 +1,7 @@
 const SESSION_SECONDS = 60 * 60 * 24 * 14;
 const PASSWORD_ITERATIONS = 100000;
-// Live ObPay payouts are enabled. ObPay account mode adds payout fees to the merchant debit.
-const OBPAY_PAYOUTS_ENABLED = true;
+// Keep payouts fail-closed until the merchant's saved fee mode is independently confirmed.
+const OBPAY_PAYOUTS_ENABLED = false;
 const OBPAY_PAYOUT_FEE_MODE = "account";
 const encoder = new TextEncoder();
 
@@ -46,7 +46,7 @@ async function passwordHash(password, salt) {
   return bytesToBase64(new Uint8Array(bits));
 }
 async function yoolaVerify(env, endpoint, payload) {
-  if (typeof env.YOOLA_API_KEY !== "string" || env.YOOLA_API_KEY.length < 16) {
+  if (typeof env.YOOLA_SMS_KEY !== "string" || env.YOOLA_API_KEY.length < 16) {
     throw new Error("Yoola SMS is not configured.");
   }
   const response = await fetch("https://yoolasms.com/api/v1/" + endpoint, {
@@ -659,7 +659,7 @@ async function authApi(request, env, url) {
       }catch(error){console.warn("ObPay UGX balance inspection failed:",String(error).slice(0,120));}
       const missingWebhookEvents=["payout.success","payout.failed"].filter(event=>!webhookEvents.includes(event));
       const payoutMethodsReady=payoutMethodsStatus==="available"&&payoutMethods.some(method=>method.enabled&&/mtn/i.test(method.code+" "+method.name))&&payoutMethods.some(method=>method.enabled&&/airtel/i.test(method.code+" "+method.name));
-      const payoutFeeModeVerified=OBPAY_PAYOUTS_ENABLED===true&&OBPAY_PAYOUT_FEE_MODE==="account";
+      const payoutFeeModeVerified=OBPAY_PAYOUTS_ENABLED===true&&OBPAY_PAYOUT_FEE_MODE==="account"&&accountPayoutFeeMode==="account";
       const payoutConfigurationReady=OBPAY_PAYOUTS_ENABLED===true&&payoutFeeModeVerified&&webhookRegistered&&missingWebhookEvents.length===0&&payoutMethodsReady;
       const fundingStatus=balanceStatus!=="available"||balance?.available===null?"unverified":Number(balance.available)<=0?"empty":"funds_present";
       const payoutReadiness=!payoutConfigurationReady?"blocked":fundingStatus==="empty"?"funding_required":fundingStatus==="unverified"?"funding_unverified":"configured";
