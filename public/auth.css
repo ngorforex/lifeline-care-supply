@@ -670,3 +670,26 @@ body.auth-page .access-card input:not([type=checkbox]){
  color:#202944;
 }
 body.auth-page .access-card input:focus{border-color:#536be0}
+
+
+/* Unified non-orange focus treatment for authentication fields */
+body.auth-page input:focus,
+body.auth-page input:focus-visible,
+body.auth-page select:focus,
+body.auth-page textarea:focus,
+body.auth-page .access-input:focus-within{
+ outline:none!important;
+ border-color:#5268d9!important;
+ box-shadow:0 0 0 3px rgba(82,104,217,.13)!important;
+}
+body.auth-page input:focus-visible,
+body.auth-page button:focus-visible,
+body.auth-page a:focus-visible{
+ outline:2px solid #7185f4!important;
+ outline-offset:3px;
+}
+body.auth-page .access-input:focus-within{background:#fff!important}
+body.auth-page input:-webkit-autofill:focus{
+ -webkit-box-shadow:0 0 0 1000px #fff inset,0 0 0 3px rgba(82,104,217,.13)!important;
+ border-color:#5268d9!important;
+}
