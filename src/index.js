@@ -47,13 +47,13 @@ async function passwordHash(password, salt) {
 }
 function normalizeUgandaPhone(value) {
   if (typeof value !== "string") return null;
-  const phone = value.trim().replace(/[\\s()-]/g, "");
-  if (/^07\\d{8}$/.test(phone)) return "+256" + phone.slice(1);
-  if (/^\\+2567\\d{8}$/.test(phone)) return phone;
+  const phone = value.trim().replace(/[\s()-]/g, "");
+  if (/^07[0-9]{8}$/.test(phone)) return "+256" + phone.slice(1);
+  if (/^\+2567[0-9]{8}$/.test(phone)) return phone;
   return null;
 }
 function validPhone(value) {
-  return typeof value === "string" && /^\\+2567\\d{8}$/.test(value);
+  return typeof value === "string" && /^\+2567[0-9]{8}$/.test(value);
 }
 function validName(value, optional = false) {
   if (optional && (value === undefined || value === null || value === "")) return true;
@@ -907,7 +907,7 @@ async function authApi(request, env, url) {
   if (request.method === "POST" && url.pathname === "/api/investor/deposits") {
     const investor=await currentInvestor(request,env); if(!investor)return json({error:"Authentication required."},401);
     let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
-    const amount=Number(data.amount), phone=typeof data.phone==="string"?data.phone.trim():investor.phone_e164;
+    const amount=Number(data.amount), phone=typeof data.phone==="string"?(normalizeUgandaPhone(data.phone)||""):investor.phone_e164;
     const min=Number(await setting(env,"minimum_deposit_ugx","15000"));
     if(!Number.isSafeInteger(amount)||amount<min||amount>10000000||!validPhone(phone))return json({error:"Enter a valid mobile-money number and a whole-UGX deposit between UGX "+min+" and UGX 10,000,000."},400);
     const id=crypto.randomUUID(),reference="LCSDEP"+Date.now().toString(36).toUpperCase()+randomToken(5).replace(/[^A-Z0-9]/gi,"").toUpperCase();
@@ -945,7 +945,7 @@ async function authApi(request, env, url) {
     // recipient-name verification and fee quote have been validated for this merchant.
     if(!OBPAY_PAYOUTS_ENABLED||OBPAY_PAYOUT_FEE_MODE!=="account")return json({error:"Automatic ObPay payouts are not enabled for this deployment."},503);
     let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
-    const amount=Number(data.amount),phone=typeof data.phone==="string"?data.phone.trim():investor.phone_e164;
+    const amount=Number(data.amount),phone=typeof data.phone==="string"?(normalizeUgandaPhone(data.phone)||""):investor.phone_e164;
     const recipientName=typeof data.recipientName==="string"?data.recipientName.trim():"";
     const min=Number(await setting(env,"minimum_withdrawal_ugx","5000"));
     if(!Number.isSafeInteger(amount)||amount<min||amount>100000000||!validPhone(phone)||!validName(recipientName))return json({error:"Enter a valid amount, registered mobile-money number and recipient account name."},400);
