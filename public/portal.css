@@ -2344,3 +2344,136 @@ body[data-portal] input:focus,
 body[data-portal] input:focus-visible,
 body[data-portal] select:focus,
 body[data-portal] textarea:focus{border-color:inherit!important;outline:none!important;box-shadow:none!important}
+
+
+/* CALM & PROFESSIONAL palette — Light blue, royal blue and navy */
+:root{
+ --lifeline-bg:#EFF6FE;
+ --lifeline-surface:#DBEAFE;
+ --lifeline-primary:#2563EB;
+ --lifeline-secondary:#3B82F6;
+ --lifeline-text:#1E3A8A;
+ --lifeline-border:#BFDBFE;
+}
+body[data-portal]{
+ color:#1E3A8A!important;
+ background:#EFF6FE!important;
+}
+body[data-portal] .main,
+body[data-portal] .content,
+body[data-portal] .page-content{background:#EFF6FE!important}
+body[data-portal] .sidebar{
+ background:#fff!important;
+ border-color:#DBEAFE!important;
+ color:#1E3A8A!important;
+}
+body[data-portal] .brand,
+body[data-portal] .topbar h1,
+body[data-portal] .page-intro h2,
+body[data-portal] .section-heading h2,
+body[data-portal] .section-heading h3,
+body[data-portal] .panel h2,
+body[data-portal] .panel h3{color:#1E3A8A!important}
+body[data-portal] .brand small,
+body[data-portal] .side-label,
+body[data-portal] .page-intro p,
+body[data-portal] .metric-label,
+body[data-portal] .muted,
+body[data-portal] .help-text{color:#526b9d!important}
+body[data-portal] .topbar,
+body[data-portal] .header,
+body[data-portal] .mobile-bottom-nav{
+ background:#fff!important;
+ border-color:#DBEAFE!important;
+}
+body[data-portal] .side-nav a{color:#526b9d!important}
+body[data-portal] .side-nav a.active,
+body[data-portal] .side-nav a:hover{
+ color:#1D4ED8!important;
+ background:#DBEAFE!important;
+ box-shadow:inset 3px 0 #2563EB!important;
+}
+body[data-portal] .panel,
+body[data-portal] .metric,
+body[data-portal] .card,
+body[data-portal] .plan-card,
+body[data-portal] .product-card,
+body[data-portal] .investment-card,
+body[data-portal] .transaction-card,
+body[data-portal] .profile-card,
+body[data-portal] .home-action-card,
+body[data-portal] .investor-finance-grid .metric,
+body[data-portal] #panel-packages .package-card{
+ background:#fff!important;
+ color:#1E3A8A!important;
+ border:1px solid #DBEAFE!important;
+ box-shadow:0 5px 22px rgba(37,99,235,.07)!important;
+}
+body[data-portal] .metric .metric-value,
+body[data-portal] .metric strong,
+body[data-portal] .metric b,
+body[data-portal] .plan-card h3,
+body[data-portal] .product-card h3,
+body[data-portal] .investment-card h3,
+body[data-portal] .card h3,
+body[data-portal] .home-action-card strong,
+body[data-portal] #panel-packages .package-card h3,
+body[data-portal] #panel-packages .package-detail b{color:#1E3A8A!important}
+body[data-portal] .metric .metric-label,
+body[data-portal] .plan-card p,
+body[data-portal] .product-card p,
+body[data-portal] .investment-card p,
+body[data-portal] #panel-packages .package-detail span{color:#526b9d!important}
+body[data-portal] .metric:nth-child(3n+2),
+body[data-portal] .metric:nth-child(3n),
+body[data-portal] .plan-card [class*="detail"],
+body[data-portal] .product-card [class*="detail"],
+body[data-portal] .investment-card [class*="detail"],
+body[data-portal] #panel-packages .package-detail{
+ background:#EFF6FE!important;
+ border-color:#DBEAFE!important;
+ color:#1E3A8A!important;
+}
+body[data-portal] button.primary-button,
+body[data-portal] .primary-button,
+body[data-portal] .button-primary,
+body[data-portal] .access-submit,
+body[data-portal] button[type="submit"],
+body[data-portal] .invest-now,
+body[data-portal] [data-action="invest"],
+body[data-portal] #panel-packages .package-invest-button{
+ background:linear-gradient(115deg,#2563EB,#3B82F6)!important;
+ border-color:#2563EB!important;
+ color:#fff!important;
+ box-shadow:0 7px 18px rgba(37,99,235,.2)!important;
+}
+body[data-portal] button.primary-button *,
+body[data-portal] .primary-button *,
+body[data-portal] .invest-now *,
+body[data-portal] #panel-packages .package-invest-button *{color:#fff!important}
+body[data-portal] .top-profile-button{border-color:#BFDBFE!important;background:#EFF6FE!important}
+body[data-portal] .mobile-bottom-nav a{color:#64748b!important}
+body[data-portal] .mobile-bottom-nav a.active{
+ color:#1D4ED8!important;background:#DBEAFE!important;
+}
+body[data-portal] .mobile-bottom-nav a.active .ui-icon{color:#2563EB!important}
+body[data-portal] .mobile-bottom-nav .invest-tab,
+body[data-portal] .mobile-bottom-nav a[data-tab="invest"],
+body[data-portal] .mobile-bottom-nav a:nth-child(3){
+ background:linear-gradient(145deg,#2563EB,#3B82F6)!important;
+ color:#fff!important;
+}
+body[data-portal] .mobile-bottom-nav a:nth-child(3) *,
+body[data-portal] .mobile-bottom-nav a[data-tab="invest"] *{color:#fff!important}
+body[data-portal] .status-success{color:#166534!important;background:#DCFCE7!important}
+body[data-portal] .status-pending{color:#92400E!important;background:#FEF3C7!important}
+body[data-portal] .status-failed{color:#991B1B!important;background:#FEE2E2!important}
+body[data-portal] input,
+body[data-portal] select,
+body[data-portal] textarea{color:#1E3A8A!important;background:#fff!important;border-color:#DBEAFE!important}
+body[data-portal] input::placeholder,
+body[data-portal] textarea::placeholder{color:#8296b8!important}
+body[data-portal] input:focus,
+body[data-portal] input:focus-visible,
+body[data-portal] select:focus,
+body[data-portal] textarea:focus{outline:none!important;box-shadow:none!important;border-color:#DBEAFE!important}
