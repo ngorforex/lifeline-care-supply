@@ -1403,7 +1403,17 @@ async function authApi(request, env, url) {
 
 export default {
   async scheduled(controller, env, ctx) {
-    ctx.waitUntil((async()=>{await recordObpayHealth(env);await reconcilePendingObpay(env);if(controller.cron==="0 21 * * *")await postDailyEarnings(env,new Date(controller.scheduledTime||Date.now()));})());
+    ctx.waitUntil((async()=>{
+      if(controller.cron==="*/5 * * * *") {
+        await reconcilePendingObpay(env);
+        return;
+      }
+      if(controller.cron==="0 21 * * *") {
+        await recordObpayHealth(env);
+        await reconcilePendingObpay(env);
+        await postDailyEarnings(env,new Date(controller.scheduledTime||Date.now()));
+      }
+    })());
   },
   async fetch(request, env) {
     const url = new URL(request.url);
