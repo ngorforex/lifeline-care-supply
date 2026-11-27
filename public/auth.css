@@ -841,3 +841,55 @@ body.auth-page textarea:focus{
  box-shadow:none!important;
  border-color:#DBEAFE!important;
 }
+
+
+/* Premium golden glass authentication — iPhone-inspired */
+body.auth-page{
+ color:#292b30!important;
+ background:linear-gradient(145deg,#F8F7F3,#EEEAE1 55%,#F8F7F3)!important;
+ accent-color:#B58A3A!important;
+}
+body.auth-page .access-card,
+body.auth-page .access-panel,
+body.auth-page .auth-card{
+ background:rgba(255,255,255,.82)!important;
+ color:#292b30!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ outline:1px solid rgba(181,138,58,.13)!important;
+ border-radius:28px!important;
+ box-shadow:0 22px 60px rgba(37,32,22,.11),inset 0 1px 0 rgba(255,255,255,.95)!important;
+ -webkit-backdrop-filter:blur(24px) saturate(160%)!important;
+ backdrop-filter:blur(24px) saturate(160%)!important;
+}
+body.auth-page .access-card h1,body.auth-page .access-card h2,
+body.auth-page .form-heading h2,body.auth-page .access-title,
+body.auth-page .access-heading,body.auth-page .reference-heading h1{
+ color:#25272c!important;
+}
+body.auth-page .access-card p,body.auth-page .access-card label,
+body.auth-page .access-field small,body.auth-page .form-heading p,
+body.auth-page .reference-heading p{color:#737780!important}
+body.auth-page .access-input,body.auth-page .access-card input:not([type=checkbox]),
+body.auth-page input,body.auth-page select,body.auth-page textarea{
+ color:#292b30!important;background:rgba(255,255,255,.88)!important;
+ border:1px solid rgba(181,138,58,.2)!important;border-radius:15px!important;
+}
+body.auth-page input::placeholder,body.auth-page textarea::placeholder{color:#96979b!important}
+body.auth-page .access-submit,body.auth-page button[type="submit"],
+body.auth-page .primary-button{
+ color:#fff!important;
+ background:linear-gradient(135deg,#C49A4A,#A77B2D 58%,#87601F)!important;
+ border:1px solid rgba(255,255,255,.45)!important;border-radius:16px!important;
+ box-shadow:0 10px 24px rgba(145,104,35,.23),inset 0 1px 0 rgba(255,255,255,.25)!important;
+}
+body.auth-page .access-submit *,body.auth-page button[type="submit"] *{color:#fff!important}
+body.auth-page .access-card a:not(.community-icon-link),
+body.auth-page .reference-options a,body.auth-page .reference-register a{
+ color:#936A27!important;
+}
+body.auth-page .access-input:focus-within,body.auth-page input:focus,
+body.auth-page input:focus-visible,body.auth-page select:focus,
+body.auth-page textarea:focus{
+ outline:none!important;box-shadow:none!important;border-color:rgba(181,138,58,.2)!important;
+}
+body.auth-page .login-community>p{color:#936A27!important}
