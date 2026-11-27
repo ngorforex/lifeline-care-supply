@@ -3358,3 +3358,29 @@ body[data-portal] .status-chip.status-pending{color:#92400E!important;background
 body[data-portal] .status-chip.status-processing{color:#1D4ED8!important;background:#DBEAFE!important;border-color:#BFDBFE!important}
 body[data-portal] .status-chip.status-failed,body[data-portal] .status-chip.status-rejected{color:#991B1B!important;background:#FEE2E2!important;border-color:#FECACA!important}
 body[data-portal] table td .status-badge{margin:1px 0}
+
+
+/* Mobile profile history: keep every column reachable by horizontal swipe */
+body[data-portal="investor"] .profile-history-inline{
+ display:block!important;width:100%;max-width:100%;min-width:0;
+ overflow:visible!important;
+}
+body[data-portal="investor"] .profile-history-inline[hidden]{display:none!important}
+body[data-portal="investor"] .profile-history-inline .table-scroll{
+ display:block!important;width:100%;max-width:100%;min-width:0;
+ overflow-x:auto!important;overflow-y:hidden!important;
+ -webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain;
+ touch-action:pan-x pan-y;scrollbar-width:thin;
+}
+body[data-portal="investor"] .profile-history-inline table{
+ width:max-content!important;min-width:650px!important;max-width:none!important;
+ table-layout:auto!important;white-space:nowrap!important;
+}
+body[data-portal="investor"] .profile-history-inline th,
+body[data-portal="investor"] .profile-history-inline td{white-space:nowrap!important}
+body[data-portal="investor"] .profile-history-inline td:last-child{padding-right:18px}
+body[data-portal="investor"] .recent-transaction>div:first-child{
+ display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;
+}
+body[data-portal="investor"] .recent-transaction .recent-status-badge{margin:0}
+body[data-portal="investor"] .recent-transaction .recent-status-badge::before{display:inline-block}
