@@ -783,3 +783,61 @@ body.auth-page textarea:focus{
  outline:none!important;
  box-shadow:none!important;
 }
+
+
+/* CALM & PROFESSIONAL palette — authentication surfaces and controls */
+body.auth-page{
+ color:#1E3A8A!important;
+ background:#EFF6FE!important;
+ accent-color:#2563EB!important;
+}
+body.auth-page .access-card,
+body.auth-page .access-panel,
+body.auth-page .auth-card{
+ color:#1E3A8A!important;
+}
+body.auth-page .access-card h1,
+body.auth-page .access-card h2,
+body.auth-page .form-heading h2,
+body.auth-page .access-title,
+body.auth-page .access-heading{color:#1E3A8A!important}
+body.auth-page .access-card p,
+body.auth-page .access-card label,
+body.auth-page .access-field small,
+body.auth-page .form-heading p{color:#526b9d!important}
+body.auth-page .access-input,
+body.auth-page .access-card input:not([type=checkbox]),
+body.auth-page input,
+body.auth-page select,
+body.auth-page textarea{
+ color:#1E3A8A!important;
+ border-color:#DBEAFE!important;
+}
+body.auth-page input::placeholder,
+body.auth-page textarea::placeholder{color:#8296b8!important}
+body.auth-page .access-submit,
+body.auth-page button[type="submit"],
+body.auth-page .primary-button{
+ background:linear-gradient(115deg,#2563EB,#3B82F6)!important;
+ border-color:#2563EB!important;
+ color:#fff!important;
+ box-shadow:0 8px 22px rgba(37,99,235,.2)!important;
+}
+body.auth-page .access-submit *,
+body.auth-page button[type="submit"] *{color:#fff!important}
+body.auth-page .access-card .reference-options a,
+body.auth-page .access-card .reference-register a,
+body.auth-page .access-card .register-signin a,
+body.auth-page .access-card a:not(.community-icon-link){
+ color:#1D4ED8!important;
+}
+body.auth-page .login-community>p{color:#1E3A8A!important}
+body.auth-page .access-input:focus-within,
+body.auth-page input:focus,
+body.auth-page input:focus-visible,
+body.auth-page select:focus,
+body.auth-page textarea:focus{
+ outline:none!important;
+ box-shadow:none!important;
+ border-color:#DBEAFE!important;
+}
