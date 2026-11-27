@@ -473,3 +473,38 @@ body.auth-page input:focus-visible,body.auth-page button:focus-visible,body.auth
  body.auth-page .access-submit{min-height:46px}
 }
 @media(prefers-reduced-motion:reduce){body.auth-page *,body.auth-page *:before,body.auth-page *:after{transition:none!important}}
+
+
+/* Login-page community links */
+body.auth-page .login-community{
+  width:100%;
+  margin:18px auto 0;
+  padding-top:15px;
+  border-top:1px solid rgba(150,190,175,.22);
+}
+body.auth-page .login-community>p{
+  margin:0 0 10px;
+  color:#a9c5ba;
+  text-align:center;
+  font:700 11px/1.4 "DM Sans",sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+body.auth-page .login-community-links{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+body.auth-page .login-community-links>a{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  padding:10px;
+  border:1px solid rgba(119,205,164,.24);
+  border-radius:12px;
+  background:rgba(16,62,48,.28);
+  color:#eefbf4;
+}
+body.auth-page .login-community-links>a>span:nth-child(2){display:grid;gap:3px;min-width:0}
+body.auth-page .login-community-links b{font:700 11px/1.25 "DM Sans",sans-serif}
+body.auth-page .login-community-links small{font:400 9px/1.3 "DM Sans",sans-serif;color:#a9c5ba}
+body.auth-page .community-link-icon{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:rgba(68,205,139,.15);color:#7be3a5;font-size:15px}
+body.auth-page .community-link-arrow{margin-left:auto;color:#85d9aa;font-size:14px}
+@media(max-width:380px){body.auth-page .login-community-links{grid-template-columns:1fr}}
