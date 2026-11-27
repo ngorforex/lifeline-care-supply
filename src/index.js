@@ -429,8 +429,9 @@ async function verifyObpayPayoutTransaction(env, reference, withdrawal) {
   }
   const rawPhone=data.phone_number||data.phone||data.recipient_phone||data.customer_phone;
   if(rawPhone){
-    const digits=String(rawPhone).replace(/\\D/g,"");
-    const expected=String(withdrawal.payout_phone_e164||"").replace(/\\D/g,"");
+    const normalizeUgPhone=value=>{let digits=String(value||"").replace(/\\D/g,"");if(digits.startsWith("0"))digits="256"+digits.slice(1);return digits;};
+    const digits=normalizeUgPhone(rawPhone);
+    const expected=normalizeUgPhone(withdrawal.payout_phone_e164);
     if(!expected||digits!==expected)throw new Error("ObPay payout recipient number mismatch; withdrawal remains reserved.");
   }
   return {...data,__verifiedTransactionId:transactionId};
@@ -606,7 +607,10 @@ async function authApi(request, env, url) {
       const missingWebhookEvents=["payout.success","payout.failed"].filter(event=>!webhookEvents.includes(event));
       const payoutMethodsReady=payoutMethodsStatus==="available"&&payoutMethods.some(method=>method.enabled&&/mtn/i.test(method.code+" "+method.name))&&payoutMethods.some(method=>method.enabled&&/airtel/i.test(method.code+" "+method.name));
       const payoutFeeModeVerified=OBPAY_PAYOUTS_ENABLED===true&&OBPAY_PAYOUT_FEE_MODE==="account";
-      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",accountStatus,accountDetails,accountPayoutFeeMode,merchantPaidFeesConfigured:payoutFeeModeVerified,merchantFeePreferenceSource:"ObPay dashboard setting confirmed saved by merchant; API /account does not expose this preference",accountPayoutFeeMode,webhookRegistered,webhookEvents,missingWebhookEvents,payoutMethodsStatus,payoutMethods,payoutMethodsReady,balanceStatus,balance,payoutsEnabled:OBPAY_PAYOUTS_ENABLED===true,payoutFeeModeConfigured:OBPAY_PAYOUT_FEE_MODE==="account",payoutFeeModeVerified,payoutWebhookEventsReady:missingWebhookEvents.length===0,payoutReadiness:OBPAY_PAYOUTS_ENABLED===true&&payoutFeeModeVerified&&webhookRegistered&&missingWebhookEvents.length===0&&payoutMethodsReady?"configured":"blocked",message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
+      const payoutConfigurationReady=OBPAY_PAYOUTS_ENABLED===true&&payoutFeeModeVerified&&webhookRegistered&&missingWebhookEvents.length===0&&payoutMethodsReady;
+      const fundingStatus=balanceStatus!=="available"||balance?.available===null?"unverified":Number(balance.available)<=0?"empty":"funds_present";
+      const payoutReadiness=!payoutConfigurationReady?"blocked":fundingStatus==="empty"?"funding_required":fundingStatus==="unverified"?"funding_unverified":"configured";
+      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",accountStatus,accountDetails,accountPayoutFeeMode,merchantPaidFeesConfigured:payoutFeeModeVerified,merchantFeePreferenceSource:"ObPay dashboard setting confirmed saved by merchant; API /account does not expose this preference",accountPayoutFeeMode,webhookRegistered,webhookEvents,missingWebhookEvents,payoutMethodsStatus,payoutMethods,payoutMethodsReady,balanceStatus,balance,fundingStatus,payoutsEnabled:OBPAY_PAYOUTS_ENABLED===true,payoutFeeModeConfigured:OBPAY_PAYOUT_FEE_MODE==="account",payoutFeeModeVerified,payoutWebhookEventsReady:missingWebhookEvents.length===0,payoutConfigurationReady,payoutReadiness,message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
     }catch(error){
       console.error("ObPay credential check failed:",error);
       return json({configured:true,reachable:false,authenticated:false,error:"ObPay authentication or connectivity check failed."},502);
