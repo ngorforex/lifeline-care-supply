@@ -3020,3 +3020,109 @@ body[data-portal] .profile-status,body[data-portal] .subtle-tag{
  color:#1D4ED8!important;background:#DBEAFE!important;border-color:#BFDBFE!important;
 }
 body[data-portal] .profile-photo,body[data-portal] .profile-avatar-frame{border-color:#93C5FD!important}
+
+
+/* PREMIUM GLASS UI — iPhone-inspired, retaining the Calm Professional blue palette */
+body[data-portal]{
+ background:
+  radial-gradient(ellipse at 12% 0%,rgba(219,234,254,.78),transparent 42%),
+  linear-gradient(145deg,#F7FAFF 0%,#EEF4FC 52%,#F8FAFD 100%)!important;
+ color:#1E3A8A!important;
+}
+body[data-portal] .main,body[data-portal] .content,body[data-portal] .tab-panel{
+ background:transparent!important;
+}
+body[data-portal] .sidebar,body[data-portal] .topbar,body[data-portal] .mobile-bottom-nav{
+ background:rgba(255,255,255,.76)!important;
+ border-color:rgba(255,255,255,.86)!important;
+ box-shadow:0 8px 30px rgba(31,62,112,.055),inset 0 1px 0 rgba(255,255,255,.95)!important;
+ -webkit-backdrop-filter:blur(24px) saturate(165%)!important;
+ backdrop-filter:blur(24px) saturate(165%)!important;
+}
+body[data-portal] .panel,body[data-portal] .metric,body[data-portal] .card,
+body[data-portal] .plan-card,body[data-portal] .product-card,body[data-portal] .investment-card,
+body[data-portal] .transaction-card,body[data-portal] .profile-card,body[data-portal] .profile-details-card,
+body[data-portal] .home-action-card,body[data-portal] .profile-menu,body[data-portal] .password-dialog,
+body[data-portal] .referral-rules,body[data-portal] .profile-hero,
+body[data-portal] .tab-panel [class*="card"],body[data-portal] .tab-panel [class*="panel"],
+body[data-portal] .tab-panel [class*="summary"],body[data-portal] .tab-panel [class*="stat"]{
+ background:rgba(255,255,255,.70)!important;
+ border:1px solid rgba(255,255,255,.88)!important;
+ outline:1px solid rgba(147,177,222,.14)!important;
+ border-radius:22px!important;
+ box-shadow:0 12px 32px rgba(31,62,112,.065),inset 0 1px 0 rgba(255,255,255,.94)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(155%)!important;
+ backdrop-filter:blur(18px) saturate(155%)!important;
+}
+body[data-portal] .tab-panel h1,body[data-portal] .tab-panel h2,
+body[data-portal] .tab-panel h3,body[data-portal] .tab-panel h4,
+body[data-portal] .section-heading,body[data-portal] .metric b,
+body[data-portal] .metric strong{color:#1E3A8A!important}
+body[data-portal] .tab-panel p,body[data-portal] .tab-panel small,
+body[data-portal] .tab-panel label,body[data-portal] .muted{color:#526B9D!important}
+body[data-portal] .ui-icon,body[data-portal] .profile-menu-icon,
+body[data-portal] .profile-detail-icon{color:#2563EB!important}
+body[data-portal] .side-nav a.active,body[data-portal] .side-nav a:hover,
+body[data-portal] .mobile-bottom-nav a.active{
+ color:#1D4ED8!important;
+ background:rgba(219,234,254,.72)!important;
+ border:1px solid rgba(147,197,253,.28)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.8)!important;
+}
+body[data-portal] button.primary-button,body[data-portal] .primary-button,
+body[data-portal] .button-primary,body[data-portal] button[type="submit"],
+body[data-portal] .invest-now,body[data-portal] .referral-share-button,
+body[data-portal] .password-primary,body[data-portal] [data-action="invest"]{
+ color:#fff!important;
+ background:linear-gradient(135deg,rgba(37,99,235,.96),rgba(59,130,246,.92))!important;
+ border:1px solid rgba(255,255,255,.45)!important;
+ border-radius:16px!important;
+ box-shadow:0 9px 22px rgba(37,99,235,.18),inset 0 1px 0 rgba(255,255,255,.3)!important;
+}
+body[data-portal] button.primary-button *,body[data-portal] .primary-button *,
+body[data-portal] .invest-now *,body[data-portal] .referral-share-button *{color:#fff!important}
+body[data-portal] .mobile-bottom-nav a:nth-child(3),
+body[data-portal] .mobile-bottom-nav a[data-tab="investments"]{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+}
+body[data-portal] .mobile-bottom-nav a:nth-child(3) .ui-icon,
+body[data-portal] .mobile-bottom-nav a[data-tab="investments"] .ui-icon{
+ color:#fff!important;
+ background:linear-gradient(145deg,#2563EB,#3B82F6)!important;
+ border-radius:50%!important;
+ box-shadow:0 8px 22px rgba(37,99,235,.24),inset 0 1px 0 rgba(255,255,255,.3)!important;
+}
+body[data-portal] input,body[data-portal] select,body[data-portal] textarea{
+ color:#1E3A8A!important;background:rgba(255,255,255,.78)!important;
+ border:1px solid rgba(147,177,222,.3)!important;border-radius:14px!important;
+ box-shadow:inset 0 1px 2px rgba(31,62,112,.025)!important;
+}
+body[data-portal] input:focus,body[data-portal] select:focus,body[data-portal] textarea:focus{
+ outline:none!important;box-shadow:none!important;border-color:rgba(147,177,222,.3)!important;
+}
+body[data-portal] .community-nav-link{
+ color:#526B9D!important;background:rgba(255,255,255,.68)!important;
+ border:1px solid rgba(255,255,255,.9)!important;border-radius:16px!important;
+ box-shadow:0 5px 16px rgba(31,62,112,.04)!important;
+}
+body[data-portal] .whatsapp-nav-link .ui-icon{color:#16A34A!important}
+body[data-portal] .telegram-nav-link .ui-icon{color:#229ED9!important}
+body[data-portal] .referral-levels>div,body[data-portal] .referral-url-display,
+body[data-portal] .wallet-summary,body[data-portal] .earnings-summary-grid>*,
+body[data-portal] .referral-stats>*{
+ background:rgba(239,246,254,.72)!important;
+ border:1px solid rgba(147,197,253,.22)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.8)!important;
+}
+body[data-portal] .referral-levels b,body[data-portal] .referral-levels strong,
+body[data-portal] .referral-stats strong{color:#2563EB!important}
+body[data-portal] .profile-status,body[data-portal] .subtle-tag{
+ color:#1D4ED8!important;background:rgba(219,234,254,.8)!important;border-color:rgba(147,197,253,.3)!important;
+}
+@media(max-width:760px){
+ body[data-portal] .panel,body[data-portal] .metric,body[data-portal] .card,
+ body[data-portal] .plan-card,body[data-portal] .product-card,
+ body[data-portal] .investment-card,body[data-portal] .transaction-card{
+  border-radius:20px!important;
+ }
+}
