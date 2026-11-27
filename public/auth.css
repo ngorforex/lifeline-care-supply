@@ -693,3 +693,22 @@ body.auth-page input:-webkit-autofill:focus{
  -webkit-box-shadow:0 0 0 1000px #fff inset,0 0 0 3px rgba(82,104,217,.13)!important;
  border-color:#5268d9!important;
 }
+
+
+/* No visible focus border, outline or glow on form fields */
+body.auth-page .access-input:focus-within{
+ border-color:#dcebe6!important;
+ box-shadow:none!important;
+ outline:none!important;
+}
+body.auth-page input:focus,
+body.auth-page input:focus-visible,
+body.auth-page select:focus,
+body.auth-page select:focus-visible,
+body.auth-page textarea:focus,
+body.auth-page textarea:focus-visible,
+body.auth-page .access-card input:focus{
+ border-color:transparent!important;
+ outline:none!important;
+ box-shadow:none!important;
+}
