@@ -1,7 +1,7 @@
 function normalizeUgandaPhone(value){
- const phone=String(value||"").trim().replace(/[\\s()-]/g,"");
- if(/^07\\d{8}$/.test(phone))return "+256"+phone.slice(1);
- if(/^\\+2567\\d{8}$/.test(phone))return phone;
+ const phone=String(value||"").trim().replace(/[\s()-]/g,"");
+ if(/^07[0-9]{8}$/.test(phone))return "+256"+phone.slice(1);
+ if(/^\+2567[0-9]{8}$/.test(phone))return phone;
  return "";
 }
 const referralInput=document.querySelector('input[name="referralCode"]');
