@@ -140,6 +140,8 @@ async function grantDailyCheckIn(env,userId) {
   if(!Number.isSafeInteger(amount)||amount<=0)throw new Error("Daily check-in bonus setting is missing or invalid.");
   const now=new Date(),date=new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Kampala",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
   const createdAt=now.toISOString(),walletId="wallet-"+userId,transactionId="daily-checkin-"+userId+"-"+date,reference="DC-"+userId+"-"+date;
+  const existing=await env.DB.prepare("SELECT amount_minor FROM daily_checkins WHERE user_id=? AND checkin_date=? LIMIT 1").bind(userId,date).first();
+  if(existing)return {date,amount:Number(existing.amount_minor),alreadyClaimed:true};
   await env.DB.batch([
     env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts(id,owner_user_id,account_code,currency,account_name,created_at) VALUES(?,?,'WALLET_AVAILABLE','UGX','Available wallet balance',?)").bind(walletId,userId,createdAt),
     env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts(id,owner_user_id,account_code,currency,account_name,created_at) VALUES('platform-daily-checkin-expense',NULL,'PLATFORM_DAILY_CHECKIN_EXPENSE','UGX','Daily check-in bonus expense',?)").bind(createdAt),
@@ -148,7 +150,7 @@ async function grantDailyCheckIn(env,userId) {
     env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) VALUES(?,?, 'platform-daily-checkin-expense','debit',?,'UGX',?)").bind("daily-checkin-debit-"+userId+"-"+date,transactionId,amount,createdAt),
     env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) VALUES(?,?,?,'credit',?,'UGX',?)").bind("daily-checkin-credit-"+userId+"-"+date,transactionId,walletId,amount,createdAt)
   ]);
-  return {date,amount};
+  return {date,amount,alreadyClaimed:false};
 }
 
 async function currentAdmin(request, env) {
@@ -867,7 +869,6 @@ async function authApi(request, env, url) {
     if (!row || !valid || row.status !== "active") return json({ error: "Invalid phone number or password." }, 401);
     try {
       await grantWelcomeBonus(env, row.id);
-      await grantDailyCheckIn(env,row.id);
     } catch (error) {
       console.error("Welcome bonus posting failed after successful authentication:", error);
       return json({ error: "Sign-in could not be completed because account setup is incomplete. Please try again shortly." }, 503);
@@ -1059,6 +1060,27 @@ async function authApi(request, env, url) {
     try{await postLedger(env,{id:"investment-purchase-"+id,reference:"IP-"+reference,key:"investment_purchase:"+id,type:"investment_purchase",userId:investor.id,description:"Purchase "+pkg.name,debitAccount:wallet,creditAccount:platform,amount,requireAvailable:true});}
     catch(error){const posted=await env.DB.prepare("SELECT id FROM ledger_transactions WHERE id=?").bind("investment-purchase-"+id).first();if(!posted)await env.DB.prepare("DELETE FROM investments WHERE id=?").bind(id).run();throw error;}
     return json({ok:true,reference,status:"active",maturesAt:matures},201);
+  }
+
+  if ((request.method === "GET" || request.method === "POST") && url.pathname === "/api/investor/daily-checkin") {
+    const investor=await currentInvestor(request,env);
+    if(!investor)return json({error:"Authentication required."},401);
+    const now=new Date();
+    const date=new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Kampala",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+    const existing=await env.DB.prepare("SELECT amount_minor FROM daily_checkins WHERE user_id=? AND checkin_date=? LIMIT 1").bind(investor.id,date).first();
+    if(request.method==="GET"){
+      const configured=Number(await setting(env,"daily_checkin_bonus_ugx","200"));
+      if(!Number.isSafeInteger(configured)||configured<=0)return json({error:"Daily check-in reward is not configured."},503);
+      return json({available:!existing,claimed:!!existing,amountUGX:existing?Number(existing.amount_minor):configured,date});
+    }
+    if(existing)return json({ok:true,claimed:false,alreadyClaimed:true,amountUGX:Number(existing.amount_minor),date});
+    try{
+      const result=await grantDailyCheckIn(env,investor.id);
+      return json({ok:true,claimed:!result.alreadyClaimed,alreadyClaimed:!!result.alreadyClaimed,amountUGX:result.amount,date:result.date});
+    }catch(error){
+      console.error("Daily check-in claim failed:",error);
+      return json({error:"Your daily check-in could not be credited. Please try again."},500);
+    }
   }
 
   if (request.method === "GET" && url.pathname === "/api/investor/dashboard") {
