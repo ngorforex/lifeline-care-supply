@@ -12,3 +12,11 @@ button,a,[role=button]{-webkit-tap-highlight-color:transparent}
 
 /* Clear keyboard focus without decorative link underlines */
 a:focus-visible{outline:2px solid #119c95;outline-offset:3px;border-radius:4px}
+
+
+/* Shared finish: consistent focus, controls and restrained motion */
+:root{--surface-border:#e3ece7;--surface-shadow:0 8px 26px rgba(25,72,62,.055)}
+button,input,select,textarea{font-family:inherit}
+button:focus-visible,[role=button]:focus-visible{outline:2px solid #119c95;outline-offset:3px}
+::selection{background:rgba(17,156,149,.18);color:#153b3a}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
