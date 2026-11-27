@@ -17,7 +17,7 @@ Individual-investor fixed-package investment platform.
 - Phone numbers are normalized to Uganda international format (`+2567XXXXXXXX`); local `07XXXXXXXX` input is accepted and normalized.
 - Investor names and email addresses are not required for account registration.
 - Administrator accounts are provisioned separately.
-- Password recovery uses Yoola Verify SMS. The D1 migration `0010_password_recovery.sql` and Worker secret `YOOLA_API_KEY` are required for that feature. The Yoola key must be stored as a Worker secret, never as a plain variable or committed value.
+- Password recovery uses Yoola Verify SMS. The D1 migration `0010_password_recovery.sql` and Worker secret `YOOLA_API_KEY` are required for that feature. The Yoola key must be stored as the Worker secret `YOOLA_SMS_KEY`, never as a plain variable or committed value.
 
 ## Customer financial flows
 
@@ -31,7 +31,7 @@ The following customer API flows are implemented in `src/index.js`; they are not
 - **Investments:** `POST /api/investor/investments` purchases a published package only after the investor accepts its current terms and has sufficient available wallet funds.
 - **Daily check-in:** `/api/investor/daily-checkin` exposes the once-per-EAT-day reward claim.
 
-The Worker currently contains an enabled ObPay payout code path (`OBPAY_PAYOUTS_ENABLED = true`). The payout fee mode is presently hard-coded as `account`; this must be checked against the actual merchant-account setting before live payouts are relied upon. The ObPay secret must be configured as the `OBPAY_SECRET_KEY` Worker secret.
+ObPay collection is implemented. Automatic payouts are deliberately fail-closed (`OBPAY_PAYOUTS_ENABLED = false`) until the merchant's saved payout-fee mode is independently confirmed. The Worker must not assume `account` mode from a hard-coded value. The ObPay secret must be configured as the `OBPAY_SECRET_KEY` Worker secret.
 
 ### Payment verification and operational status
 
