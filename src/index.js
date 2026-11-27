@@ -1098,7 +1098,7 @@ async function authApi(request, env, url) {
         customer_name:customerName,
         reference,
         currency:"UGX",
-        callback_url:new URL("/obpay/webhook",url).toString(),
+        callback_url:"https://lifelinesupply.xyz/obpay/webhook",
         metadata:{investor_id:investor.id,deposit_id:id}
       },true);
       const providerReference=String(result.reference||reference);
