@@ -1859,3 +1859,59 @@ body[data-portal="investor"] .top-actions .top-profile-avatar{
     border-radius:50%;
   }
 }
+
+
+/* Lifeline visual identity refresh — forest, jade and warm champagne */
+:root{
+ --ink:#153b34;
+ --muted:#71857e;
+ --teal:#138a78;
+ --teal-dark:#0b6759;
+ --mint:#e7f3ed;
+ --paper:#f4f7f4;
+ --line:#dce7e0;
+ --navy:#173b36;
+ --lifeline-forest:#123f35;
+ --lifeline-jade:#15977f;
+ --lifeline-gold:#c99b45;
+}
+body[data-portal]{color:var(--ink);background:var(--paper)}
+body[data-portal] .sidebar{background:#fbfdfb;border-right-color:#dce7e0}
+body[data-portal] .brand-icon{background:linear-gradient(145deg,#e2f2e9,#d1e9dc);color:#0b7563}
+body[data-portal] .side-nav a{color:#647a71}
+body[data-portal] .side-nav a.active,
+body[data-portal] .side-nav a:hover{background:linear-gradient(100deg,#e1f1e8,#edf6f0);color:#0b7563}
+body[data-portal] .side-nav a.active{box-shadow:inset 3px 0 #15977f}
+body[data-portal] .topbar{background:rgba(251,253,251,.96);border-bottom-color:#dce7e0}
+body[data-portal] .main,body[data-portal] .content{background:var(--paper)}
+body[data-portal] .panel,
+body[data-portal] .metric,
+body[data-portal] .investor-finance-grid .metric{border-color:#dfe9e2;box-shadow:0 5px 20px rgba(20,63,49,.055)}
+body[data-portal] .metric .metric-value,
+body[data-portal] .metric strong{color:#153f35}
+body[data-portal] .metric .metric-label,
+body[data-portal] .page-intro p{color:#72857c}
+body[data-portal] button.primary-button,
+body[data-portal] .primary-button,
+body[data-portal] .access-submit,
+body[data-portal] button[type="submit"].primary-button{
+ background:linear-gradient(110deg,#138c78 0%,#0d7565 100%);
+ border-color:#0d7565;
+ color:#fff;
+ box-shadow:0 7px 18px rgba(13,117,101,.18);
+}
+body[data-portal] button.primary-button:hover,
+body[data-portal] .primary-button:hover{filter:brightness(1.06)}
+body[data-portal] .help-card{background:#edf5ef;border-color:#dce9df}
+body[data-portal] .preview-pill,
+body[data-portal] .subtle-tag{color:#8b682f;background:#f7f0df;border-color:#eadbb9}
+body[data-portal] .status-success{color:#16734e;background:#e5f4eb}
+body[data-portal] .status-pending{color:#916b22;background:#fbf2dc}
+body[data-portal] .status-failed{color:#a33f43;background:#f9e9e8}
+body[data-portal] .mobile-bottom-nav{background:rgba(251,253,251,.97);border-top-color:#dce7e0}
+body[data-portal] .mobile-bottom-nav a.active{color:#0d7565;background:#e5f2ea}
+body[data-portal] .mobile-bottom-nav .invest-tab,
+body[data-portal] .mobile-bottom-nav a[data-tab="invest"]{background:linear-gradient(145deg,#15977f,#0d7565);color:#fff}
+body[data-portal] .top-profile-button{border-color:#d4e5da;background:#e8f3eb}
+body[data-portal] .profile-menu-item:focus-visible,
+body[data-portal] .side-nav a:focus-visible{outline-color:#15977f}
