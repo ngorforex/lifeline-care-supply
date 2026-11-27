@@ -25,3 +25,8 @@ button:focus-visible,[role=button]:focus-visible{outline:2px solid #2563EB;outli
 /* Public landing and shared pages: premium gold glass finish */
 :root{--lifeline-gold:#B58A3A;--lifeline-gold-light:#D7B66D;--lifeline-ink:#25272c;--lifeline-bg:#F5F3EE}
 body{color:#292b30;background:linear-gradient(145deg,#F8F7F3,#F1EEE7 55%,#F8F7F3)}
+
+
+/* Revert public-page gold tint; restore cool professional neutral background */
+:root{--lifeline-gold:#2563EB;--lifeline-gold-light:#3B82F6;--lifeline-ink:#1E3A8A;--lifeline-bg:#EFF6FE}
+body{color:#1E3A8A;background:#EFF6FE}
