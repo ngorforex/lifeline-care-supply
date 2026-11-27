@@ -2577,3 +2577,110 @@ body[data-portal="investor"] .referral-levels *,
 body[data-portal="investor"] .profile-menu-icon *{
   text-shadow:none!important;
 }
+
+
+/* FINAL production override: enforce Calm & Professional palette on legacy investor components */
+body[data-portal="investor"] .referral-rules .referral-levels>div{
+  background:#EFF6FE!important;
+  border:1px solid #DBEAFE!important;
+  box-shadow:none!important;
+}
+body[data-portal="investor"] .referral-rules .referral-levels span,
+body[data-portal="investor"] .referral-rules .referral-levels small{
+  color:#526b9d!important;
+}
+body[data-portal="investor"] .referral-rules .referral-levels b{
+  color:#2563EB!important;
+}
+body[data-portal="investor"] .referral-rules .panel-head .subtle-tag,
+body[data-portal="investor"] [data-referral-status]{
+  color:#1D4ED8!important;
+  background:#DBEAFE!important;
+  border:1px solid #BFDBFE!important;
+}
+body[data-portal="investor"] .referral-link-row .referral-url-display{
+  color:#1E3A8A!important;
+  background:#EFF6FE!important;
+  border:1px solid #DBEAFE!important;
+}
+body[data-portal="investor"] .referral-link-row .referral-share-button,
+body[data-portal="investor"] .secondary-action{
+  color:#fff!important;
+  background:linear-gradient(115deg,#2563EB,#3B82F6)!important;
+  box-shadow:0 6px 16px rgba(37,99,235,.18)!important;
+}
+body[data-portal="investor"] .profile-status{
+  color:#1D4ED8!important;
+  background:#DBEAFE!important;
+}
+body[data-portal="investor"] .profile-photo{
+  border-color:#93C5FD!important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.09)!important;
+}
+body[data-portal="investor"] .profile-upload-button{
+  color:#1D4ED8!important;
+  background:#DBEAFE!important;
+}
+body[data-portal="investor"] .profile-menu-icon{
+  color:#2563EB!important;
+  background:#EFF6FE!important;
+}
+body[data-portal="investor"] .profile-hero-details .profile-detail-icon,
+body[data-portal="investor"] .profile-hero-details>.ui-icon{
+  color:#2563EB!important;
+}
+body[data-portal="investor"] .profile-hero-combined .profile-status{
+  color:#1D4ED8!important;
+  background:#DBEAFE!important;
+}
+/* The middle navigation action stays transparent; only its round icon is blue. */
+@media(max-width:700px){
+  body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3),
+  body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3).active,
+  body[data-portal="investor"] .mobile-bottom-nav a[data-tab="investments"],
+  body[data-portal="investor"] .mobile-bottom-nav a[data-tab="investments"].active{
+    display:flex!important;
+    position:relative!important;
+    transform:translateY(-8px)!important;
+    min-height:60px!important;
+    padding:0 2px!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    color:#1D4ED8!important;
+    overflow:visible!important;
+  }
+  body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3) .ui-icon,
+  body[data-portal="investor"] .mobile-bottom-nav a[data-tab="investments"] .ui-icon{
+    display:block!important;
+    width:54px!important;
+    height:54px!important;
+    flex:0 0 54px!important;
+    padding:13px!important;
+    border-radius:50%!important;
+    background:linear-gradient(145deg,#2563EB,#3B82F6)!important;
+    color:#fff!important;
+    stroke:#fff!important;
+    box-shadow:0 7px 18px rgba(37,99,235,.22)!important;
+  }
+  body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3)>small,
+  body[data-portal="investor"] .mobile-bottom-nav a[data-tab="investments"]>small{
+    display:block!important;
+    color:#1D4ED8!important;
+    background:transparent!important;
+    font-size:10px!important;
+    font-weight:750!important;
+  }
+  body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3)::before,
+  body[data-portal="investor"] .mobile-bottom-nav a[data-tab="investments"]::before,
+  body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3)::after,
+  body[data-portal="investor"] .mobile-bottom-nav a[data-tab="investments"]::after{
+    content:none!important;
+    display:none!important;
+  }
+  body[data-portal="investor"] .mobile-bottom-nav a.active:not(:nth-child(3)){
+    color:#1D4ED8!important;
+    background:#DBEAFE!important;
+  }
+}
