@@ -712,3 +712,74 @@ body.auth-page .access-card input:focus{
  outline:none!important;
  box-shadow:none!important;
 }
+
+
+/* LIFELINE GOVERNMENT & PROFESSIONAL THEME — Calm blue */
+body.auth-page{
+ color:#1E3A8A!important;
+ background:#EFF6FE!important;
+}
+body.auth-page .access-page{
+ background:
+  radial-gradient(ellipse at 8% 10%,rgba(37,99,235,.10),transparent 38%),
+  radial-gradient(ellipse at 94% 86%,rgba(59,130,246,.10),transparent 36%),
+  linear-gradient(135deg,#EFF6FE 0%,#F8FBFF 52%,#DBEAFF 100%)!important;
+}
+body.auth-page .access-card,
+body.auth-page .access-panel,
+body.auth-page .auth-card{
+ background:rgba(255,255,255,.96)!important;
+ border:1px solid #DBEAFF!important;
+ color:#1E3A8A!important;
+ box-shadow:0 22px 60px rgba(30,58,138,.12)!important;
+}
+body.auth-page .access-card h1,
+body.auth-page .access-card h2,
+body.auth-page .form-heading h2,
+body.auth-page .access-title,
+body.auth-page .access-heading{
+ color:#1E3A8A!important;
+}
+body.auth-page .access-card p,
+body.auth-page .access-card label,
+body.auth-page .access-field small,
+body.auth-page .form-heading p{
+ color:#536B91!important;
+}
+body.auth-page .access-input,
+body.auth-page .access-card input:not([type=checkbox]),
+body.auth-page input,
+body.auth-page select,
+body.auth-page textarea{
+ color:#1E3A8A!important;
+ background:#fff!important;
+ border-color:#DBEAFF!important;
+}
+body.auth-page input::placeholder,
+body.auth-page textarea::placeholder{color:#8295B4!important}
+body.auth-page .field-icon,
+body.auth-page .field-prefix,
+body.auth-page .field-symbol,
+body.auth-page .reveal-password{color:#2563EB!important}
+body.auth-page .access-submit,
+body.auth-page button[type="submit"],
+body.auth-page .primary-button{
+ color:#fff!important;
+ background:linear-gradient(110deg,#2563EB,#3B82F6)!important;
+ border-color:#2563EB!important;
+ box-shadow:0 8px 20px rgba(37,99,235,.2)!important;
+}
+body.auth-page a,
+body.auth-page .reference-options a,
+body.auth-page .reference-register a,
+body.auth-page .register-signin a{color:#1D4ED8!important}
+body.auth-page .login-community>p{color:#1E3A8A!important}
+body.auth-page .access-input:focus-within,
+body.auth-page input:focus,
+body.auth-page input:focus-visible,
+body.auth-page select:focus,
+body.auth-page textarea:focus{
+ border-color:transparent!important;
+ outline:none!important;
+ box-shadow:none!important;
+}
