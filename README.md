@@ -37,7 +37,7 @@ ObPay collection is implemented. Automatic payouts are enabled with the ObPay me
 
 An ObPay connection check or webhook registration is not proof that a customer payment has succeeded. Customer deposits and withdrawals must be shown as completed only after the provider's final transaction status has been independently verified. A pending response is not a completed payment.
 
-The production database's previously inspected transaction history contained one rejected ObPay deposit, no successful deposits, and no withdrawal records. Therefore the integration code is present, but a successful end-to-end customer deposit and payout have not yet been demonstrated. Do not describe the payment integration as fully production-verified until controlled end-to-end tests pass and the merchant payout fee mode is confirmed.
+The production database's previously inspected transaction history contained one rejected ObPay deposit, no successful deposits, and no withdrawal records. The ObPay account fee preference is now confirmed and automatic payouts are enabled in the Worker, but neither a successful customer deposit nor a completed payout has yet been demonstrated. Treat the payment flows as enabled but awaiting controlled end-to-end transaction verification.
 
 ## Financial configuration
 
