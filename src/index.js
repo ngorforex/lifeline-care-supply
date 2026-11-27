@@ -334,12 +334,9 @@ async function handleObpayWebhook(request, env) {
       const finalStatus=providerStatus(verified.status||verified.payment_status||verified.state);
       if(finalStatus==="failed") await env.DB.prepare("UPDATE deposit_requests SET provider_status='failed',status='rejected',updated_at=? WHERE id=? AND status='pending'").bind(now,deposit.id).run();
     }else if(withdrawal){
-      const verified=await obpay(env,"/transactions/"+encodeURIComponent(reference));
-      const finalStatus=providerStatus(verified.status||verified.payment_status);
-      if(verified.reference&&String(verified.reference)!==reference)throw new Error("Payout webhook reference mismatch.");
-      if(verified.amount!==undefined&&Number(verified.amount)!==Number(withdrawal.payout_amount_minor??withdrawal.amount_minor))throw new Error("Payout webhook amount mismatch.");
-      if(verified.currency&&String(verified.currency).toUpperCase()!=="UGX")throw new Error("Payout webhook currency mismatch.");
-      if(finalStatus==="success"){await settleWithdrawal(env,withdrawal);await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(now,withdrawal.id).run();}
+      const verified=await verifyObpayPayoutTransaction(env,reference,withdrawal);
+      const finalStatus=providerStatus(verified.status||verified.payment_status||verified.state);
+      if(finalStatus==="success"){await settleWithdrawal(env,withdrawal);await env.DB.prepare("UPDATE withdrawal_requests SET provider_transaction_id=?,status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(verified.__verifiedTransactionId,now,withdrawal.id).run();}
       else if(finalStatus==="failed") await releaseWithdrawal(env,withdrawal,"ObPay payout failed");
     }
     await env.DB.prepare("UPDATE provider_webhook_events SET processed_at=? WHERE provider='obpay' AND provider_event_id=?").bind(new Date().toISOString(),eventId).run();
@@ -410,18 +407,34 @@ async function reconcilePendingObpay(env) {
   for(const row of completed.results||[]){try{await qualifyReferralCommissions(env,row);}catch(error){console.warn("Referral commission reconciliation deferred:",row.reference,String(error).slice(0,160));}}
   for(const row of withdrawals.results||[]){
     try{
-      const p=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
-      const status=providerStatus(p.status||p.payment_status);
-      if(p.reference&&String(p.reference)!==row.reference)continue;
-      if(p.amount!==undefined&&Number(p.amount)!==Number(row.payout_amount_minor??row.amount_minor))continue;
-      if(p.currency&&String(p.currency).toUpperCase()!=="UGX")continue;
-      if(status==="success"){await settleWithdrawal(env,row);await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),row.id).run();completedWithdrawals++;}
+      const p=await verifyObpayPayoutTransaction(env,row.reference,row);
+      const status=providerStatus(p.status||p.payment_status||p.state);
+      if(status==="success"){await settleWithdrawal(env,row);await env.DB.prepare("UPDATE withdrawal_requests SET provider_transaction_id=?,status='completed',provider_status='successful',updated_at=? WHERE id=? AND status='approved'").bind(p.__verifiedTransactionId,new Date().toISOString(),row.id).run();completedWithdrawals++;}
       else if(status==="failed"){await releaseWithdrawal(env,row,"ObPay payout failed");failed++;}
     }catch(error){console.warn("Pending ObPay payout reconciliation deferred:",row.reference,String(error).slice(0,160));}
   }
   return {completedDeposits,completedWithdrawals,failed};
 }
 
+
+async function verifyObpayPayoutTransaction(env, reference, withdrawal) {
+  const data=await obpay(env,"/transactions/"+encodeURIComponent(reference));
+  const actualReference=String(data.reference||data.provider_reference||data.transaction_reference||"");
+  const rawAmount=data.amount??data.amount_minor??data.transaction_amount;
+  const currency=String(data.currency||"").toUpperCase();
+  const transactionId=String(data.transaction_id||data.transactionId||data.provider_transaction_id||data.id||"");
+  const expectedAmount=Number(withdrawal.payout_amount_minor??(Number(withdrawal.amount_minor)-Number(withdrawal.tax_amount_minor||0)));
+  if(actualReference!==reference||rawAmount===undefined||!Number.isSafeInteger(Number(rawAmount))||Number(rawAmount)!==expectedAmount||currency!=="UGX"||!transactionId) {
+    throw new Error("ObPay payout verification did not exactly match reference, amount, UGX currency and provider transaction ID; withdrawal remains reserved.");
+  }
+  const rawPhone=data.phone_number||data.phone||data.recipient_phone||data.customer_phone;
+  if(rawPhone){
+    const digits=String(rawPhone).replace(/\\D/g,"");
+    const expected=String(withdrawal.payout_phone_e164||"").replace(/\\D/g,"");
+    if(!expected||digits!==expected)throw new Error("ObPay payout recipient number mismatch; withdrawal remains reserved.");
+  }
+  return {...data,__verifiedTransactionId:transactionId};
+}
 
 async function settleWithdrawal(env, withdrawal) {
   const gross=Number(withdrawal.amount_minor);
@@ -944,17 +957,15 @@ async function authApi(request, env, url) {
         description:"Lifeline Care Supply investor withdrawal",
         metadata:{investor_id:investor.id,withdrawal_id:id}
       },true);
-      const providerReference=String(provider.reference||reference);
+      const providerReference=String(provider.reference||"");
+      if(provider.duplicate!==true&&providerReference!==reference)throw new Error("ObPay payout response reference mismatch; reserved funds remain pending reconciliation.");
       if(provider.duplicate===true){
-        const existing=await obpay(env,"/transactions/"+encodeURIComponent(reference));
-        if(existing.reference&&String(existing.reference)!==reference)throw new Error("Duplicate payout lookup reference mismatch.");
-        if(existing.amount!==undefined&&Number(existing.amount)!==payoutAmount)throw new Error("Duplicate payout lookup amount mismatch.");
-        if(existing.currency&&String(existing.currency).toUpperCase()!=="UGX")throw new Error("Duplicate payout lookup currency mismatch.");
+        const existingRow=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=?").bind(id).first();
+        const existing=await verifyObpayPayoutTransaction(env,reference,existingRow);
         const existingState=providerStatus(existing.status||existing.payment_status||existing.state);
         if(existingState==="success"){
-          const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=?").bind(id).first();
-          await settleWithdrawal(env,row);
-          await env.DB.prepare("UPDATE withdrawal_requests SET provider_status='successful',status='completed',updated_at=? WHERE id=? AND status='approved'").bind(new Date().toISOString(),id).run();
+          await settleWithdrawal(env,existingRow);
+          await env.DB.prepare("UPDATE withdrawal_requests SET provider_transaction_id=?,provider_status='successful',status='completed',updated_at=? WHERE id=? AND status='approved'").bind(existing.__verifiedTransactionId,new Date().toISOString(),id).run();
           return json({ok:true,reference,status:"completed",grossAmount:amount,taxAmount:tax,payoutAmount,message:"The existing ObPay payout was confirmed successfully."},201);
         }
         if(existingState==="failed"){
@@ -974,7 +985,7 @@ async function authApi(request, env, url) {
         // An accepted duplicate is a lookup result, not a second payout.
         // Keep the reserved withdrawal in processing until its original reference is reconciled.
       }
-      if(feeMode.toLowerCase()!=="account"||provider.fee===undefined||provider.recipient_gets===undefined||provider.total_debit===undefined||!Number.isFinite(providerFee)||providerFee<0||!Number.isFinite(recipientGets)||recipientGets!==payoutAmount||!Number.isFinite(totalDebit)||totalDebit<payoutAmount){
+      if(feeMode.toLowerCase()!=="account"||provider.fee===undefined||provider.recipient_gets===undefined||provider.total_debit===undefined||!Number.isFinite(providerFee)||providerFee<0||!Number.isFinite(recipientGets)||recipientGets!==payoutAmount||!Number.isFinite(totalDebit)||totalDebit!==payoutAmount+providerFee){
         throw new Error("ObPay payout response did not confirm the requested recipient amount and total debit.");
       }
       await env.DB.prepare("UPDATE withdrawal_requests SET payout_details_private=?,provider_transaction_id=?,provider_status=?,updated_at=? WHERE id=? AND status='approved'")
@@ -982,11 +993,11 @@ async function authApi(request, env, url) {
       await env.DB.prepare("UPDATE withdrawal_requests SET provider_status=?,updated_at=? WHERE id=? AND status='approved'")
         .bind(providerState==="success"?"successful":providerState==="failed"?"failed":"pending",new Date().toISOString(),id).run();
       if(providerState==="success"){
-        const verified=await obpay(env,"/transactions/"+encodeURIComponent(providerReference));
+        const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=?").bind(id).first();
+        const verified=await verifyObpayPayoutTransaction(env,providerReference,row);
         if(providerStatus(verified.status||verified.payment_status||verified.state)==="success"){
-          const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=?").bind(id).first();
           await settleWithdrawal(env,row);
-          await env.DB.prepare("UPDATE withdrawal_requests SET status='completed',provider_status='successful',updated_at=? WHERE id=?").bind(new Date().toISOString(),id).run();
+          await env.DB.prepare("UPDATE withdrawal_requests SET provider_transaction_id=?,status='completed',provider_status='successful',updated_at=? WHERE id=?").bind(verified.__verifiedTransactionId,new Date().toISOString(),id).run();
         }
       }else if(providerState==="failed"){
         const row=await env.DB.prepare("SELECT * FROM withdrawal_requests WHERE id=?").bind(id).first();
