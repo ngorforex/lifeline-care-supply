@@ -87,16 +87,16 @@ function renderDashboard(data){
  fillTable("[data-earnings]",data.earnings||[],[x=>x.earning_date,x=>String(x.investment_id||"").slice(0,8),x=>amountMinor(x.amount_minor,"UGX")],"No daily earnings have been posted yet.");
  fillTable("[data-referral-commissions]",data.referralCommissions||[],[x=>"Level "+x.level,x=>amountMinor(x.amount_minor,"UGX"),x=>dateEAT(x.created_at)],"No referral commissions have been posted yet.");
  const link=document.querySelector("[data-referral-link]");const refStatus=document.querySelector("[data-referral-status]");
- const shareButton=document.querySelector("[data-share-referral]");
+ const copyButton=document.querySelector("[data-copy-referral]");
  const inviteUrl=data.referralCode?.code&&data.referralCode.is_active?new URL("/register/?ref="+encodeURIComponent(data.referralCode.code),location.origin).href:"";
  if(inviteUrl){
   if(link){link.href=inviteUrl;link.textContent=inviteUrl;}
   if(refStatus)refStatus.textContent="Your invite link is active";
-  if(shareButton){shareButton.disabled=false;shareButton.dataset.url=inviteUrl;}
+  if(copyButton){copyButton.disabled=false;copyButton.dataset.url=inviteUrl;}
  }else{
   if(link){link.removeAttribute("href");link.textContent="Your personal invite link is not available yet";}
   if(refStatus)refStatus.textContent="Invite link not issued";
-  if(shareButton)shareButton.disabled=true;
+  if(copyButton)copyButton.disabled=true;
  }
  const packages=document.querySelector("[data-packages]");
  const productImageByCode={
@@ -442,15 +442,24 @@ if(!isAdmin){
   window.alert("The official Telegram and live-support links have not been configured in this project yet.");
  }));
 
- document.querySelector("[data-share-referral]")?.addEventListener("click",async event=>{
+ document.querySelector("[data-copy-referral]")?.addEventListener("click",async event=>{
  const button=event.currentTarget;const url=button.dataset.url;
- if(!url)return;
+ if(!url||button.disabled)return;
  const feedback=document.querySelector("[data-referral-feedback]");
  try{
-  if(navigator.share){await navigator.share({title:"Join Lifeline Care Supply",text:"Use my personal invitation link to register with Lifeline Care Supply.",url});if(feedback)feedback.textContent="Share sheet opened.";}
-  else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);if(feedback)feedback.textContent="Invite link copied. Share it with a new investor.";}
-  else if(feedback)feedback.textContent="Sharing is unavailable in this browser.";
- }catch(error){if(error?.name!=="AbortError"&&feedback)feedback.textContent="Unable to share the link. Please try again.";}
+  if(navigator.clipboard?.writeText){
+   await navigator.clipboard.writeText(url);
+  }else{
+   const field=document.createElement("textarea");
+   field.value=url;field.setAttribute("readonly","");field.style.position="fixed";field.style.opacity="0";
+   document.body.appendChild(field);field.select();
+   const copied=document.execCommand("copy");field.remove();
+   if(!copied)throw new Error("Clipboard copy was blocked");
+  }
+  if(feedback)feedback.textContent="Link copied.";
+ }catch(error){
+  if(feedback)feedback.textContent="Unable to copy the link. Please try again.";
+ }
  });
 
  const menuToggle=document.querySelector("[data-menu-toggle]");
