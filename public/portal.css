@@ -1774,3 +1774,52 @@ body[data-portal="investor"] .password-primary:disabled{opacity:.65;cursor:wait}
 /* Unified link presentation across investor and administrator workspaces */
 body[data-portal] a,body[data-portal] a:visited,body[data-portal] a:hover,body[data-portal] a:active,body[data-portal] a:focus{text-decoration:none}
 body[data-portal] a:focus-visible{outline:2px solid #119b93;outline-offset:3px;border-radius:5px}
+
+
+/* Final interface refinement — investor and administrator workspaces */
+body[data-portal]{background:#f3f7f5;color:#193f3a}
+body[data-portal] .sidebar{background:linear-gradient(180deg,#fff 0%,#fbfdfc 100%);border-right-color:#e5eeea;box-shadow:4px 0 24px rgba(20,65,54,.025)}
+body[data-portal] .brand{padding-bottom:25px}
+body[data-portal] .brand-icon{box-shadow:0 5px 14px rgba(17,155,147,.12)}
+body[data-portal] .side-nav{gap:6px}
+body[data-portal] .side-nav a{min-height:43px;border:1px solid transparent;transition:background .18s,border-color .18s,color .18s,transform .18s}
+body[data-portal] .side-nav a.active{background:linear-gradient(100deg,#e5f5ef,#f1faf6);border-color:#d9eee5;box-shadow:inset 3px 0 #119b93}
+body[data-portal] .side-nav a:hover{transform:translateX(2px)}
+body[data-portal] .topbar{height:76px;position:sticky;top:0;z-index:4;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-bottom-color:#e5eeea}
+body[data-portal] .content{padding:27px clamp(18px,3vw,36px) 42px;max-width:1600px;width:100%;margin:0 auto}
+body[data-portal] .page-intro{margin-bottom:21px}
+body[data-portal] .page-intro h2{font-size:25px;line-height:1.2;letter-spacing:-.055em;margin:5px 0}
+body[data-portal] .page-intro p{font-size:12px;color:#788b84}
+body[data-portal] .metric-grid,body[data-portal] .investor-finance-grid{gap:12px}
+body[data-portal] .metric,body[data-portal] .panel,body[data-portal] .investor-finance-grid .metric{border:1px solid #e4ede8;border-radius:15px;background:#fff;box-shadow:0 5px 20px rgba(26,69,57,.045);transition:box-shadow .2s,border-color .2s,transform .2s}
+body[data-portal] .metric:hover,body[data-portal] .panel:hover{border-color:#d6e9e0;box-shadow:0 9px 26px rgba(26,69,57,.065)}
+body[data-portal] .metric{padding:17px}
+body[data-portal] .metric b{font-variant-numeric:tabular-nums;letter-spacing:-.045em}
+body[data-portal] .panel{padding:18px}
+body[data-portal] .panel-head{margin-bottom:14px}
+body[data-portal] .panel-head h3{font-size:14px}
+body[data-portal] .table-scroll{border:1px solid #e9f0ed;border-radius:11px;overflow:auto}
+body[data-portal] table{border-collapse:separate;border-spacing:0;min-width:560px}
+body[data-portal] thead th{background:#f5f9f7;color:#6d827a;font-size:9px;letter-spacing:.09em;font-weight:800}
+body[data-portal] th,body[data-portal] td{padding:12px 13px;border-bottom:1px solid #edf2ef}
+body[data-portal] tbody tr:last-child td{border-bottom:0}
+body[data-portal] tbody tr:hover{background:#f9fcfa}
+body[data-portal] button,body[data-portal] .button{transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+body[data-portal] button:not(:disabled):active,body[data-portal] .button:active{transform:translateY(1px)}
+body[data-portal] input,body[data-portal] select,body[data-portal] textarea{border-color:#dce8e2;border-radius:10px}
+body[data-portal] input:focus,body[data-portal] select:focus,body[data-portal] textarea:focus{outline:none;border-color:#159b90;box-shadow:0 0 0 3px rgba(17,155,147,.10)}
+body[data-portal] .status-chip,body[data-portal] [class*="status"]{font-variant-numeric:tabular-nums}
+body[data-portal] .mobile-bottom-nav{box-shadow:0 -8px 28px rgba(25,65,55,.09);border-top:1px solid #e5eeea;background:rgba(255,255,255,.96);backdrop-filter:blur(16px)}
+body[data-portal] .mobile-bottom-nav a{transition:color .18s,background .18s}
+body[data-portal] .mobile-bottom-nav a.active{color:#078e84}
+@media(max-width:760px){
+ body[data-portal] .topbar{height:64px}
+ body[data-portal] .content{padding:20px 14px 96px}
+ body[data-portal] .page-intro{margin-bottom:16px}
+ body[data-portal] .page-intro h2{font-size:22px}
+ body[data-portal] .panel{padding:13px;border-radius:13px}
+ body[data-portal] .metric{padding:13px;border-radius:13px}
+ body[data-portal] .metric-grid,body[data-portal] .investor-finance-grid{gap:9px}
+ body[data-portal] .panel-head{gap:10px;flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){body[data-portal] *,body[data-portal] *:before,body[data-portal] *:after{transition:none!important;scroll-behavior:auto!important}}
