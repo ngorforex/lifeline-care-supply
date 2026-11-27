@@ -311,6 +311,39 @@ if(isAdmin){
 }
 if(!isAdmin){
 
+ const dailyCheckInDialog=document.createElement("dialog");
+ dailyCheckInDialog.className="payment-dialog";
+ dailyCheckInDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" type="button" aria-label="Close check-in">×</button><span class="kicker">LIFELINE CARE SUPPLY</span><h2>Daily check-in reward</h2><p>Claim your daily reward for today. You can claim once per East African calendar day.</p><div style="padding:14px;border-radius:12px;background:#e8f5ef;text-align:center"><strong data-checkin-amount style="display:block;font-size:28px;color:#087d69">UGX 200</strong><span style="font-size:12px;color:#55736a">Daily reward</span></div><button class="primary-button" type="button" data-checkin-claim>Claim daily reward</button><p class="payment-result" role="status" data-checkin-result></p></form>';
+ document.body.append(dailyCheckInDialog);
+ dailyCheckInDialog.querySelector(".dialog-close").addEventListener("click",()=>dailyCheckInDialog.close("cancel"));
+ dailyCheckInDialog.querySelector("form").addEventListener("submit",event=>event.preventDefault());
+ const showDailyCheckInPrompt=async()=>{
+  try{
+   const response=await fetch("/api/investor/daily-checkin",{credentials:"same-origin",cache:"no-store",headers:{"Accept":"application/json"}});
+   const data=await response.json().catch(()=>({}));
+   if(response.status===401){location.replace("/login/");return;}
+   if(!response.ok||data.available!==true)return;
+   dailyCheckInDialog.querySelector("[data-checkin-amount]").textContent=amountMinor(data.amountUGX,"UGX");
+   const claim=dailyCheckInDialog.querySelector("[data-checkin-claim]");
+   const result=dailyCheckInDialog.querySelector("[data-checkin-result]");
+   claim.disabled=false;claim.textContent="Claim "+amountMinor(data.amountUGX,"UGX");result.textContent="";
+   dailyCheckInDialog.showModal();
+  }catch(error){console.warn("Daily check-in availability could not be loaded:",error);}
+ };
+ dailyCheckInDialog.querySelector("[data-checkin-claim]").addEventListener("click",async event=>{
+  const button=event.currentTarget,result=dailyCheckInDialog.querySelector("[data-checkin-result]");
+  button.disabled=true;button.textContent="Claiming…";result.textContent="";
+  try{
+   const response=await fetch("/api/investor/daily-checkin",{method:"POST",credentials:"same-origin",headers:{"Accept":"application/json","Content-Type":"application/json"},body:"{}"});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.error||"Daily reward could not be claimed.");
+   if(data.alreadyClaimed){result.textContent="You have already claimed today's reward.";button.textContent="Already claimed";return;}
+   result.textContent="Success! "+amountMinor(data.amountUGX,"UGX")+" has been added to your wallet.";
+   button.textContent="Reward claimed";
+   setTimeout(()=>location.reload(),1300);
+  }catch(error){result.textContent=error.message||"Daily reward could not be claimed.";button.disabled=false;button.textContent="Try again";}
+ });
+
  const paymentDialog=document.createElement("dialog");
  paymentDialog.className="payment-dialog";
  paymentDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" value="cancel" aria-label="Close">×</button><span class="kicker">LIFELINE CARE SUPPLY</span><h2 data-payment-title>Deposit</h2><p data-payment-description>Pay securely using MTN or Airtel Mobile Money.</p><label for="payment-amount">Amount (UGX)</label><input id="payment-amount" name="amount" type="number" min="15000" step="1" required inputmode="numeric"><label for="payment-phone">Mobile money number</label><input id="payment-phone" name="phone" type="tel" required placeholder="+2567XXXXXXXX" autocomplete="tel"><label for="payment-recipient-name">Registered mobile-money account name</label><input id="payment-recipient-name" name="recipientName" type="text" required maxlength="80" placeholder="Name registered with MTN or Airtel" autocomplete="name"><button class="primary-button" type="submit" data-payment-submit>Continue</button><p class="payment-result" role="status" data-payment-result></p></form>';
@@ -383,7 +416,7 @@ if(!isAdmin){
   })
   .then(data=>{
    if(!data)return;
-   try{renderDashboard(data);document.querySelector("[data-dashboard-error]")?.remove();}
+   try{renderDashboard(data);document.querySelector("[data-dashboard-error]")?.remove();showDailyCheckInPrompt();}
    catch(error){console.error("Investor dashboard rendering failed:",error);showLoadError("Your account data was received, but the dashboard could not display it: "+(error.message||"Unknown display error"));}
   })
   .catch(error=>{
