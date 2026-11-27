@@ -2202,3 +2202,17 @@ body[data-portal] input:-webkit-autofill:focus{
  -webkit-box-shadow:0 0 0 1000px #fff inset,0 0 0 3px rgba(82,104,217,.13)!important;
  border-color:#5268d9!important;
 }
+
+
+/* No visible focus border, outline or glow on form fields */
+body[data-portal] input:focus,
+body[data-portal] input:focus-visible,
+body[data-portal] select:focus,
+body[data-portal] select:focus-visible,
+body[data-portal] textarea:focus,
+body[data-portal] textarea:focus-visible,
+body[data-portal] .password-dialog input:focus{
+ border-color:inherit!important;
+ outline:none!important;
+ box-shadow:none!important;
+}
