@@ -531,3 +531,43 @@ body.auth-page .login-community-links>a.community-icon-link svg{display:block;wi
 body.auth-page .login-community-links>a.whatsapp-community-link{background:#20b968}
 body.auth-page .login-community-links>a.telegram-community-link{background:#229ed9}
 @media(max-width:380px){body.auth-page .login-community-links{display:flex;gap:18px}}
+
+
+/* Lifeline authentication palette — coordinated with investor and admin dashboards */
+:root{
+ --bg:#08231e;
+ --panel:#10352d;
+ --panel2:#164238;
+ --line:rgba(91,169,132,.24);
+ --text:#f5faf6;
+ --muted:#a8bdb2;
+ --lime:#d5b36b;
+ --green:#15977f;
+ --mint:#80c9a8;
+}
+body.auth-page{accent-color:#138a78}
+body.auth-page .access-page{
+ background:
+  radial-gradient(ellipse at 8% 12%,rgba(21,151,127,.19),transparent 36%),
+  radial-gradient(ellipse at 94% 82%,rgba(201,155,69,.12),transparent 34%),
+  linear-gradient(125deg,#08231e 0%,#10382f 52%,#0a2b24 100%);
+}
+body.auth-page .access-page:before{background-image:radial-gradient(rgba(128,201,168,.5) .65px,transparent .75px)}
+body.auth-page .access-logo{border-color:rgba(201,155,69,.55);background:linear-gradient(145deg,rgba(201,155,69,.14),rgba(21,151,127,.08))}
+body.auth-page .access-logo i{background:linear-gradient(145deg,#e1c27f,#15977f)}
+body.auth-page .access-submit{
+ background:linear-gradient(110deg,#15977f 0%,#0d7565 100%);
+ border-color:#0d7565;
+ box-shadow:0 10px 25px rgba(13,117,101,.2);
+}
+body.auth-page .access-submit:hover{box-shadow:0 13px 30px rgba(13,117,101,.28)}
+body.auth-page a{color:#168b78}
+body.auth-page .reference-options a,
+body.auth-page .reference-register a,
+body.auth-page .register-signin a{color:#147d6d}
+body.auth-page .access-input:focus-within{border-color:rgba(21,151,127,.72);box-shadow:0 0 0 3px rgba(21,151,127,.12)}
+body.auth-page input:focus-visible,
+body.auth-page button:focus-visible,
+body.auth-page a:focus-visible{outline-color:#c9a65f}
+body.auth-page .login-community>p{color:#247d70}
+body.auth-page .register-home-wordmark .word-care{color:#168b78}
