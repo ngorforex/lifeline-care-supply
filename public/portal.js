@@ -313,7 +313,7 @@ if(!isAdmin){
 
  const paymentDialog=document.createElement("dialog");
  paymentDialog.className="payment-dialog";
- paymentDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" value="cancel" aria-label="Close">×</button><span class="kicker">LIFELINE CARE SUPPLY</span><h2 data-payment-title>Deposit</h2><p data-payment-description>Pay securely using MTN or Airtel Mobile Money.</p><label for="payment-amount">Amount (UGX)</label><input id="payment-amount" name="amount" type="number" min="10000" step="1" required inputmode="numeric"><label for="payment-phone">Mobile money number</label><input id="payment-phone" name="phone" type="tel" required placeholder="+2567XXXXXXXX" autocomplete="tel"><label for="payment-recipient-name">Registered mobile-money account name</label><input id="payment-recipient-name" name="recipientName" type="text" required maxlength="80" placeholder="Name registered with MTN or Airtel" autocomplete="name"><button class="primary-button" type="submit" data-payment-submit>Continue</button><p class="payment-result" role="status" data-payment-result></p></form>';
+ paymentDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" value="cancel" aria-label="Close">×</button><span class="kicker">LIFELINE CARE SUPPLY</span><h2 data-payment-title>Deposit</h2><p data-payment-description>Pay securely using MTN or Airtel Mobile Money.</p><label for="payment-amount">Amount (UGX)</label><input id="payment-amount" name="amount" type="number" min="15000" step="1" required inputmode="numeric"><label for="payment-phone">Mobile money number</label><input id="payment-phone" name="phone" type="tel" required placeholder="+2567XXXXXXXX" autocomplete="tel"><label for="payment-recipient-name">Registered mobile-money account name</label><input id="payment-recipient-name" name="recipientName" type="text" required maxlength="80" placeholder="Name registered with MTN or Airtel" autocomplete="name"><button class="primary-button" type="submit" data-payment-submit>Continue</button><p class="payment-result" role="status" data-payment-result></p></form>';
  document.body.append(paymentDialog);
  paymentDialog.querySelector(".dialog-close").addEventListener("click",()=>{if(paymentDialog.open)paymentDialog.close("cancel");});
  paymentDialog.addEventListener("click",event=>{if(event.target===paymentDialog)paymentDialog.close("cancel");});
@@ -323,7 +323,7 @@ if(!isAdmin){
   paymentMode=mode;
   paymentDialog.querySelector("[data-payment-title]").textContent=mode==="deposit"?"Deposit funds":"Withdraw funds";
   paymentDialog.querySelector("[data-payment-description]").textContent=mode==="deposit"?"Request an MTN or Airtel Mobile Money payment to fund your wallet.":"Submit a withdrawal to your registered mobile-money number. A 15% withdrawal tax is deducted. Eligibility requires a successful deposit and at least one active investment.";
-  paymentDialog.querySelector("#payment-amount").min=mode==="deposit"?"10000":"2000";
+  paymentDialog.querySelector("#payment-amount").min=mode==="deposit"?"15000":"5000";
   const recipientNameField=paymentDialog.querySelector("#payment-recipient-name");
   const recipientNameLabel=paymentDialog.querySelector('label[for="payment-recipient-name"]');
   recipientNameField.required=mode==="withdrawal";
