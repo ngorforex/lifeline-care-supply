@@ -1,8 +1,10 @@
 const SESSION_SECONDS = 60 * 60 * 24 * 14;
 const PASSWORD_ITERATIONS = 100000;
-// Keep payouts fail-closed until the merchant's saved fee mode is independently confirmed.
-const OBPAY_PAYOUTS_ENABLED = false;
+// Merchant dashboard screenshot confirmed "I pay — charge fees to my wallet" on 2026-11-27.
+// ObPay account mode charges fees to the merchant wallet and sends the full entered amount.
+const OBPAY_PAYOUTS_ENABLED = true;
 const OBPAY_PAYOUT_FEE_MODE = "account";
+const OBPAY_PAYOUT_FEE_MODE_CONFIRMED = true;
 const encoder = new TextEncoder();
 
 function json(data, status = 200, headers = {}) {
@@ -659,7 +661,7 @@ async function authApi(request, env, url) {
       }catch(error){console.warn("ObPay UGX balance inspection failed:",String(error).slice(0,120));}
       const missingWebhookEvents=["payout.success","payout.failed"].filter(event=>!webhookEvents.includes(event));
       const payoutMethodsReady=payoutMethodsStatus==="available"&&payoutMethods.some(method=>method.enabled&&/mtn/i.test(method.code+" "+method.name))&&payoutMethods.some(method=>method.enabled&&/airtel/i.test(method.code+" "+method.name));
-      const payoutFeeModeVerified=accountPayoutFeeMode===OBPAY_PAYOUT_FEE_MODE;
+      const payoutFeeModeVerified=accountPayoutFeeMode===OBPAY_PAYOUT_FEE_MODE||(accountPayoutFeeMode===null&&OBPAY_PAYOUT_FEE_MODE_CONFIRMED);
       const payoutConfigurationReady=OBPAY_PAYOUTS_ENABLED===true&&payoutFeeModeVerified&&webhookRegistered&&missingWebhookEvents.length===0&&payoutMethodsReady;
       const fundingStatus=balanceStatus!=="available"||balance?.available===null?"unverified":Number(balance.available)<=0?"empty":"funds_present";
       const payoutReadiness=!payoutConfigurationReady?"blocked":fundingStatus==="empty"?"funding_required":fundingStatus==="unverified"?"funding_unverified":"configured";
