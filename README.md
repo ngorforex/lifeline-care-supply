@@ -26,7 +26,7 @@ The following customer API flows are implemented in `src/index.js`; they are not
 - **Deposits:** `POST /api/investor/deposits` initiates an ObPay mobile-money collection. A deposit remains pending until a provider transaction lookup confirms the matching local reference, amount, UGX currency, payer phone and provider transaction ID. Only then is the wallet credited through the ledger.
 - **Withdrawals:** `POST /api/investor/withdrawals` validates the investor, eligibility, available balance, withdrawal tax and recipient name, then submits an ObPay payout. Funds are reserved while the payout is pending; confirmed success settles the withdrawal, while confirmed failure releases the reservation.
 - **Provider callbacks:** `POST /obpay/webhook` validates the webhook signature and independently verifies the provider transaction before changing financial state.
-- **Reconciliation:** scheduled Worker execution checks pending ObPay transactions. Webhook and reconciliation processing must remain idempotent.
+- **Reconciliation:** the scheduled Worker checks pending ObPay transactions every five minutes as a webhook fallback. The daily 00:00 EAT run also records provider health, reconciles payments and posts daily investment earnings. Webhook and reconciliation processing must remain idempotent.
 - **Wallet and ledger:** customer balances are derived from balanced ledger entries; do not credit a wallet from a browser response or an unverified webhook.
 - **Investments:** `POST /api/investor/investments` purchases a published package only after the investor accepts its current terms and has sufficient available wallet funds.
 - **Daily check-in:** `/api/investor/daily-checkin` exposes the once-per-EAT-day reward claim.
