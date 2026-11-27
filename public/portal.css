@@ -2017,3 +2017,42 @@ body[data-portal] .profile-menu-item .profile-menu-icon{color:#5268d9}
 body[data-portal] input:focus,
 body[data-portal] select:focus,
 body[data-portal] textarea:focus{border-color:#7185f4;box-shadow:0 0 0 3px rgba(82,104,217,.12)}
+
+
+/* Dashboard card system — soft periwinkle surfaces with clear ink contrast */
+body[data-portal] .metric,
+body[data-portal] .investor-finance-grid .metric{
+ background:linear-gradient(145deg,#f0f2ff 0%,#fff 88%)!important;
+ border:1px solid #dce2f6!important;
+ box-shadow:0 6px 18px rgba(32,41,68,.055)!important;
+}
+body[data-portal] .metric:nth-child(3n+2){
+ background:linear-gradient(145deg,#fff1ed 0%,#fff 88%)!important;
+ border-color:#f2ded8!important;
+}
+body[data-portal] .metric:nth-child(3n){
+ background:linear-gradient(145deg,#edf6f5 0%,#fff 88%)!important;
+ border-color:#d8e9e6!important;
+}
+body[data-portal] .metric .metric-value,
+body[data-portal] .metric strong{color:#202944!important}
+body[data-portal] .metric .metric-label{color:#56617b!important}
+body[data-portal] .panel{
+ background:#fff!important;
+ border-color:#e0e4ef!important;
+ box-shadow:0 5px 18px rgba(32,41,68,.045)!important;
+}
+body[data-portal] .panel-head h2,
+body[data-portal] .panel-head h3,
+body[data-portal] .panel h2,
+body[data-portal] .panel h3{color:#202944}
+body[data-portal] .panel p,
+body[data-portal] .panel .muted{color:#68738d}
+body[data-portal] .topbar h1,
+body[data-portal] .page-intro h2{color:#202944}
+body[data-portal] .breadcrumb,
+body[data-portal] .page-intro p{color:#596580!important}
+body[data-portal] .side-nav a.active{color:#fff!important}
+body[data-portal] .side-nav a{color:#c5cce0}
+body[data-portal] .primary-button,
+body[data-portal] button.primary-button{color:#fff!important}
