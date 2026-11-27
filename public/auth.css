@@ -927,3 +927,46 @@ body.auth-page .access-input:focus-within,body.auth-page input:focus,
 body.auth-page input:focus-visible,body.auth-page select:focus,body.auth-page textarea:focus{
  outline:none!important;box-shadow:none!important;border-color:#DBEAFE!important;
 }
+
+
+/* PREMIUM GLASS AUTH UI — blue and frosted porcelain, no gold accents */
+body.auth-page{
+ color:#1E3A8A!important;
+ background:
+  radial-gradient(ellipse at 15% 5%,rgba(219,234,254,.82),transparent 42%),
+  linear-gradient(145deg,#F7FAFF,#EEF4FC 58%,#F8FAFD)!important;
+}
+body.auth-page .access-card,body.auth-page .access-panel,body.auth-page .auth-card{
+ color:#1E3A8A!important;
+ background:rgba(255,255,255,.76)!important;
+ border:1px solid rgba(255,255,255,.92)!important;
+ outline:1px solid rgba(147,177,222,.14)!important;
+ border-radius:28px!important;
+ box-shadow:0 18px 48px rgba(31,62,112,.09),inset 0 1px 0 rgba(255,255,255,.95)!important;
+ -webkit-backdrop-filter:blur(24px) saturate(165%)!important;
+ backdrop-filter:blur(24px) saturate(165%)!important;
+}
+body.auth-page .access-card h1,body.auth-page .access-card h2,
+body.auth-page .form-heading h2,body.auth-page .access-title,
+body.auth-page .access-heading{color:#1E3A8A!important}
+body.auth-page .access-card p,body.auth-page .access-card label,
+body.auth-page .access-field small,body.auth-page .form-heading p{color:#526B9D!important}
+body.auth-page .access-input,body.auth-page .access-card input:not([type=checkbox]),
+body.auth-page input,body.auth-page select,body.auth-page textarea{
+ color:#1E3A8A!important;background:rgba(255,255,255,.8)!important;
+ border:1px solid rgba(147,177,222,.3)!important;border-radius:15px!important;
+}
+body.auth-page input::placeholder,body.auth-page textarea::placeholder{color:#8296B8!important}
+body.auth-page .access-submit,body.auth-page button[type="submit"],body.auth-page .primary-button{
+ color:#fff!important;
+ background:linear-gradient(135deg,rgba(37,99,235,.96),rgba(59,130,246,.92))!important;
+ border:1px solid rgba(255,255,255,.45)!important;border-radius:16px!important;
+ box-shadow:0 9px 22px rgba(37,99,235,.2),inset 0 1px 0 rgba(255,255,255,.3)!important;
+}
+body.auth-page .access-submit *,body.auth-page button[type="submit"] *{color:#fff!important}
+body.auth-page .access-card a:not(.community-icon-link),
+body.auth-page .reference-options a,body.auth-page .reference-register a{color:#1D4ED8!important}
+body.auth-page input:focus,body.auth-page input:focus-visible,
+body.auth-page select:focus,body.auth-page textarea:focus{
+ outline:none!important;box-shadow:none!important;border-color:rgba(147,177,222,.3)!important;
+}
