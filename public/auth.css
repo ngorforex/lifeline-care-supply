@@ -442,3 +442,8 @@ body.auth-page:has(form[data-auth-form="register"]) .reference-brand-sub {
 .register-home-wordmark .word-care{font-weight:600;color:#238f80}
 .register-home-wordmark .word-supply{font-family:Georgia,serif;font-style:italic;font-weight:700;letter-spacing:-.02em}
 @media(max-width:420px){.register-home-brand{gap:9px}.register-home-heart{width:43px;height:43px;flex-basis:43px}.register-home-wordmark{font-size:14px}}
+
+.recovery-hint{display:block;color:#718580;font-size:10px;line-height:1.6;margin:-3px 2px 2px}
+[data-reset-complete][hidden], [data-reset-request][hidden]{display:none!important}
+[data-reset-complete] .access-field label{font-size:11px;font-weight:700;color:#52736b}
+[data-reset-complete] .access-input input{width:100%;min-width:0}
