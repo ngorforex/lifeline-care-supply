@@ -1745,3 +1745,27 @@ body[data-portal="investor"] .payment-dialog-form .dialog-close{
 body[data-portal="investor"] .payment-dialog-form .purchase-confirm-note{
  display:none!important;
 }
+
+/* Secure investor password-change dialog */
+body[data-portal="investor"] .password-dialog-backdrop{position:fixed;z-index:1000;inset:0;background:rgba(12,31,29,.48);backdrop-filter:blur(5px);display:grid;place-items:center;padding:18px}
+body[data-portal="investor"] .password-dialog-backdrop[hidden]{display:none}
+body[data-portal="investor"] .password-dialog{width:min(100%,440px);max-height:min(90vh,720px);overflow:auto;background:#fff;border:1px solid #dcebe5;border-radius:20px;padding:22px;box-shadow:0 24px 80px rgba(17,55,48,.22)}
+body[data-portal="investor"] .password-dialog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+body[data-portal="investor"] .password-dialog-head h2{font-size:21px;margin:6px 0 0}
+body[data-portal="investor"] .password-dialog-close{width:34px;height:34px;border:0;border-radius:50%;background:#eff7f3;color:#416b61;font-size:23px;cursor:pointer}
+body[data-portal="investor"] .password-dialog-description{font-size:12px;line-height:1.6;color:#718580;margin:12px 0 18px}
+body[data-portal="investor"] .password-dialog form{display:grid;gap:9px}
+body[data-portal="investor"] .password-dialog label{font-size:11px;font-weight:700;color:#47665e;margin-top:5px}
+body[data-portal="investor"] .password-dialog input{width:100%;height:44px;border:1px solid #dcebe5;border-radius:10px;padding:0 12px;font:inherit;color:#173e3b;background:#fbfdfc;outline:none}
+body[data-portal="investor"] .password-dialog input:focus{border-color:#119b93;box-shadow:0 0 0 3px rgba(17,155,147,.1)}
+body[data-portal="investor"] .password-dialog form>small{font-size:10px;color:#83958f;line-height:1.5}
+body[data-portal="investor"] .password-dialog-message{min-height:18px;font-size:11px;line-height:1.5;margin:3px 0;color:#b34f48}
+body[data-portal="investor"] .password-dialog-message.success{color:#16866f}
+body[data-portal="investor"] .password-dialog-message.error{color:#b34f48}
+body[data-portal="investor"] .password-dialog-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px}
+body[data-portal="investor"] .password-dialog-actions>a{font-size:10px;color:#0d928b;font-weight:700;text-decoration:none}
+body[data-portal="investor"] .password-dialog-actions>div{display:flex;gap:8px;margin-left:auto}
+body[data-portal="investor"] .password-secondary,body[data-portal="investor"] .password-primary{height:40px;border-radius:10px;padding:0 14px;font:700 11px inherit;cursor:pointer}
+body[data-portal="investor"] .password-secondary{border:1px solid #dcebe5;background:#fff;color:#56736a}
+body[data-portal="investor"] .password-primary{border:1px solid #0d928b;background:#109b8f;color:#fff}
+body[data-portal="investor"] .password-primary:disabled{opacity:.65;cursor:wait}
