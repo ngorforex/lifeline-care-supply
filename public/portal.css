@@ -1698,3 +1698,50 @@ body[data-portal="investor"] #panel-packages .package-card-body{
   flex:1 1 auto!important;
   min-width:0!important;
 }
+
+
+/* Compact investment confirmation dialog: concise figures, no extra risk banners */
+body[data-portal="investor"] dialog.payment-dialog{
+ width:min(90vw,390px)!important;
+ max-width:calc(100vw - 32px)!important;
+ max-height:min(76dvh,590px)!important;
+ border-radius:20px!important;
+}
+body[data-portal="investor"] .payment-dialog-form{
+ padding:20px 18px 18px!important;
+ gap:10px!important;
+}
+body[data-portal="investor"] .payment-dialog-form h2{
+ font-size:clamp(19px,4.6vw,22px)!important;
+ line-height:1.18!important;
+ margin:0!important;
+}
+body[data-portal="investor"] .payment-dialog-form [data-package-terms]{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:7px!important;
+}
+body[data-portal="investor"] .payment-dialog-form [data-package-terms]>p{
+ min-width:0!important;
+ min-height:0!important;
+ padding:9px 10px!important;
+ border-radius:11px!important;
+ font-size:10px!important;
+ line-height:1.35!important;
+ overflow-wrap:anywhere!important;
+}
+body[data-portal="investor"] .payment-dialog-form [data-package-terms]>p:nth-child(5){
+ display:none!important;
+}
+body[data-portal="investor"] .payment-dialog-form .primary-button{
+ min-height:44px!important;
+ padding:10px 14px!important;
+ border-radius:11px!important;
+ font-size:13px!important;
+}
+body[data-portal="investor"] .payment-dialog-form .dialog-close{
+ width:34px!important;height:34px!important;right:11px!important;top:10px!important;
+}
+body[data-portal="investor"] .payment-dialog-form .purchase-confirm-note{
+ display:none!important;
+}
