@@ -1,3 +1,9 @@
+function normalizeUgandaPhone(value){
+ const phone=String(value||"").trim().replace(/[\\s()-]/g,"");
+ if(/^07\\d{8}$/.test(phone))return "+256"+phone.slice(1);
+ if(/^\\+2567\\d{8}$/.test(phone))return phone;
+ return "";
+}
 const referralInput=document.querySelector('input[name="referralCode"]');
 if(referralInput){
  const referralFromUrl=new URLSearchParams(location.search).get("ref");
@@ -15,7 +21,9 @@ if(form){
   }
   const button=form.querySelector("button[type=submit]");
   message.textContent="";message.className="message";button.disabled=true;button.textContent="Please wait…";
-  const payload=mode==="register"?{phone:values.phone,password:values.password,referralCode:values.referralCode||""}:{phone:values.phone,password:values.password};
+  const normalizedPhone=normalizeUgandaPhone(values.phone);
+  if(!normalizedPhone){message.textContent="Enter a Ugandan mobile number as 07XXXXXXXX or +2567XXXXXXXX.";button.disabled=false;button.textContent=mode==="register"?"Create investor account →":"Sign in to your account →";return;}
+  const payload=mode==="register"?{phone:normalizedPhone,password:values.password,referralCode:values.referralCode||""}:{phone:normalizedPhone,password:values.password};
   try{
    const response=await fetch("/api/auth/"+mode,{method:"POST",headers:{"content-type":"application/json"},credentials:"same-origin",body:JSON.stringify(payload)});
    const responseText=await response.text();
