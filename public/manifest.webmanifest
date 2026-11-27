@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "Lifeline Care Supply",
+  "short_name": "Lifeline",
+  "description": "Lifeline Care Supply investor platform",
+  "start_url": "/investor/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#071b17",
+  "theme_color": "#071b17",
+  "icons": [
+    {
+      "src": "/lifeline-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
