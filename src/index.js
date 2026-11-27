@@ -45,8 +45,15 @@ async function passwordHash(password, salt) {
   }, key, 256);
   return bytesToBase64(new Uint8Array(bits));
 }
+function normalizeUgandaPhone(value) {
+  if (typeof value !== "string") return null;
+  const phone = value.trim().replace(/[\\s()-]/g, "");
+  if (/^07\\d{8}$/.test(phone)) return "+256" + phone.slice(1);
+  if (/^\\+2567\\d{8}$/.test(phone)) return phone;
+  return null;
+}
 function validPhone(value) {
-  return typeof value === "string" && /^\+[1-9]\d{7,14}$/.test(value);
+  return typeof value === "string" && /^\\+2567\\d{8}$/.test(value);
 }
 function validName(value, optional = false) {
   if (optional && (value === undefined || value === null || value === "")) return true;
@@ -791,7 +798,7 @@ async function authApi(request, env, url) {
     const firstName = "Investor";
     const middleName = null;
     const lastName = "Account";
-    const phone = typeof data.phone === "string" ? data.phone.trim() : "";
+    const phone = normalizeUgandaPhone(data.phone) || "";
     const password = data.password;
     if (!validPhone(phone) || !passwordValid(password)) {
       return json({ error: "Enter a valid international phone number and a password with at least 12 characters including uppercase, lowercase and a number." }, 400);
@@ -841,7 +848,7 @@ async function authApi(request, env, url) {
   if (request.method === "POST" && url.pathname === "/api/auth/login") {
     let data;
     try { data = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
-    const phone = typeof data.phone === "string" ? data.phone.trim() : "";
+    const phone = normalizeUgandaPhone(data.phone) || "";
     const password = typeof data.password === "string" ? data.password : "";
     if (!validPhone(phone) || password.length < 1 || password.length > 128) return json({ error: "Invalid phone number or password." }, 400);
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
