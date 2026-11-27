@@ -1,5 +1,8 @@
 const SESSION_SECONDS = 60 * 60 * 24 * 14;
 const PASSWORD_ITERATIONS = 100000;
+// Live ObPay payouts are enabled. ObPay account mode adds payout fees to the merchant debit.
+const OBPAY_PAYOUTS_ENABLED = true;
+const OBPAY_PAYOUT_FEE_MODE = "account";
 const encoder = new TextEncoder();
 
 function json(data, status = 200, headers = {}) {
@@ -578,7 +581,7 @@ async function authApi(request, env, url) {
         balance={currency:"UGX",available:Number.isFinite(amount)?amount:null,pending:result.pending_balance??result.pending??null};
         balanceStatus="available";
       }catch(error){console.warn("ObPay UGX balance inspection failed:",String(error).slice(0,120));}
-      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",webhookRegistered,webhookEvents,payoutMethodsStatus,payoutMethods,balanceStatus,balance,payoutsEnabled:env.OBPAY_PAYOUTS_ENABLED==="true",payoutFeeModeConfigured:env.OBPAY_PAYOUT_FEE_MODE==="wallet",payoutWebhookEventsReady:webhookEvents.includes("payout.success")&&webhookEvents.includes("payout.failed"),payoutReadiness:env.OBPAY_PAYOUTS_ENABLED==="true"&&env.OBPAY_PAYOUT_FEE_MODE==="wallet"&&webhookRegistered&&webhookEvents.includes("payout.success")&&webhookEvents.includes("payout.failed")&&payoutMethodsStatus==="available"?"configured":"blocked",message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
+      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",webhookRegistered,webhookEvents,payoutMethodsStatus,payoutMethods,balanceStatus,balance,payoutsEnabled:OBPAY_PAYOUTS_ENABLED===true,payoutFeeModeConfigured:OBPAY_PAYOUT_FEE_MODE==="account",payoutWebhookEventsReady:webhookEvents.includes("payout.success")&&webhookEvents.includes("payout.failed"),payoutReadiness:OBPAY_PAYOUTS_ENABLED===true&&OBPAY_PAYOUT_FEE_MODE==="account"&&webhookRegistered&&webhookEvents.includes("payout.success")&&webhookEvents.includes("payout.failed")&&payoutMethodsStatus==="available"?"configured":"blocked",message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
     }catch(error){
       console.error("ObPay credential check failed:",error);
       return json({configured:true,reachable:false,authenticated:false,error:"ObPay authentication or connectivity check failed."},502);
@@ -876,7 +879,7 @@ async function authApi(request, env, url) {
     const investor=await currentInvestor(request,env); if(!investor)return json({error:"Authentication required."},401);
     // Do not submit live payouts until ObPay's exact payout request, network code,
     // recipient-name verification and fee quote have been validated for this merchant.
-    if(env.OBPAY_PAYOUTS_ENABLED!=="true"||env.OBPAY_PAYOUT_FEE_MODE!=="wallet")return json({error:"Automatic withdrawals are paused until ObPay payouts are enabled and the merchant fee mode is confirmed as wallet-paid (fees charged on top). Your wallet has not been debited."},503);
+    if(!OBPAY_PAYOUTS_ENABLED||OBPAY_PAYOUT_FEE_MODE!=="account")return json({error:"Automatic ObPay payouts are not enabled for this deployment."},503);
     let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
     const amount=Number(data.amount),phone=typeof data.phone==="string"?data.phone.trim():investor.phone_e164;
     const recipientName=typeof data.recipientName==="string"?data.recipientName.trim():"";
@@ -959,7 +962,7 @@ async function authApi(request, env, url) {
         // An accepted duplicate is a lookup result, not a second payout.
         // Keep the reserved withdrawal in processing until its original reference is reconciled.
       }
-      if(!feeMode||provider.fee===undefined||provider.recipient_gets===undefined||provider.total_debit===undefined||!Number.isFinite(providerFee)||providerFee<0||!Number.isFinite(recipientGets)||recipientGets!==payoutAmount||!Number.isFinite(totalDebit)||totalDebit<payoutAmount){
+      if(feeMode.toLowerCase()!=="account"||provider.fee===undefined||provider.recipient_gets===undefined||provider.total_debit===undefined||!Number.isFinite(providerFee)||providerFee<0||!Number.isFinite(recipientGets)||recipientGets!==payoutAmount||!Number.isFinite(totalDebit)||totalDebit<payoutAmount){
         throw new Error("ObPay payout response did not confirm the requested recipient amount and total debit.");
       }
       await env.DB.prepare("UPDATE withdrawal_requests SET payout_details_private=?,provider_transaction_id=?,provider_status=?,updated_at=? WHERE id=? AND status='approved'")
