@@ -3306,3 +3306,55 @@ body[data-portal="investor"] .profile-group>h3{
  body[data-portal="investor"] .profile-menu{gap:8px!important;padding:9px!important}
  body[data-portal="investor"] .profile-menu-item{min-height:72px!important;padding:10px 12px!important}
 }
+
+
+/* Contextual status badges — meaning-specific, high-contrast and consistent */
+body[data-portal] .status-badge{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:max-content!important;max-width:100%!important;min-height:25px!important;
+ padding:5px 10px!important;border-radius:999px!important;
+ font-size:10px!important;line-height:1.2!important;font-weight:800!important;
+ letter-spacing:.015em!important;white-space:nowrap!important;
+ border:1px solid transparent!important;vertical-align:middle!important;
+}
+body[data-portal] .status-badge::before{
+ content:""!important;display:inline-block!important;width:6px!important;height:6px!important;
+ margin-right:6px!important;border-radius:50%!important;background:currentColor!important;flex:0 0 6px!important;
+}
+body[data-portal] .status-success,body[data-portal] .status-active{
+ color:#166534!important;background:#DCFCE7!important;border-color:#BBF7D0!important;
+}
+body[data-portal] .status-pending{
+ color:#92400E!important;background:#FEF3C7!important;border-color:#FDE68A!important;
+}
+body[data-portal] .status-processing{
+ color:#1D4ED8!important;background:#DBEAFE!important;border-color:#BFDBFE!important;
+}
+body[data-portal] .status-failed,body[data-portal] .status-rejected{
+ color:#991B1B!important;background:#FEE2E2!important;border-color:#FECACA!important;
+}
+body[data-portal] .status-cancelled,body[data-portal] .status-expired{
+ color:#475569!important;background:#E2E8F0!important;border-color:#CBD5E1!important;
+}
+body[data-portal] .status-inactive{
+ color:#64748B!important;background:#F1F5F9!important;border-color:#E2E8F0!important;
+}
+body[data-portal] .status-blocked{
+ color:#9F1239!important;background:#FFE4E6!important;border-color:#FECDD3!important;
+}
+body[data-portal] .status-refunded{
+ color:#6D28D9!important;background:#EDE9FE!important;border-color:#DDD6FE!important;
+}
+body[data-portal] .status-neutral{
+ color:#475569!important;background:#F1F5F9!important;border-color:#E2E8F0!important;
+}
+body[data-portal] .status-chip{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ padding:6px 10px!important;border-radius:999px!important;
+ font-size:10px!important;font-weight:800!important;line-height:1.2!important;
+ color:#166534!important;background:#DCFCE7!important;border:1px solid #BBF7D0!important;
+}
+body[data-portal] .status-chip.status-pending{color:#92400E!important;background:#FEF3C7!important;border-color:#FDE68A!important}
+body[data-portal] .status-chip.status-processing{color:#1D4ED8!important;background:#DBEAFE!important;border-color:#BFDBFE!important}
+body[data-portal] .status-chip.status-failed,body[data-portal] .status-chip.status-rejected{color:#991B1B!important;background:#FEE2E2!important;border-color:#FECACA!important}
+body[data-portal] table td .status-badge{margin:1px 0}
