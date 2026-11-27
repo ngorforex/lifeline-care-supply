@@ -2832,3 +2832,126 @@ body[data-portal] .profile-avatar-frame{border-color:#93C5FD!important}
 body[data-portal] .status-success{color:#166534!important;background:#DCFCE7!important}
 body[data-portal] .status-pending{color:#92400E!important;background:#FEF3C7!important}
 body[data-portal] .status-failed{color:#991B1B!important;background:#FEE2E2!important}
+
+
+/* LIFELINE PREMIUM GOLD GLASS — iPhone-inspired visual system */
+:root{
+ --lg-ink:#202329;--lg-muted:#737780;--lg-gold:#B58A3A;--lg-gold-bright:#D7B66D;
+ --lg-gold-soft:#F5EBD5;--lg-glass:rgba(255,255,255,.78);
+ --lg-line:rgba(181,138,58,.19);--lg-shadow:0 14px 38px rgba(35,31,24,.07);
+}
+body[data-portal]{
+ color:#292b30!important;
+ background:linear-gradient(145deg,#F8F7F3 0%,#F1EEE7 48%,#F8F7F3 100%)!important;
+}
+body[data-portal] .main,body[data-portal] .content,body[data-portal] .tab-panel{
+ background:transparent!important;
+}
+body[data-portal] .sidebar,
+body[data-portal] .topbar,
+body[data-portal] .mobile-bottom-nav{
+ background:rgba(255,255,255,.86)!important;
+ border-color:rgba(181,138,58,.16)!important;
+ -webkit-backdrop-filter:blur(24px) saturate(160%)!important;
+ backdrop-filter:blur(24px) saturate(160%)!important;
+ box-shadow:0 8px 28px rgba(31,29,24,.045)!important;
+}
+body[data-portal] .sidebar{border-right:1px solid rgba(181,138,58,.18)!important}
+body[data-portal] .topbar{border-bottom:1px solid rgba(181,138,58,.16)!important}
+body[data-portal] .brand,body[data-portal] .topbar h1,
+body[data-portal] .tab-panel h1,body[data-portal] .tab-panel h2,
+body[data-portal] .tab-panel h3,body[data-portal] .tab-panel h4,
+body[data-portal] .section-heading,body[data-portal] .page-intro h2,
+body[data-portal] .investor-greeting h2{color:#25272c!important}
+body[data-portal] .side-label,body[data-portal] .brand small,
+body[data-portal] .tab-panel p,body[data-portal] .tab-panel small,
+body[data-portal] .tab-panel label,body[data-portal] .metric span,
+body[data-portal] .metric small,body[data-portal] .page-intro p,
+body[data-portal] .muted{color:#737780!important}
+body[data-portal] .panel,body[data-portal] .metric,
+body[data-portal] .card,body[data-portal] .plan-card,
+body[data-portal] .product-card,body[data-portal] .investment-card,
+body[data-portal] .transaction-card,body[data-portal] .profile-card,
+body[data-portal] .profile-details-card,body[data-portal] .home-action-card,
+body[data-portal] .profile-menu,body[data-portal] .password-dialog,
+body[data-portal] .referral-rules,body[data-portal] .profile-hero{
+ background:rgba(255,255,255,.78)!important;
+ color:#292b30!important;
+ border:1px solid rgba(255,255,255,.9)!important;
+ outline:1px solid rgba(181,138,58,.11)!important;
+ border-radius:22px!important;
+ box-shadow:0 12px 32px rgba(35,31,24,.055),inset 0 1px 0 rgba(255,255,255,.9)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(150%)!important;
+ backdrop-filter:blur(18px) saturate(150%)!important;
+}
+body[data-portal] .metric b,body[data-portal] .metric strong,
+body[data-portal] .plan-card h3,body[data-portal] .product-card h3,
+body[data-portal] .investment-card h3,body[data-portal] .panel h3,
+body[data-portal] .profile-menu-item b{color:#25272c!important}
+body[data-portal] .metric [class*="icon"],
+body[data-portal] .ui-icon,body[data-portal] .profile-menu-icon,
+body[data-portal] .profile-detail-icon{color:#A77B2D!important}
+body[data-portal] .side-nav a{color:#62656d!important;border-radius:15px!important}
+body[data-portal] .side-nav a.active,
+body[data-portal] .side-nav a:hover{
+ color:#805D20!important;
+ background:linear-gradient(110deg,rgba(245,235,213,.95),rgba(255,250,239,.82))!important;
+ box-shadow:inset 3px 0 #B58A3A!important;
+}
+body[data-portal] .side-nav a.active .ui-icon{color:#A77B2D!important}
+body[data-portal] button.primary-button,body[data-portal] .primary-button,
+body[data-portal] .button-primary,body[data-portal] .access-submit,
+body[data-portal] button[type="submit"],body[data-portal] .invest-now,
+body[data-portal] .referral-share-button,body[data-portal] .password-primary,
+body[data-portal] [data-action="invest"]{
+ color:#fff!important;
+ background:linear-gradient(135deg,#C49A4A 0%,#A77B2D 52%,#87601F 100%)!important;
+ border:1px solid rgba(255,255,255,.42)!important;
+ border-radius:16px!important;
+ box-shadow:0 9px 22px rgba(145,104,35,.22),inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
+body[data-portal] button.primary-button *,body[data-portal] .primary-button *,
+body[data-portal] .invest-now *,body[data-portal] .referral-share-button *{color:#fff!important}
+body[data-portal] .side-nav a.active,body[data-portal] .mobile-bottom-nav a.active{
+ color:#805D20!important;background:rgba(245,235,213,.9)!important;
+}
+body[data-portal] .mobile-bottom-nav a:nth-child(3),
+body[data-portal] .mobile-bottom-nav a[data-tab="investments"]{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+}
+body[data-portal] .mobile-bottom-nav a:nth-child(3) .ui-icon,
+body[data-portal] .mobile-bottom-nav a[data-tab="investments"] .ui-icon{
+ color:#fff!important;background:linear-gradient(145deg,#C49A4A,#936A27)!important;
+ border-radius:50%!important;box-shadow:0 8px 22px rgba(145,104,35,.28)!important;
+}
+body[data-portal] .mobile-bottom-nav a:nth-child(3) small,
+body[data-portal] .mobile-bottom-nav a[data-tab="investments"] small{color:#936A27!important}
+body[data-portal] input,body[data-portal] select,body[data-portal] textarea{
+ color:#292b30!important;background:rgba(255,255,255,.82)!important;
+ border:1px solid rgba(181,138,58,.2)!important;border-radius:14px!important;
+}
+body[data-portal] input::placeholder,body[data-portal] textarea::placeholder{color:#96979b!important}
+body[data-portal] input:focus,body[data-portal] select:focus,body[data-portal] textarea:focus{
+ outline:none!important;box-shadow:none!important;border-color:rgba(181,138,58,.2)!important;
+}
+body[data-portal] .community-nav-link{
+ color:#4b4d52!important;background:rgba(255,255,255,.72)!important;
+ border:1px solid rgba(181,138,58,.18)!important;border-radius:15px!important;
+}
+body[data-portal] .whatsapp-nav-link .ui-icon{color:#16A34A!important}
+body[data-portal] .telegram-nav-link .ui-icon{color:#229ED9!important}
+body[data-portal] .referral-levels>div,body[data-portal] .referral-url-display,
+body[data-portal] .wallet-summary,body[data-portal] .earnings-summary-grid>*,
+body[data-portal] .referral-stats>*{
+ background:rgba(245,235,213,.52)!important;border:1px solid rgba(181,138,58,.16)!important;
+}
+body[data-portal] .referral-levels b,body[data-portal] .referral-levels strong,
+body[data-portal] .referral-stats strong{color:#936A27!important}
+body[data-portal] .profile-status,body[data-portal] .subtle-tag{
+ color:#805D20!important;background:#F5EBD5!important;border-color:#E7D5AE!important;
+}
+body[data-portal] .profile-photo,body[data-portal] .profile-avatar-frame{border-color:#D7B66D!important}
+body[data-portal] .status-success{color:#166534!important;background:#DCFCE7!important}
+body[data-portal] .status-pending{color:#92400E!important;background:#FEF3C7!important}
+body[data-portal] .status-failed{color:#991B1B!important;background:#FEE2E2!important}
+body[data-portal] .sidebar-bottom .logout{color:#62656d!important}
