@@ -625,3 +625,48 @@ body.auth-page .login-community>p{color:#c1caff}
 body.auth-page .register-home-wordmark .word-care{color:#aab7ff}
 body.auth-page .login-community-links>a.whatsapp-community-link{background:#20b968}
 body.auth-page .login-community-links>a.telegram-community-link{background:#229ed9}
+
+
+/* Readability and contrast correction — login, registration and recovery */
+body.auth-page .access-card{color:#202944}
+body.auth-page .access-card h1,
+body.auth-page .access-card h2,
+body.auth-page .access-card label,
+body.auth-page .access-card p,
+body.auth-page .access-card .reference-register,
+body.auth-page .access-card .register-signin,
+body.auth-page .access-card .access-intro,
+body.auth-page .access-card .field-label{color:#26324d}
+body.auth-page .access-card .reference-options a,
+body.auth-page .access-card .reference-register a,
+body.auth-page .access-card .register-signin a,
+body.auth-page .access-card a:not(.community-icon-link){
+ color:#354db8!important;
+ font-weight:700;
+ text-decoration:underline;
+ text-decoration-color:rgba(53,77,184,.35);
+ text-underline-offset:3px;
+}
+body.auth-page .access-card .access-submit,
+body.auth-page .access-card button.access-submit{
+ background:linear-gradient(110deg,#536be0 0%,#354db8 100%)!important;
+ color:#fff!important;
+ border:1px solid #354db8!important;
+ box-shadow:0 8px 20px rgba(53,77,184,.24)!important;
+}
+body.auth-page .access-card .access-submit span{color:#fff!important}
+body.auth-page .access-card .access-submit svg{stroke:#fff!important;color:#fff!important}
+body.auth-page .access-card .login-community{border-top-color:#d8deed}
+body.auth-page .access-card .login-community>p{
+ color:#354db8!important;
+ font-weight:800;
+ text-shadow:none;
+}
+body.auth-page .access-card .register-home-wordmark .word-care{color:#354db8!important}
+body.auth-page .access-card input::placeholder{color:#77819a;opacity:1}
+body.auth-page .access-card .message{color:#26324d}
+body.auth-page .access-card .access-input,
+body.auth-page .access-card input:not([type=checkbox]){
+ color:#202944;
+}
+body.auth-page .access-card input:focus{border-color:#536be0}
