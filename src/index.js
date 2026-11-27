@@ -302,10 +302,21 @@ async function qualifyReferralCommissions(env, deposit) {
   await env.DB.prepare("UPDATE referrals SET status='qualified',qualified_at=COALESCE(qualified_at,?) WHERE referred_user_id=? AND status='registered'")
     .bind(new Date().toISOString(),deposit.investor_id).run();
 }
-async function confirmObpayTransaction(env, reference) {
+async function verifyObpayDepositTransaction(env, reference, deposit) {
   const data=await obpay(env,"/transactions/"+encodeURIComponent(reference));
+  const actualReference=String(data.reference||data.provider_reference||data.transaction_reference||"");
+  const rawAmount=data.amount??data.amount_minor??data.transaction_amount;
+  const currency=String(data.currency||"").toUpperCase();
+  if(actualReference!==reference||rawAmount===undefined||!Number.isSafeInteger(Number(rawAmount))||Number(rawAmount)!==Number(deposit.amount_minor)||currency!=="UGX") {
+    throw new Error("ObPay deposit verification did not exactly match reference, amount and UGX currency; deposit status remains unchanged.");
+  }
+  return data;
+}
+async function confirmObpayTransaction(env, reference) {
   const row=await env.DB.prepare("SELECT * FROM deposit_requests WHERE reference=? LIMIT 1").bind(reference).first();
-  if(row && providerStatus(data.status || data.payment_status || data.state)==="success") await postDepositCredit(env,row,data);
+  if(!row)throw new Error("Local deposit reference was not found.");
+  const data=await verifyObpayDepositTransaction(env,reference,row);
+  if(providerStatus(data.status||data.payment_status||data.state)==="success") await postDepositCredit(env,row,data);
   return data;
 }
 async function handleObpayWebhook(request, env) {
@@ -395,11 +406,8 @@ async function reconcilePendingObpay(env) {
   let completedDeposits=0,completedWithdrawals=0,failed=0;
   for(const row of deposits.results||[]){
     try{
-      const p=await obpay(env,"/transactions/"+encodeURIComponent(row.reference));
+      const p=await verifyObpayDepositTransaction(env,row.reference,row);
       const status=providerStatus(p.status||p.payment_status||p.state);
-      if(p.reference&&String(p.reference)!==row.reference)continue;
-      if(p.amount!==undefined&&Number(p.amount)!==Number(row.amount_minor))continue;
-      if(p.currency&&String(p.currency).toUpperCase()!=="UGX")continue;
       if(status==="success"){await postDepositCredit(env,row,p);completedDeposits++;}
       else if(status==="failed"){await env.DB.prepare("UPDATE deposit_requests SET status='rejected',provider_status='failed',updated_at=? WHERE id=? AND status='pending'").bind(new Date().toISOString(),row.id).run();failed++;}
     }catch(error){console.warn("Pending ObPay deposit reconciliation deferred:",row.reference,String(error).slice(0,160));}
