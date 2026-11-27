@@ -1915,3 +1915,105 @@ body[data-portal] .mobile-bottom-nav a[data-tab="invest"]{background:linear-grad
 body[data-portal] .top-profile-button{border-color:#d4e5da;background:#e8f3eb}
 body[data-portal] .profile-menu-item:focus-visible,
 body[data-portal] .side-nav a:focus-visible{outline-color:#15977f}
+
+
+/* Distinct Lifeline palette v2 — midnight indigo, cobalt and coral */
+:root{
+ --ink:#202944;
+ --muted:#77819a;
+ --teal:#5268d9;
+ --teal-dark:#394db8;
+ --mint:#e9edff;
+ --paper:#f4f5fa;
+ --line:#e0e4ef;
+ --white:#fff;
+ --navy:#18213b;
+ --lifeline-indigo:#202944;
+ --lifeline-cobalt:#5268d9;
+ --lifeline-coral:#ed806b;
+}
+body[data-portal]{color:#202944;background:#f4f5fa}
+body[data-portal] .sidebar{
+ background:#18213b;
+ border-right-color:#2b3552;
+ color:#f4f6ff;
+}
+body[data-portal] .brand{color:#f4f6ff}
+body[data-portal] .brand small,
+body[data-portal] .side-label{color:#a6b0ca}
+body[data-portal] .brand-icon{
+ background:linear-gradient(145deg,#303e68,#273354);
+ color:#9eafff;
+}
+body[data-portal] .side-nav a{color:#b7c0d8}
+body[data-portal] .side-nav a.active,
+body[data-portal] .side-nav a:hover{
+ background:linear-gradient(100deg,rgba(91,112,224,.28),rgba(91,112,224,.12));
+ color:#fff;
+}
+body[data-portal] .side-nav a.active{box-shadow:inset 3px 0 #8193ff}
+body[data-portal] .logout{color:#c1c9dd}
+body[data-portal] .help-card{
+ background:#242f4e;
+ border-color:#354263;
+ color:#f5f6ff;
+}
+body[data-portal] .help-card p{color:#b5bfd7}
+body[data-portal] .help-card a{color:#aab7ff}
+body[data-portal] .main,
+body[data-portal] .content{background:#f4f5fa}
+body[data-portal] .topbar{
+ background:rgba(255,255,255,.96);
+ border-bottom-color:#e1e5ef;
+}
+body[data-portal] .panel,
+body[data-portal] .metric,
+body[data-portal] .investor-finance-grid .metric{
+ background:#fff;
+ border-color:#e1e5ef;
+ box-shadow:0 5px 22px rgba(31,43,79,.055);
+}
+body[data-portal] .metric .metric-value,
+body[data-portal] .metric strong{color:#202944}
+body[data-portal] .metric .metric-label,
+body[data-portal] .page-intro p{color:#77819a}
+body[data-portal] button.primary-button,
+body[data-portal] .primary-button,
+body[data-portal] .access-submit,
+body[data-portal] button[type="submit"].primary-button{
+ background:linear-gradient(110deg,#6176e8 0%,#465bc9 100%);
+ border-color:#465bc9;
+ color:#fff;
+ box-shadow:0 7px 18px rgba(70,91,201,.2);
+}
+body[data-portal] button.primary-button:hover,
+body[data-portal] .primary-button:hover{filter:brightness(1.06)}
+body[data-portal] .top-profile-button{border-color:#dce2f2;background:#eef0ff}
+body[data-portal] .preview-pill,
+body[data-portal] .subtle-tag{
+ color:#a65b4d;
+ background:#fff0eb;
+ border-color:#f5d7ce;
+}
+body[data-portal] .status-success{color:#187b61;background:#e4f5ee}
+body[data-portal] .status-pending{color:#94621c;background:#fff3dc}
+body[data-portal] .status-failed{color:#b34350;background:#fdebed}
+body[data-portal] .mobile-bottom-nav{
+ background:rgba(255,255,255,.98);
+ border-top-color:#e1e5ef;
+}
+body[data-portal] .mobile-bottom-nav a.active{
+ color:#465bc9;
+ background:#eef0ff;
+}
+body[data-portal] .mobile-bottom-nav .invest-tab,
+body[data-portal] .mobile-bottom-nav a[data-tab="invest"]{
+ background:linear-gradient(145deg,#6176e8,#465bc9);
+ color:#fff;
+}
+body[data-portal] .profile-menu-item:focus-visible,
+body[data-portal] .side-nav a:focus-visible{outline-color:#7185f4}
+body[data-portal] .profile-menu-item .profile-menu-icon{color:#5268d9}
+body[data-portal] input:focus,
+body[data-portal] select:focus,
+body[data-portal] textarea:focus{border-color:#7185f4;box-shadow:0 0 0 3px rgba(82,104,217,.12)}
