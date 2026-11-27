@@ -2684,3 +2684,151 @@ body[data-portal="investor"] .profile-hero-combined .profile-status{
     background:#DBEAFE!important;
   }
 }
+
+
+/* Cross-tab consistency pass: Calm & Professional blue system */
+body[data-portal]{
+ --ink:#1E3A8A!important;
+ --muted:#526B9D!important;
+ --teal:#2563EB!important;
+ --teal-dark:#1D4ED8!important;
+ --mint:#DBEAFE!important;
+ --paper:#EFF6FE!important;
+ --line:#DBEAFE!important;
+ color:#1E3A8A!important;
+ background:#EFF6FE!important;
+}
+body[data-portal] .sidebar,
+body[data-portal] .topbar,
+body[data-portal] .mobile-bottom-nav,
+body[data-portal] .profile-menu,
+body[data-portal] .panel,
+body[data-portal] .metric,
+body[data-portal] .home-action-card,
+body[data-portal] .profile-details-card,
+body[data-portal] .password-dialog{
+ background-color:#fff!important;
+ border-color:#DBEAFE!important;
+}
+body[data-portal] .content,
+body[data-portal] .tab-panel,
+body[data-portal] .main{
+ background-color:#EFF6FE!important;
+}
+body[data-portal] .tab-panel h1,
+body[data-portal] .tab-panel h2,
+body[data-portal] .tab-panel h3,
+body[data-portal] .tab-panel h4,
+body[data-portal] .section-heading,
+body[data-portal] .page-intro,
+body[data-portal] .investor-greeting,
+body[data-portal] .metric strong,
+body[data-portal] .metric b{
+ color:#1E3A8A!important;
+}
+body[data-portal] .tab-panel p,
+body[data-portal] .tab-panel small,
+body[data-portal] .tab-panel label,
+body[data-portal] .metric span,
+body[data-portal] .muted{
+ color:#526B9D!important;
+}
+body[data-portal] .tab-panel .panel,
+body[data-portal] .tab-panel .metric,
+body[data-portal] .tab-panel .card,
+body[data-portal] .tab-panel [class*="card"],
+body[data-portal] .tab-panel [class*="summary"],
+body[data-portal] .tab-panel [class*="stat"]{
+ border-color:#DBEAFE!important;
+}
+body[data-portal] .tab-panel [class*="icon"],
+body[data-portal] .tab-panel .ui-icon,
+body[data-portal] .profile-detail-icon,
+body[data-portal] .profile-menu-icon{
+ color:#2563EB!important;
+}
+body[data-portal] .tab-panel button:not(.profile-logout),
+body[data-portal] .tab-panel .primary-button,
+body[data-portal] .tab-panel .button-primary,
+body[data-portal] .tab-panel [class*="primary"],
+body[data-portal] .tab-panel [class*="submit"],
+body[data-portal] .tab-panel [class*="copy-button"]{
+ border-color:#2563EB;
+}
+body[data-portal] .tab-panel .primary-button,
+body[data-portal] .tab-panel .button-primary,
+body[data-portal] .tab-panel button[type="submit"],
+body[data-portal] .tab-panel .referral-share-button,
+body[data-portal] .tab-panel .password-primary{
+ color:#fff!important;
+ background:linear-gradient(115deg,#2563EB,#3B82F6)!important;
+}
+body[data-portal] .tab-panel input,
+body[data-portal] .tab-panel select,
+body[data-portal] .tab-panel textarea{
+ color:#1E3A8A!important;
+ background:#fff!important;
+ border-color:#DBEAFE!important;
+}
+body[data-portal] .tab-panel input:focus,
+body[data-portal] .tab-panel select:focus,
+body[data-portal] .tab-panel textarea:focus{
+ outline:none!important;
+ box-shadow:none!important;
+ border-color:#DBEAFE!important;
+}
+body[data-portal] .side-nav a,
+body[data-portal] .community-nav-link,
+body[data-portal] .logout{
+ color:#526B9D!important;
+}
+body[data-portal] .side-nav a.active,
+body[data-portal] .side-nav a:hover{
+ color:#1D4ED8!important;
+ background:#DBEAFE!important;
+}
+body[data-portal] .side-nav a .ui-icon{color:currentColor!important}
+body[data-portal] .community-nav-link{
+ display:flex;align-items:center;gap:14px;
+ min-height:48px;padding:10px 12px;margin:4px 0;
+ border:1px solid #DBEAFE;border-radius:14px;
+ background:#EFF6FE!important;font-weight:700;
+}
+body[data-portal] .community-nav-link .ui-icon{width:21px;height:21px;flex:0 0 21px}
+body[data-portal] .whatsapp-nav-link .ui-icon{color:#16A34A!important}
+body[data-portal] .telegram-nav-link .ui-icon{color:#229ED9!important}
+body[data-portal] .community-nav-link .community-external{margin-left:auto;color:#64748B!important}
+body[data-portal] .sidebar-bottom{display:flex;flex-direction:column;gap:8px}
+body[data-portal] .mobile-bottom-nav a.active{
+ color:#1D4ED8!important;background:#DBEAFE!important;
+}
+body[data-portal] .mobile-bottom-nav a:nth-child(3),
+body[data-portal] .mobile-bottom-nav a[data-tab="investments"]{
+ background:transparent!important;box-shadow:none!important;border:0!important;
+}
+body[data-portal] .mobile-bottom-nav a:nth-child(3) .ui-icon,
+body[data-portal] .mobile-bottom-nav a[data-tab="investments"] .ui-icon{
+ color:#fff!important;background:linear-gradient(145deg,#2563EB,#3B82F6)!important;
+ border-radius:50%!important;
+}
+body[data-portal] .mobile-bottom-nav a:nth-child(3) small,
+body[data-portal] .mobile-bottom-nav a[data-tab="investments"] small{color:#1D4ED8!important}
+body[data-portal] .referral-levels>div,
+body[data-portal] .referral-url-display,
+body[data-portal] .wallet-summary,
+body[data-portal] .earnings-summary-grid>*,
+body[data-portal] .referral-stats>*{
+ background:#EFF6FE!important;border-color:#DBEAFE!important;
+}
+body[data-portal] .referral-levels b,
+body[data-portal] .referral-levels strong,
+body[data-portal] .referral-stats strong{color:#2563EB!important}
+body[data-portal] .profile-status,
+body[data-portal] .subtle-tag{
+ color:#1D4ED8!important;background:#DBEAFE!important;border-color:#BFDBFE!important;
+}
+body[data-portal] .profile-photo,
+body[data-portal] .profile-avatar-frame{border-color:#93C5FD!important}
+body[data-portal] .status-success{color:#166534!important;background:#DCFCE7!important}
+body[data-portal] .status-pending{color:#92400E!important;background:#FEF3C7!important}
+body[data-portal] .status-failed{color:#991B1B!important;background:#FEE2E2!important}
