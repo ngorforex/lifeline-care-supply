@@ -2216,3 +2216,131 @@ body[data-portal] .password-dialog input:focus{
  outline:none!important;
  box-shadow:none!important;
 }
+
+
+/* LIFELINE GOVERNMENT & PROFESSIONAL THEME — Calm blue */
+:root{
+ --lifeline-bg:#EFF6FE;
+ --lifeline-surface:#DBEAFF;
+ --lifeline-primary:#2563EB;
+ --lifeline-secondary:#3B82F6;
+ --lifeline-text:#1E3A8A;
+ --lifeline-border:#C9DCF7;
+ --lifeline-muted:#536B91;
+}
+body[data-portal]{
+ color:#1E3A8A!important;
+ background:#EFF6FE!important;
+}
+body[data-portal] .main,
+body[data-portal] .content,
+body[data-portal] .page-content,
+body[data-portal] .workspace{
+ background:#EFF6FE!important;
+ color:#1E3A8A!important;
+}
+body[data-portal] .sidebar{
+ background:#fff!important;
+ border-right:1px solid #DBEAFF!important;
+ color:#1E3A8A!important;
+}
+body[data-portal] .brand,
+body[data-portal] .brand strong,
+body[data-portal] .page-title,
+body[data-portal] h1,
+body[data-portal] h2,
+body[data-portal] h3,
+body[data-portal] .section-title{
+ color:#1E3A8A!important;
+}
+body[data-portal] .brand small,
+body[data-portal] .side-label,
+body[data-portal] .page-intro p,
+body[data-portal] .metric-label,
+body[data-portal] .muted,
+body[data-portal] .help-text{
+ color:#536B91!important;
+}
+body[data-portal] .side-nav a{color:#52698F!important}
+body[data-portal] .side-nav a.active,
+body[data-portal] .side-nav a:hover{
+ color:#1D4ED8!important;
+ background:#DBEAFF!important;
+ box-shadow:inset 3px 0 #2563EB!important;
+}
+body[data-portal] .topbar,
+body[data-portal] .header,
+body[data-portal] .mobile-bottom-nav{
+ background:#fff!important;
+ border-color:#DBEAFF!important;
+}
+body[data-portal] .panel,
+body[data-portal] .metric,
+body[data-portal] .card,
+body[data-portal] .plan-card,
+body[data-portal] .product-card,
+body[data-portal] .investment-card,
+body[data-portal] .transaction-card,
+body[data-portal] .profile-card,
+body[data-portal] .home-action-card,
+body[data-portal] .investor-finance-grid .metric{
+ color:#1E3A8A!important;
+ background:#fff!important;
+ border:1px solid #DBEAFF!important;
+ box-shadow:0 5px 20px rgba(37,99,235,.07)!important;
+}
+body[data-portal] .metric-value,
+body[data-portal] .metric strong,
+body[data-portal] .plan-card h3,
+body[data-portal] .product-card h3,
+body[data-portal] .investment-card h3,
+body[data-portal] .card h3,
+body[data-portal] .home-action-card strong{
+ color:#1E3A8A!important;
+}
+body[data-portal] .metric-label,
+body[data-portal] .plan-card p,
+body[data-portal] .product-card p,
+body[data-portal] .investment-card p{
+ color:#536B91!important;
+}
+body[data-portal] .plan-card [class*="detail"],
+body[data-portal] .product-card [class*="detail"],
+body[data-portal] .investment-card [class*="detail"],
+body[data-portal] .plan-card .metric,
+body[data-portal] .product-card .metric{
+ background:#EFF6FE!important;
+ border-color:#DBEAFF!important;
+ color:#1E3A8A!important;
+}
+body[data-portal] button.primary-button,
+body[data-portal] .primary-button,
+body[data-portal] .button-primary,
+body[data-portal] .access-submit,
+body[data-portal] button[type="submit"],
+body[data-portal] .invest-now,
+body[data-portal] [data-action="invest"]{
+ background:linear-gradient(110deg,#2563EB,#3B82F6)!important;
+ border-color:#2563EB!important;
+ color:#fff!important;
+ box-shadow:0 6px 16px rgba(37,99,235,.18)!important;
+}
+body[data-portal] a,
+body[data-portal] .text-link{color:#1D4ED8}
+body[data-portal] .top-profile-button{border-color:#DBEAFF!important;background:#EFF6FE!important}
+body[data-portal] .mobile-bottom-nav a.active{
+ color:#1D4ED8!important;
+ background:#DBEAFF!important;
+}
+body[data-portal] .mobile-bottom-nav .invest-tab,
+body[data-portal] .mobile-bottom-nav a[data-tab="invest"]{
+ color:#fff!important;
+ background:linear-gradient(145deg,#2563EB,#3B82F6)!important;
+}
+body[data-portal] .status-success{color:#166534!important;background:#DCFCE7!important}
+body[data-portal] .status-pending{color:#92400E!important;background:#FEF3C7!important}
+body[data-portal] .status-failed{color:#991B1B!important;background:#FEE2E2!important}
+body[data-portal] input:focus,
+body[data-portal] input:focus-visible,
+body[data-portal] select:focus,
+body[data-portal] textarea:focus{border-color:inherit!important;outline:none!important;box-shadow:none!important}
