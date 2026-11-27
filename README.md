@@ -31,7 +31,7 @@ The following customer API flows are implemented in `src/index.js`; they are not
 - **Investments:** `POST /api/investor/investments` purchases a published package only after the investor accepts its current terms and has sufficient available wallet funds.
 - **Daily check-in:** `/api/investor/daily-checkin` exposes the once-per-EAT-day reward claim.
 
-ObPay collection is implemented. Automatic payouts are deliberately fail-closed (`OBPAY_PAYOUTS_ENABLED = false`) until the merchant's saved payout-fee mode is independently confirmed. The Worker must not assume `account` mode from a hard-coded value. The ObPay secret must be configured as the `OBPAY_SECRET_KEY` Worker secret.
+ObPay collection is implemented. Automatic payouts are enabled with the ObPay merchant dashboard's `account` fee preference confirmed by screenshot on 27 November 2026. In this mode ObPay charges payout fees to the merchant wallet and the recipient receives the full net withdrawal amount submitted by the platform. The Worker validates the payout response's fee mode, recipient amount and total debit, reserves investor funds before submission, and only settles the ledger after provider verification. If ObPay exposes a conflicting fee mode or incomplete payout response, the withdrawal remains in processing for reconciliation. The ObPay secret must be configured as the `OBPAY_SECRET_KEY` Worker secret.
 
 ### Payment verification and operational status
 
@@ -73,7 +73,7 @@ Production deployments are managed through Cloudflare Workers Builds from GitHub
 Before declaring real-money transactions ready for unrestricted customer use, verify all of the following:
 
 1. `OBPAY_SECRET_KEY` is present as a Worker secret and the live ObPay account is the intended merchant account.
-2. The merchant dashboard's payout fee mode matches the mode assumed by the Worker; do not rely solely on the hard-coded `account` value.
+2. The merchant dashboard payout preference remains set to `I pay — charge fees to my wallet` (account mode), matching the Worker configuration.
 3. A controlled deposit succeeds end to end: provider final status, exact transaction matching, one wallet credit, and balanced ledger entries.
 4. A controlled payout succeeds end to end: recipient verification, fee/debit amounts, reserved funds, final provider status, and balanced ledger settlement.
 5. Duplicate callbacks, repeated reconciliation and uncertain provider responses do not duplicate credits, payouts, refunds or ledger postings.
