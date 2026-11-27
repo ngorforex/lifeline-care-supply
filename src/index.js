@@ -254,8 +254,9 @@ async function postDepositCredit(env, deposit, provider) {
   const currency=String(rawCurrency).toUpperCase();
   const providerRef=String(rawReference);
   const providerId=String(provider.transaction_id || provider.transactionId || provider.id || provider.provider_transaction_id || "");
-  const providerPhone=String(rawPhone).replace(/\D/g,"");
-  const expectedPhone=String(deposit.payment_phone_e164||"").replace(/\D/g,"");
+  const normalizeUgPhone=value=>{let digits=String(value||"").replace(/\D/g,"");if(digits.startsWith("0"))digits="256"+digits.slice(1);return digits;};
+  const providerPhone=normalizeUgPhone(rawPhone);
+  const expectedPhone=normalizeUgPhone(deposit.payment_phone_e164);
   if (!Number.isSafeInteger(amount) || amount!==Number(deposit.amount_minor) || currency!=="UGX" || providerRef!==deposit.reference || !providerPhone || !expectedPhone || providerPhone!==expectedPhone || !providerId) {
     throw new Error("ObPay transaction does not exactly match the local deposit reference, amount, currency, payer phone and provider transaction ID.");
   }
