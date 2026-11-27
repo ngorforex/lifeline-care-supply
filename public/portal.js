@@ -434,9 +434,42 @@ if(!isAdmin){
   const chevron=button.querySelector(".profile-chevron");
   if(chevron)chevron.textContent=expanded?"⌄":"⌃";
  });
+ const passwordDialog=document.querySelector("[data-password-dialog]");
+ const passwordForm=document.querySelector("[data-password-change-form]");
+ const passwordMessage=document.querySelector("[data-password-change-message]");
+ const closePasswordDialog=()=>{
+  if(passwordDialog)passwordDialog.hidden=true;
+  passwordForm?.reset();
+  if(passwordMessage){passwordMessage.textContent="";passwordMessage.className="password-dialog-message";}
+ };
  document.querySelectorAll("[data-profile-action='password']").forEach(button=>button.addEventListener("click",()=>{
-  window.alert("Password management is not available yet. The secure password-change service must be implemented before this control can update credentials.");
+  if(passwordDialog){passwordDialog.hidden=false;passwordDialog.querySelector("input")?.focus();}
  }));
+ document.querySelectorAll("[data-password-close]").forEach(button=>button.addEventListener("click",closePasswordDialog));
+ passwordDialog?.addEventListener("click",event=>{if(event.target===passwordDialog)closePasswordDialog();});
+ document.addEventListener("keydown",event=>{if(event.key==="Escape"&&passwordDialog&&!passwordDialog.hidden)closePasswordDialog();});
+ passwordForm?.addEventListener("submit",async event=>{
+  event.preventDefault();
+  const values=Object.fromEntries(new FormData(passwordForm).entries());
+  const submit=passwordForm.querySelector('button[type="submit"]');
+  if(values.newPassword!==values.confirmPassword){passwordMessage.textContent="The new passwords do not match.";return;}
+  passwordMessage.textContent="";passwordMessage.className="password-dialog-message";
+  submit.disabled=true;submit.textContent="Updating…";
+  try{
+   const response=await fetch("/api/investor/password/change",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({currentPassword:values.currentPassword,newPassword:values.newPassword})});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(result.error||"Password could not be updated.");
+   passwordMessage.textContent="Password updated. Other signed-in devices have been logged out.";
+   passwordMessage.classList.add("success");
+   passwordForm.reset();
+   setTimeout(closePasswordDialog,1800);
+  }catch(error){
+   passwordMessage.textContent=error.message||"Password could not be updated. Try again.";
+   passwordMessage.classList.add("error");
+  }finally{
+   submit.disabled=false;submit.textContent="Update password";
+  }
+ });
  document.querySelectorAll("[data-support-placeholder]").forEach(link=>link.addEventListener("click",event=>{
   event.preventDefault();
   window.alert("The official Telegram and live-support links have not been configured in this project yet.");
