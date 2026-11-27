@@ -893,3 +893,37 @@ body.auth-page textarea:focus{
  outline:none!important;box-shadow:none!important;border-color:rgba(181,138,58,.2)!important;
 }
 body.auth-page .login-community>p{color:#936A27!important}
+
+
+/* Revert golden-glass experiment; restore Calm & Professional blue authentication */
+body.auth-page{color:#1E3A8A!important;background:#EFF6FE!important;accent-color:#2563EB!important}
+body.auth-page .access-card,body.auth-page .access-panel,body.auth-page .auth-card,
+body.auth-page .reference-login .access-card{
+ background:rgba(255,255,255,.96)!important;color:#1E3A8A!important;
+ border:1px solid #DBEAFE!important;outline:none!important;border-radius:24px!important;
+ box-shadow:0 12px 32px rgba(37,99,235,.09)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+body.auth-page .access-card h1,body.auth-page .access-card h2,
+body.auth-page .form-heading h2,body.auth-page .access-title,
+body.auth-page .access-heading,body.auth-page .reference-heading h1{color:#1E3A8A!important}
+body.auth-page .access-card p,body.auth-page .access-card label,
+body.auth-page .access-field small,body.auth-page .form-heading p,
+body.auth-page .reference-heading p{color:#526B9D!important}
+body.auth-page .access-input,body.auth-page .access-card input:not([type=checkbox]),
+body.auth-page input,body.auth-page select,body.auth-page textarea{
+ color:#1E3A8A!important;background:#fff!important;border:1px solid #DBEAFE!important;border-radius:14px!important;
+}
+body.auth-page input::placeholder,body.auth-page textarea::placeholder{color:#8296B8!important}
+body.auth-page .access-submit,body.auth-page button[type="submit"],body.auth-page .primary-button{
+ color:#fff!important;background:linear-gradient(115deg,#2563EB,#3B82F6)!important;
+ border:1px solid #2563EB!important;border-radius:14px!important;box-shadow:0 8px 22px rgba(37,99,235,.2)!important;
+}
+body.auth-page .access-submit *,body.auth-page button[type="submit"] *{color:#fff!important}
+body.auth-page .access-card a:not(.community-icon-link),
+body.auth-page .reference-options a,body.auth-page .reference-register a{color:#1D4ED8!important}
+body.auth-page .login-community>p{color:#1E3A8A!important}
+body.auth-page .access-input:focus-within,body.auth-page input:focus,
+body.auth-page input:focus-visible,body.auth-page select:focus,body.auth-page textarea:focus{
+ outline:none!important;box-shadow:none!important;border-color:#DBEAFE!important;
+}
