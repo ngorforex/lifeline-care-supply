@@ -124,7 +124,7 @@ async function grantWelcomeBonus(env, userId) {
       .bind(walletId, userId, now),
     env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts (id, owner_user_id, account_code, currency, account_name, created_at) VALUES ('platform-welcome-bonus-expense', NULL, 'PLATFORM_WELCOME_BONUS_EXPENSE', 'UGX', 'Welcome bonus expense', ?)")
       .bind(now),
-    env.DB.prepare("INSERT OR IGNORE INTO ledger_transactions (id, reference, idempotency_key, transaction_type, status, currency, related_entity_type, related_entity_id, description, created_by_user_id, posted_at, created_at) VALUES (?, ?, ?, 'welcome_bonus', 'posted', 'UGX', 'user', ?, 'Registration welcome bonus after first successful login', ?, ?, ?)")
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_transactions (id, reference, idempotency_key, transaction_type, status, currency, related_entity_type, related_entity_id, description, created_by_user_id, posted_at, created_at) VALUES (?, ?, ?, 'welcome_bonus', 'posted', 'UGX', 'user', ?, 'Registration bonus credited upon successful account creation', ?, ?, ?)")
       .bind(transactionId, reference, idempotencyKey, userId, userId, now, now),
     env.DB.prepare("INSERT OR IGNORE INTO ledger_entries (id, transaction_id, account_id, side, amount_minor, currency, created_at) VALUES (?, ?, 'platform-welcome-bonus-expense', 'debit', ?, 'UGX', ?)")
       .bind("welcome-bonus-debit-" + userId, transactionId, amount, now),
@@ -133,6 +133,22 @@ async function grantWelcomeBonus(env, userId) {
     env.DB.prepare("INSERT OR IGNORE INTO audit_logs (id, actor_user_id, action, entity_type, entity_id, metadata, created_at) VALUES (?, ?, 'investor.welcome_bonus_credited', 'user', ?, ?, ?)")
       .bind("welcome-bonus-audit-" + userId, userId, userId, JSON.stringify({ amountUGX: amount, trigger: "first_successful_login" }), now)
   ]);
+}
+async function grantDailyCheckIn(env,userId) {
+  const setting=await env.DB.prepare("SELECT setting_value FROM platform_settings WHERE setting_key=? LIMIT 1").bind("daily_checkin_bonus_ugx").first();
+  const amount=Number(setting?.setting_value);
+  if(!Number.isSafeInteger(amount)||amount<=0)throw new Error("Daily check-in bonus setting is missing or invalid.");
+  const now=new Date(),date=new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Kampala",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+  const createdAt=now.toISOString(),walletId="wallet-"+userId,transactionId="daily-checkin-"+userId+"-"+date,reference="DC-"+userId+"-"+date;
+  await env.DB.batch([
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts(id,owner_user_id,account_code,currency,account_name,created_at) VALUES(?,?,'WALLET_AVAILABLE','UGX','Available wallet balance',?)").bind(walletId,userId,createdAt),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_accounts(id,owner_user_id,account_code,currency,account_name,created_at) VALUES('platform-daily-checkin-expense',NULL,'PLATFORM_DAILY_CHECKIN_EXPENSE','UGX','Daily check-in bonus expense',?)").bind(createdAt),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_transactions(id,reference,idempotency_key,transaction_type,status,currency,related_entity_type,related_entity_id,description,created_by_user_id,posted_at,created_at) VALUES(?,?,?,'daily_checkin_bonus','posted','UGX','user',?,'Daily login check-in bonus',?,?,?)").bind(transactionId,reference,"daily_checkin:"+userId+":"+date,userId,userId,createdAt,createdAt),
+    env.DB.prepare("INSERT OR IGNORE INTO daily_checkins(user_id,checkin_date,amount_minor,ledger_transaction_id,created_at) VALUES(?,?,?,?,?)").bind(userId,date,amount,transactionId,createdAt),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) VALUES(?,?, 'platform-daily-checkin-expense','debit',?,'UGX',?)").bind("daily-checkin-debit-"+userId+"-"+date,transactionId,amount,createdAt),
+    env.DB.prepare("INSERT OR IGNORE INTO ledger_entries(id,transaction_id,account_id,side,amount_minor,currency,created_at) VALUES(?,?,?,'credit',?,'UGX',?)").bind("daily-checkin-credit-"+userId+"-"+date,transactionId,walletId,amount,createdAt)
+  ]);
+  return {date,amount};
 }
 
 async function currentAdmin(request, env) {
@@ -806,6 +822,7 @@ async function authApi(request, env, url) {
           .bind(crypto.randomUUID(), referrer.owner_user_id, userId, now, referralCodeInput));
       }
       await env.DB.batch(statements);
+      await grantWelcomeBonus(env,userId);
     } catch (error) {
       console.error("Investor registration transaction failed:", error);
       if (String(error).includes("UNIQUE")) return json({ error: "Unable to create account with those details. Check the phone number or sign in." }, 409);
@@ -850,6 +867,7 @@ async function authApi(request, env, url) {
     if (!row || !valid || row.status !== "active") return json({ error: "Invalid phone number or password." }, 401);
     try {
       await grantWelcomeBonus(env, row.id);
+      await grantDailyCheckIn(env,row.id);
     } catch (error) {
       console.error("Welcome bonus posting failed after successful authentication:", error);
       return json({ error: "Sign-in could not be completed because account setup is incomplete. Please try again shortly." }, 503);
@@ -882,7 +900,7 @@ async function authApi(request, env, url) {
     const investor=await currentInvestor(request,env); if(!investor)return json({error:"Authentication required."},401);
     let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
     const amount=Number(data.amount), phone=typeof data.phone==="string"?data.phone.trim():investor.phone_e164;
-    const min=Number(await setting(env,"minimum_deposit_ugx","10000"));
+    const min=Number(await setting(env,"minimum_deposit_ugx","15000"));
     if(!Number.isSafeInteger(amount)||amount<min||amount>10000000||!validPhone(phone))return json({error:"Enter a valid mobile-money number and a whole-UGX deposit between UGX "+min+" and UGX 10,000,000."},400);
     const id=crypto.randomUUID(),reference="LCSDEP"+Date.now().toString(36).toUpperCase()+randomToken(5).replace(/[^A-Z0-9]/gi,"").toUpperCase();
     const now=new Date().toISOString();
@@ -921,7 +939,7 @@ async function authApi(request, env, url) {
     let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
     const amount=Number(data.amount),phone=typeof data.phone==="string"?data.phone.trim():investor.phone_e164;
     const recipientName=typeof data.recipientName==="string"?data.recipientName.trim():"";
-    const min=Number(await setting(env,"minimum_withdrawal_ugx","2000"));
+    const min=Number(await setting(env,"minimum_withdrawal_ugx","5000"));
     if(!Number.isSafeInteger(amount)||amount<min||amount>100000000||!validPhone(phone)||!validName(recipientName))return json({error:"Enter a valid amount, registered mobile-money number and recipient account name."},400);
     // Verify the Uganda MTN/Airtel recipient on the server before reserving any funds.
     // ObPay's name-check endpoint never moves money; never trust a name typed by the investor.
