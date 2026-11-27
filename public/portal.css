@@ -1383,8 +1383,8 @@ body[data-portal="admin"] .brand{gap:12px;text-decoration:none}
 body[data-portal="admin"] .brand-icon{width:48px;height:48px;flex:0 0 48px;padding:0;background:transparent;border-radius:14px;overflow:hidden}
 body[data-portal="admin"] .heart-brand-icon{display:block;width:100%;height:100%}
 body[data-portal="admin"] .brand-wordmark{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px;color:#173e3b;font-size:16px;letter-spacing:-.04em}
-body[data-portal="admin"] .brand-wordmark strong{font-weight:500;text-decoration:underline;text-underline-offset:2px}
-body[data-portal="admin"] .brand-wordmark b{font-weight:800;text-decoration:underline;text-underline-offset:2px}
+body[data-portal="admin"] .brand-wordmark strong{font-weight:500;text-decoration:none}
+body[data-portal="admin"] .brand-wordmark b{font-weight:800;text-decoration:none}
 body[data-portal="admin"] .brand-wordmark small{flex-basis:100%;font-size:9px;letter-spacing:.17em;color:#78918a;margin-top:2px}
 body[data-portal="admin"] .overview-metrics{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 20px}
 body[data-portal="admin"] .overview-metrics .metric{min-height:112px;display:flex;flex-direction:column;justify-content:space-between}
@@ -1769,3 +1769,8 @@ body[data-portal="investor"] .password-secondary,body[data-portal="investor"] .p
 body[data-portal="investor"] .password-secondary{border:1px solid #dcebe5;background:#fff;color:#56736a}
 body[data-portal="investor"] .password-primary{border:1px solid #0d928b;background:#109b8f;color:#fff}
 body[data-portal="investor"] .password-primary:disabled{opacity:.65;cursor:wait}
+
+
+/* Unified link presentation across investor and administrator workspaces */
+body[data-portal] a,body[data-portal] a:visited,body[data-portal] a:hover,body[data-portal] a:active,body[data-portal] a:focus{text-decoration:none}
+body[data-portal] a:focus-visible{outline:2px solid #119b93;outline-offset:3px;border-radius:5px}
