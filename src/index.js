@@ -46,13 +46,13 @@ async function passwordHash(password, salt) {
   return bytesToBase64(new Uint8Array(bits));
 }
 async function yoolaVerify(env, endpoint, payload) {
-  if (typeof env.YOOLA_SMS_KEY !== "string" || env.YOOLA_API_KEY.length < 16) {
+  if (typeof env.YOOLA_SMS_KEY !== "string" || env.YOOLA_SMS_KEY.length < 16) {
     throw new Error("Yoola SMS is not configured.");
   }
   const response = await fetch("https://yoolasms.com/api/v1/" + endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Accept": "application/json" },
-    body: JSON.stringify({ ...payload, api_key: env.YOOLA_API_KEY })
+    body: JSON.stringify({ ...payload, api_key: env.YOOLA_SMS_KEY })
   });
   const raw = await response.text();
   let data = {};
