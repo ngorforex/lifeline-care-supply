@@ -30,3 +30,18 @@ body{color:#292b30;background:linear-gradient(145deg,#F8F7F3,#F1EEE7 55%,#F8F7F3
 /* Revert public-page gold tint; restore cool professional neutral background */
 :root{--lifeline-gold:#2563EB;--lifeline-gold-light:#3B82F6;--lifeline-ink:#1E3A8A;--lifeline-bg:#EFF6FE}
 body{color:#1E3A8A;background:#EFF6FE}
+
+
+/* Premium glass treatment for public landing surfaces, retaining blue identity */
+:root{--lifeline-gold:#2563EB;--lifeline-gold-light:#3B82F6;--lifeline-ink:#1E3A8A;--lifeline-bg:#F4F8FE}
+body{
+ color:#1E3A8A!important;
+ background:linear-gradient(145deg,#F7FAFF,#EEF4FC 55%,#F8FAFD)!important;
+}
+.site-header,.main-nav,.main-visual-card,.floating-note,.package-placeholder,.access-panel{
+ background:rgba(255,255,255,.76)!important;
+ border:1px solid rgba(255,255,255,.9)!important;
+ box-shadow:0 12px 32px rgba(31,62,112,.07),inset 0 1px 0 rgba(255,255,255,.9)!important;
+ -webkit-backdrop-filter:blur(20px) saturate(160%)!important;
+ backdrop-filter:blur(20px) saturate(160%)!important;
+}
