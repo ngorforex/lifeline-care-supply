@@ -427,7 +427,7 @@ async function recordObpayHealth(env) {
     try{
       const hooks=await obpay(env,"/webhooks");
       const list=Array.isArray(hooks.webhooks)?hooks.webhooks:Array.isArray(hooks)?hooks:[];
-      const expected="https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook";
+      const expected="https://lifelinesupply.xyz/obpay/webhook";
       const match=list.find(item=>item.url===expected&&item.active!==false);
       webhookState=match?"registered":"missing";
       webhookEvents=JSON.stringify(match?.events||[]);
@@ -645,7 +645,7 @@ async function authApi(request, env, url) {
       try{
         const hooks=await obpay(env,"/webhooks");
         const list=Array.isArray(hooks.webhooks)?hooks.webhooks:Array.isArray(hooks)?hooks:[];
-        const expected="https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook";
+        const expected="https://lifelinesupply.xyz/obpay/webhook";
         const match=list.find(item=>item.url===expected&&item.active!==false);
         webhookRegistered=Boolean(match);webhookEvents=Array.isArray(match?.events)?match.events:[];
       }catch(error){console.warn("ObPay webhook inspection failed:",String(error).slice(0,120));}
@@ -668,7 +668,7 @@ async function authApi(request, env, url) {
       const payoutConfigurationReady=OBPAY_PAYOUTS_ENABLED===true&&payoutFeeModeVerified&&webhookRegistered&&missingWebhookEvents.length===0&&payoutMethodsReady;
       const fundingStatus=balanceStatus!=="available"||balance?.available===null?"unverified":Number(balance.available)<=0?"empty":"funds_present";
       const payoutReadiness=!payoutConfigurationReady?"blocked":fundingStatus==="empty"?"funding_required":fundingStatus==="unverified"?"funding_unverified":"configured";
-      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",accountStatus,accountDetails,accountPayoutFeeMode,merchantPaidFeesConfigured:payoutFeeModeVerified,merchantFeePreferenceSource:"ObPay account response when exposed; otherwise merchant dashboard screenshot confirmed 2026-11-27",webhookRegistered,webhookEvents,missingWebhookEvents,payoutMethodsStatus,payoutMethods,payoutMethodsReady,balanceStatus,balance,fundingStatus,payoutsEnabled:OBPAY_PAYOUTS_ENABLED===true,payoutFeeModeConfigured:OBPAY_PAYOUT_FEE_MODE==="account",payoutFeeModeVerified,payoutWebhookEventsReady:missingWebhookEvents.length===0,payoutConfigurationReady,payoutReadiness,message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
+      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifelinesupply.xyz/obpay/webhook",accountStatus,accountDetails,accountPayoutFeeMode,merchantPaidFeesConfigured:payoutFeeModeVerified,merchantFeePreferenceSource:"ObPay account response when exposed; otherwise merchant dashboard screenshot confirmed 2026-11-27",webhookRegistered,webhookEvents,missingWebhookEvents,payoutMethodsStatus,payoutMethods,payoutMethodsReady,balanceStatus,balance,fundingStatus,payoutsEnabled:OBPAY_PAYOUTS_ENABLED===true,payoutFeeModeConfigured:OBPAY_PAYOUT_FEE_MODE==="account",payoutFeeModeVerified,payoutWebhookEventsReady:missingWebhookEvents.length===0,payoutConfigurationReady,payoutReadiness,message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
     }catch(error){
       console.error("ObPay credential check failed:",error);
       return json({configured:true,reachable:false,authenticated:false,error:"ObPay authentication or connectivity check failed."},502);
@@ -1168,7 +1168,7 @@ async function authApi(request, env, url) {
         phone_number:payoutPhone,
         customer_name:verifiedName,
         reference,
-        callback_url:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",
+        callback_url:"https://lifelinesupply.xyz/obpay/webhook",
         description:"Lifeline Care Supply investor withdrawal",
         metadata:{investor_id:investor.id,withdrawal_id:id}
       },true);
