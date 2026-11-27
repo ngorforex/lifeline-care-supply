@@ -560,6 +560,15 @@ async function authApi(request, env, url) {
     if(!env.OBPAY_SECRET_KEY||!env.OBPAY_WEBHOOK_SIGNING_SECRET)return json({configured:false,error:"ObPay credentials are not fully configured."},503);
     try{
       const ping=await obpay(env,"/ping");
+      let accountStatus="unavailable",merchantId=null,accountPayoutFeeMode=null,accountDetails=null;
+      try {
+        const account=await obpay(env,"/account");
+        accountStatus="available";
+        merchantId=account.merchant_id||account.merchantId||account.id||null;
+        const feeMode=account.payout_fee_mode??account.payoutFeeMode??account.fee_mode??account.feeMode??account.payout_fee_preference??account.payoutFeePreference??null;
+        accountPayoutFeeMode=feeMode===null?null:String(feeMode).toLowerCase();
+        accountDetails={merchantId:merchantId?String(merchantId).slice(0,80):null,recordCounts:account.record_counts||account.recordCounts||null};
+      } catch(error) { console.warn("ObPay merchant account inspection failed:",String(error).slice(0,120)); }
       let webhookRegistered=false,webhookEvents=[],payoutMethodsStatus="unavailable",payoutMethods=[],balanceStatus="unavailable",balance=null;
       try{
         const hooks=await obpay(env,"/webhooks");
@@ -581,7 +590,10 @@ async function authApi(request, env, url) {
         balance={currency:"UGX",available:Number.isFinite(amount)?amount:null,pending:result.pending_balance??result.pending??null};
         balanceStatus="available";
       }catch(error){console.warn("ObPay UGX balance inspection failed:",String(error).slice(0,120));}
-      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",webhookRegistered,webhookEvents,payoutMethodsStatus,payoutMethods,balanceStatus,balance,payoutsEnabled:OBPAY_PAYOUTS_ENABLED===true,payoutFeeModeConfigured:OBPAY_PAYOUT_FEE_MODE==="account",payoutWebhookEventsReady:webhookEvents.includes("payout.success")&&webhookEvents.includes("payout.failed"),payoutReadiness:OBPAY_PAYOUTS_ENABLED===true&&OBPAY_PAYOUT_FEE_MODE==="account"&&webhookRegistered&&webhookEvents.includes("payout.success")&&webhookEvents.includes("payout.failed")&&payoutMethodsStatus==="available"?"configured":"blocked",message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
+      const missingWebhookEvents=["payout.success","payout.failed"].filter(event=>!webhookEvents.includes(event));
+      const payoutMethodsReady=payoutMethodsStatus==="available"&&payoutMethods.some(method=>method.enabled&&/mtn/i.test(method.code+" "+method.name))&&payoutMethods.some(method=>method.enabled&&/airtel/i.test(method.code+" "+method.name));
+      const payoutFeeModeVerified=accountPayoutFeeMode==="account";
+      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",accountStatus,accountDetails,accountPayoutFeeMode,merchantPaidFeesConfigured:payoutFeeModeVerified,webhookRegistered,webhookEvents,missingWebhookEvents,payoutMethodsStatus,payoutMethods,payoutMethodsReady,balanceStatus,balance,payoutsEnabled:OBPAY_PAYOUTS_ENABLED===true,payoutFeeModeConfigured:OBPAY_PAYOUT_FEE_MODE==="account",payoutFeeModeVerified,payoutWebhookEventsReady:missingWebhookEvents.length===0,payoutReadiness:OBPAY_PAYOUTS_ENABLED===true&&payoutFeeModeVerified&&webhookRegistered&&missingWebhookEvents.length===0&&payoutMethodsReady?"configured":"blocked",message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
     }catch(error){
       console.error("ObPay credential check failed:",error);
       return json({configured:true,reachable:false,authenticated:false,error:"ObPay authentication or connectivity check failed."},502);
