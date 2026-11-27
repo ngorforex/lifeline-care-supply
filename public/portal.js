@@ -201,8 +201,8 @@ function renderDashboard(data){
   if(!recentItems.length){const empty=document.createElement("div");empty.className="empty-state";empty.textContent="No transaction activity has been recorded yet.";recentTx.append(empty);}
   else for(const item of recentItems){
    const row=document.createElement("div");row.className="recent-transaction";
-   const info=document.createElement("div");const label=document.createElement("b");label.textContent=item.type+" · "+(item.status||"pending");
-   const date=document.createElement("small");date.textContent=dateEAT(item.createdAt);info.append(label,date);
+   const info=document.createElement("div");const label=document.createElement("b");label.textContent=item.type||"Transaction";const status=statusBadge(item.status||"pending");status.classList.add("recent-status-badge");
+   const date=document.createElement("small");date.textContent=dateEAT(item.createdAt);info.append(label,status,date);
    const amount=document.createElement("strong");amount.textContent=amountMinor(item.amountMinor,item.currency);row.append(info,amount);recentTx.append(row);
   }
  }
