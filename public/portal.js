@@ -18,7 +18,25 @@ document.querySelectorAll("[data-tab]").forEach(link=>link.addEventListener("cli
 const initialTab=location.hash.slice(1);if(initialTab&&document.getElementById("panel-"+initialTab))activateTab(initialTab);
 document.querySelectorAll(".year").forEach(item=>item.textContent=String(new Date().getFullYear()));
 function setText(selector,value){document.querySelectorAll(selector).forEach(el=>{el.textContent=value??"—";});}
-function cell(row,value){const td=document.createElement("td");td.textContent=value??"—";row.append(td);}
+function statusKey(value){
+ const raw=String(value??"").trim().toLowerCase().replace(/[\\s-]+/g,"_");
+ const aliases={success:"success",successful:"success",complete:"success",completed:"success",paid:"success",settled:"success",active:"active",approved:"success",pending:"pending",processing:"processing",queued:"processing",initiated:"processing",awaiting_payment:"pending",awaiting_confirmation:"pending",failed:"failed",failure:"failed",rejected:"rejected",cancelled:"cancelled",canceled:"cancelled",expired:"expired",inactive:"inactive",suspended:"inactive",blocked:"blocked",refunded:"refunded",reversed:"refunded"};
+ return aliases[raw]||"neutral";
+}
+function statusLabel(value){
+ const key=statusKey(value);if(key==="neutral")return String(value??"—").replaceAll("_"," ").replace(/\\b\\w/g,ch=>ch.toUpperCase());
+ const labels={success:"Successful",active:"Active",pending:"Pending",processing:"Processing",failed:"Failed",rejected:"Rejected",cancelled:"Cancelled",expired:"Expired",inactive:"Inactive",blocked:"Blocked",refunded:"Refunded"};
+ return labels[key]||String(value);
+}
+function statusBadge(value){
+ const badge=document.createElement("span");badge.className="status-badge status-"+statusKey(value);badge.textContent=statusLabel(value);return badge;
+}
+function cell(row,value){
+ const td=document.createElement("td");
+ if(statusKey(value)!=="neutral")td.append(statusBadge(value));
+ else td.textContent=value??"—";
+ row.append(td);
+}
 function dateEAT(value){
  if(!value)return "—";
  const date=new Date(value);if(Number.isNaN(date.getTime()))return "—";
@@ -228,7 +246,7 @@ if(isAdmin){
   if(!records?.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=(defs.length||1)+(hasActions?1:0);td.className="empty-cell";td.textContent="No records found.";tr.append(td);tbody.append(tr);return;}
   for(const item of records){
    const tr=document.createElement("tr");
-   for(const [,get] of defs){const td=document.createElement("td");td.textContent=String(get(item)??"—");tr.append(td);}
+   for(const [label,get] of defs){const td=document.createElement("td");const value=get(item);if(label==="STATUS")td.append(statusBadge(value));else td.textContent=String(value??"—");tr.append(td);}
    if(hasActions){
     const td=document.createElement("td");
     const addAction=(label,url)=>{const b=document.createElement("button");b.type="button";b.className="admin-row-action";b.textContent=label;b.addEventListener("click",async()=>{b.disabled=true;try{const response=await fetch(url,{method:"POST",credentials:"same-origin",headers:{"Accept":"application/json"}});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Action failed.");loadAdminSection(location.hash.slice(1)||"overview");}catch(error){adminError(error.message);}finally{b.disabled=false;}});td.append(b);};
