@@ -128,9 +128,7 @@ function renderDashboard(data){
    const details=document.createElement("div");details.className="package-details";
    const fields=[["Investment amount",price],["Duration",Number(p.duration_days||0)+" days"],["Daily income",daily],["Total projected return",total]];
    for(const [label,value] of fields){const item=document.createElement("div");item.className="package-detail";const caption=document.createElement("span");caption.textContent=label;const amount=document.createElement("b");amount.textContent=typeof value==="number"?new Intl.NumberFormat("en-UG").format(value)+" UGX":value;item.append(caption,amount);details.append(item);}
-   const note=document.createElement("p");note.className="package-risk-note";
-   note.textContent="Review the investment terms and disclosed risks before investing.";
-   body.append(heading,status,details,note);
+   body.append(heading,status,details);
    const buy=document.createElement("button");buy.type="button";buy.className="primary-button package-invest-button";buy.textContent="Invest now";
    buy.addEventListener("click",()=>openPackagePurchase(p));body.append(buy);
    card.append(image,body);packages.append(card);
