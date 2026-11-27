@@ -17,58 +17,58 @@
 
 
 /* Lifeline Care Supply investor access theme — aligned with the main portal */
-:root{color-scheme:light;--bg:#f2f8f5;--panel:rgba(255,255,255,.88);--panel2:#eaf6f1;--line:#dcebe5;--text:#173e3b;--muted:#71847e;--lime:#b9f16d;--green:#0d928b;--mint:#79d9c4}
-html,body{color:#173e3b}
-body.auth-page{background:#eef7f3;color:#173e3b}
-.access-page{background:#dff4ef url("/auth-bg.svg") center/cover fixed no-repeat;color:#173e3b}
+:root{color-scheme:light;--bg:#f2f8f5;--panel:rgba(255,255,255,.88);--panel2:#eaf6f1;--line:#DBEAFE;--text:#1E3A8A;--muted:#71847e;--lime:#b9f16d;--green:#2563EB;--mint:#79d9c4}
+html,body{color:#1E3A8A}
+body.auth-page{background:#eef7f3;color:#1E3A8A}
+.access-page{background:#dff4ef url("/auth-bg.svg") center/cover fixed no-repeat;color:#1E3A8A}
 .access-page:before{opacity:.12;background-image:radial-gradient(rgba(13,146,139,.35) .6px,transparent .75px);mask-image:linear-gradient(115deg,#000,transparent 70%)}
 .access-page:after{border-color:rgba(13,146,139,.13);box-shadow:0 0 0 35px rgba(13,146,139,.025),0 0 0 90px rgba(13,146,139,.02),inset 0 0 100px rgba(13,146,139,.06)}
 .access-header{border-bottom:1px solid rgba(23,62,59,.12)}
-.access-brand{color:#173e3b}
-.access-brand-text{color:#173e3b}
-.access-brand-text b{color:#0d928b}
+.access-brand{color:#1E3A8A}
+.access-brand-text{color:#1E3A8A}
+.access-brand-text b{color:#2563EB}
 .access-header-right{color:#6f8981}
 .access-live i{background:#24b99f;box-shadow:0 0 0 4px rgba(36,185,159,.12),0 0 13px rgba(36,185,159,.3)}
 .access-header-rule{background:rgba(23,62,59,.2)}
 .access-content{gap:clamp(30px,6vw,90px)}
 .access-overline{color:#66827a}
-.access-overline span{color:#0d928b}
-.access-intro h1{color:#173e3b}
-.access-intro h1 em{background:linear-gradient(90deg,#0d928b,#59c9a9 75%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.access-overline span{color:#2563EB}
+.access-intro h1{color:#1E3A8A}
+.access-intro h1 em{background:linear-gradient(90deg,#2563EB,#59c9a9 75%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .access-intro p{color:#637b73}
-.access-intro:after{background:linear-gradient(90deg,#0d928b,#9ce7c9);box-shadow:0 0 20px rgba(13,146,139,.18)}
-.access-card{background:rgba(255,255,255,.88);border:1px solid rgba(13,146,139,.18);color:#173e3b;box-shadow:0 24px 70px rgba(35,90,76,.13),inset 0 1px rgba(255,255,255,.9);backdrop-filter:blur(22px)}
+.access-intro:after{background:linear-gradient(90deg,#2563EB,#9ce7c9);box-shadow:0 0 20px rgba(13,146,139,.18)}
+.access-card{background:rgba(255,255,255,.88);border:1px solid rgba(13,146,139,.18);color:#1E3A8A;box-shadow:0 24px 70px rgba(35,90,76,.13),inset 0 1px rgba(255,255,255,.9);backdrop-filter:blur(22px)}
 .access-card:before{background:linear-gradient(90deg,transparent,#8adac8,transparent)}
-.card-topline{color:#78918a;border-color:#e5efea}
-.card-topline-mark{color:#0d928b}
-.access-tabs{border:1px solid #e1eee8;background:#f1f7f4}
+.card-topline{color:#526B9D;border-color:#e5efea}
+.card-topline-mark{color:#2563EB}
+.access-tabs{border:1px solid #DBEAFE;background:#f1f7f4}
 .access-tabs a{color:#6f8780}
 .access-tabs a.selected{color:#fff;background:linear-gradient(110deg,#159d94,#48c6a9);box-shadow:0 5px 20px rgba(13,146,139,.18)}
-.form-kicker{color:#0d928b}
-.form-heading h2{color:#173e3b}
+.form-kicker{color:#2563EB}
+.form-heading h2{color:#1E3A8A}
 .form-heading h2 span{color:#ed8e80}
 .form-heading p{color:#6e827b}
 .access-field label{color:#52736b}
-.access-input{border:1px solid #dcebe5;background:rgba(255,255,255,.92)}
+.access-input{border:1px solid #DBEAFE;background:rgba(255,255,255,.92)}
 .access-input:focus-within{border-color:#42b9a7;box-shadow:0 0 0 3px rgba(13,146,139,.1),0 0 22px rgba(13,146,139,.06);background:#fff}
-.access-input input{color:#173e3b}
+.access-input input{color:#1E3A8A}
 .access-input input::placeholder{color:#94a69f}
-.field-icon,.field-prefix,.field-symbol{color:#0d928b}
+.field-icon,.field-prefix,.field-symbol{color:#2563EB}
 .access-field small{color:#81958d}
-.reveal-password{color:#0d928b}
-.access-submit{border:1px solid #0d928b;background:linear-gradient(105deg,#0d928b,#43bda3);color:#fff;box-shadow:0 9px 24px rgba(13,146,139,.18)}
+.reveal-password{color:#2563EB}
+.access-submit{border:1px solid #2563EB;background:linear-gradient(105deg,#2563EB,#43bda3);color:#fff;box-shadow:0 9px 24px rgba(13,146,139,.18)}
 .access-submit:hover{filter:brightness(1.04)}
 .access-assist{background:#eff8f4;border:1px solid #e0eee8;color:#607970}
-.assist-icon{background:#dff3eb;color:#0d928b}
+.assist-icon{background:#dff3eb;color:#2563EB}
 .access-card-bottom{border-color:#e5efea;color:#879a93}
-.bottom-mark{color:#0d928b}
+.bottom-mark{color:#2563EB}
 .access-footer{color:#71877f;border-color:rgba(23,62,59,.12)}
-.access-footer a{color:#0d928b}
+.access-footer a{color:#2563EB}
 .background-stamp{color:rgba(13,146,139,.045)}
 @media(max-width:760px){
  .access-page{background-image:linear-gradient(rgba(239,249,245,.34),rgba(255,246,242,.34)),url("/auth-bg.svg");background-position:center;background-size:cover;background-attachment:scroll}
  .access-content{gap:12px;padding:28px 0 36px}
- .access-intro h1{color:#173e3b}
+ .access-intro h1{color:#1E3A8A}
  .access-intro p{color:#637b73}
  .access-card{background:rgba(255,255,255,.91);border-radius:22px}
  .access-header-right{font-size:8px}
@@ -103,7 +103,7 @@ button,a,[role=button]{-webkit-tap-highlight-color:transparent}
 
 
 /* New Lifeline medical artwork authentication experience */
-body.auth-page{background:#eaf7f3!important;color:#173e3b}
+body.auth-page{background:#eaf7f3!important;color:#1E3A8A}
 .access-page{
  min-height:100svh!important;padding:clamp(14px,3vw,34px)!important;
  display:flex!important;align-items:center!important;justify-content:center!important;
@@ -124,15 +124,15 @@ body.auth-page{background:#eaf7f3!important;color:#173e3b}
 .access-card:before{display:none}
 .card-topline{justify-content:center!important;padding:0!important;margin:0 0 18px!important;border:0!important}
 .card-topline>span:first-child{display:none}
-.card-topline-mark{font:800 10px Manrope,sans-serif!important;letter-spacing:.22em!important;color:#138f86!important}
+.card-topline-mark{font:800 10px Manrope,sans-serif!important;letter-spacing:.22em!important;color:#2563EB!important}
 .access-tabs{display:none!important}
-.access-brand{justify-content:center!important;color:#173e3b!important}
+.access-brand{justify-content:center!important;color:#1E3A8A!important}
 .heart-brand-icon{width:58px!important;height:58px!important;flex-basis:58px!important}
 .access-brand-text{font-size:clamp(19px,4vw,25px)!important;color:#123b35!important}
-.access-brand-text b{color:#138f86!important}
+.access-brand-text b{color:#2563EB!important}
 .form-heading{text-align:center!important;margin:0 0 25px!important}
 .form-kicker{font-size:9px!important;letter-spacing:.2em!important;color:#168e83!important}
-.form-heading h2{font-size:clamp(27px,6vw,36px)!important;letter-spacing:-.055em!important;color:#123d36!important;margin:9px 0!important}
+.form-heading h2{font-size:clamp(27px,6vw,36px)!important;letter-spacing:-.055em!important;color:#1E3A8A!important;margin:9px 0!important}
 .form-heading h2 span{color:#1ab49f!important}
 .form-heading p{font-size:13px!important;color:#637b74!important;line-height:1.55!important}
 .access-form{gap:17px!important}
@@ -140,7 +140,7 @@ body.auth-page{background:#eaf7f3!important;color:#173e3b}
 .access-field label{font-size:9px!important;color:#315f55!important;letter-spacing:.1em!important}
 .access-input{height:56px!important;border-radius:14px!important;background:rgba(255,255,255,.84)!important;border:1px solid #dcebe6!important;padding:0 16px!important}
 .access-input:focus-within{background:#fff!important;border-color:#28b5a2!important;box-shadow:0 0 0 3px rgba(30,177,158,.11)!important}
-.access-input input{font-size:14px!important;color:#173e3b!important}
+.access-input input{font-size:14px!important;color:#1E3A8A!important}
 .access-input input::placeholder{color:#899b95!important}
 .field-icon,.reveal-password .field-icon{stroke:#167d70!important}
 .access-field small{font-size:10px!important;color:#71877f!important}
@@ -149,10 +149,10 @@ body.auth-page{background:#eaf7f3!important;color:#173e3b}
 .access-submit:hover{filter:brightness(1.04)!important;transform:translateY(-1px)}
 .message{font-size:11px!important;color:#b64040!important}
 .message.success{color:#16805f!important}
-.access-assist{margin-top:19px!important;padding:13px 14px!important;border:1px solid #e1eee8!important;border-radius:13px!important;background:rgba(240,249,245,.8)!important}
+.access-assist{margin-top:19px!important;padding:13px 14px!important;border:1px solid #DBEAFE!important;border-radius:13px!important;background:rgba(240,249,245,.8)!important}
 .assist-icon{background:#e2f5ee!important;color:#118f83!important;border-color:#d4eee4!important}
 .access-assist p,.access-assist p b{color:#627b72!important}
-.access-card-bottom{justify-content:center!important;margin-top:18px!important;padding-top:14px!important;border-top:1px solid #e5efea!important;color:#78918a!important;font-size:8px!important}
+.access-card-bottom{justify-content:center!important;margin-top:18px!important;padding-top:14px!important;border-top:1px solid #e5efea!important;color:#526B9D!important;font-size:8px!important}
 .access-card-bottom .bottom-mark{color:#13a99a!important}
 .access-card-bottom span:last-child{display:none}
 @media(max-width:650px){
@@ -188,7 +188,7 @@ body[data-portal="investor"] .profile-logout-group [data-logout-feedback]:empty{
 /* Brand lockup centered above the access form */
 .card-topline{display:flex!important;flex-direction:column!important;gap:5px!important}
 .card-topline:before{content:"♡";display:block;font:400 66px/1 Arial,sans-serif;color:#18b99f;text-shadow:0 3px 15px rgba(24,185,159,.14)}
-.card-topline:after{content:"Lifeline Care Supply";display:block;font:800 clamp(20px,4vw,25px)/1.15 Manrope,sans-serif;letter-spacing:-.045em;color:#123d36}
+.card-topline:after{content:"Lifeline Care Supply";display:block;font:800 clamp(20px,4vw,25px)/1.15 Manrope,sans-serif;letter-spacing:-.045em;color:#1E3A8A}
 .card-topline-mark{display:none!important}
 
 
@@ -214,11 +214,11 @@ body.auth-page{background:#eaf7f3!important}
 .reference-login .access-card{width:100%!important;padding:24px 22px 21px!important;border-radius:26px!important;background:rgba(255,255,255,.80)!important;box-shadow:0 16px 48px rgba(25,84,73,.12),inset 0 1px 0 rgba(255,255,255,.95)!important}
 .reference-brand{text-align:center;margin:0 auto 25px}
 .reference-brand svg{display:block;width:76px;height:68px;margin:0 auto 7px}
-.reference-brand-name{font:800 clamp(21px,5vw,27px)/1.15 Manrope,sans-serif;letter-spacing:-.045em;color:#103e37}
+.reference-brand-name{font:800 clamp(21px,5vw,27px)/1.15 Manrope,sans-serif;letter-spacing:-.045em;color:#1E3A8A}
 .reference-brand-sub{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px;font:700 10px/1 "DM Sans",sans-serif;letter-spacing:.28em;color:#214d46}
 .reference-brand-sub span{width:34px;height:2px;border-radius:2px;background:#1bbba5}
 .reference-heading{text-align:center;margin:0 0 25px}
-.reference-heading h1{margin:0 0 5px;font:800 clamp(27px,6vw,34px)/1.1 Manrope,sans-serif;letter-spacing:-.055em;color:#103e37}
+.reference-heading h1{margin:0 0 5px;font:800 clamp(27px,6vw,34px)/1.1 Manrope,sans-serif;letter-spacing:-.055em;color:#1E3A8A}
 .reference-heading p{margin:0;font:400 14px/1.5 "DM Sans",sans-serif;color:#435c57}
 .reference-form{gap:14px!important}
 .reference-form .access-field{gap:0!important}
@@ -384,13 +384,13 @@ body.auth-page:has(form[data-auth-form="register"]) .access-card-bottom{
 
 
 /* Registration brand lockup and returning-investor sign-in */
-.register-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;margin:0 auto 24px;text-decoration:none;color:#173e3b;text-align:center}
+.register-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;margin:0 auto 24px;text-decoration:none;color:#1E3A8A;text-align:center}
 .register-brand svg{width:70px;height:59px;display:block;filter:drop-shadow(0 4px 10px rgba(13,146,139,.12))}
-.register-brand-name{font:800 25px/1.15 Manrope,sans-serif;letter-spacing:-.055em;color:#173e3b}
+.register-brand-name{font:800 25px/1.15 Manrope,sans-serif;letter-spacing:-.055em;color:#1E3A8A}
 .register-brand-sub{display:flex;align-items:center;justify-content:center;gap:12px;color:#287f75;font:800 9px/1 "DM Sans",sans-serif;letter-spacing:.28em;margin-top:3px}
 .register-brand-sub i{display:block;width:28px;height:2px;border-radius:2px;background:#38bca5}
 .register-signin{padding-top:17px;margin-top:2px;border-top:1px solid #e5efea;text-align:center;color:#71847e;font-size:12px;line-height:1.5}
-.register-signin a{color:#0d928b;font-weight:800;text-decoration:none;margin-left:5px;transition:color .18s ease}.register-signin a:hover{color:#087d77}
+.register-signin a{color:#2563EB;font-weight:800;text-decoration:none;margin-left:5px;transition:color .18s ease}.register-signin a:hover{color:#087d77}
 @media(max-width:650px){.register-brand{gap:6px;margin-bottom:19px}.register-brand svg{width:58px;height:49px}.register-brand-name{font-size:22px}.register-brand-sub{font-size:8px;letter-spacing:.23em}.register-signin{font-size:11px;padding-top:14px}}
 
 /* Registration uses the exact heartbeat logo lockup from the sign-in/home access brand. */
@@ -426,7 +426,7 @@ body.auth-page:has(form[data-auth-form="register"]) .reference-brand-name {
   display:block!important;
   font:800 clamp(21px,5vw,27px)/1.15 Manrope,sans-serif!important;
   letter-spacing:-.045em!important;
-  color:#103e37!important;
+  color:#1E3A8A!important;
 }
 body.auth-page:has(form[data-auth-form="register"]) .reference-brand-sub {
   display:flex!important;
@@ -437,13 +437,13 @@ body.auth-page:has(form[data-auth-form="register"]) .reference-brand-sub {
 /* Registration logo mirrors the compact heartbeat mark and wordmark in the investor homepage header. */
 .register-home-brand{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 auto 20px;min-height:48px}
 .register-home-heart{display:block;width:48px;height:48px;flex:0 0 48px}
-.register-home-wordmark{display:flex;align-items:baseline;gap:3px;white-space:nowrap;font:750 16px/1 Manrope,sans-serif;letter-spacing:-.035em;color:#173e3b}
+.register-home-wordmark{display:flex;align-items:baseline;gap:3px;white-space:nowrap;font:750 16px/1 Manrope,sans-serif;letter-spacing:-.035em;color:#1E3A8A}
 .register-home-wordmark .word-lifeline{font-weight:800}
 .register-home-wordmark .word-care{font-weight:600;color:#238f80}
 .register-home-wordmark .word-supply{font-family:Georgia,serif;font-style:italic;font-weight:700;letter-spacing:-.02em}
 @media(max-width:420px){.register-home-brand{gap:9px}.register-home-heart{width:43px;height:43px;flex-basis:43px}.register-home-wordmark{font-size:14px}}
 
-.recovery-hint{display:block;color:#718580;font-size:10px;line-height:1.6;margin:-3px 2px 2px}
+.recovery-hint{display:block;color:#526B9D;font-size:10px;line-height:1.6;margin:-3px 2px 2px}
 [data-reset-complete][hidden], [data-reset-request][hidden]{display:none!important}
 [data-reset-complete] .access-field label{font-size:11px;font-weight:700;color:#52736b}
 [data-reset-complete] .access-input input{width:100%;min-width:0}
@@ -542,7 +542,7 @@ body.auth-page .login-community-links>a.telegram-community-link{background:#229e
  --text:#f5faf6;
  --muted:#a8bdb2;
  --lime:#d5b36b;
- --green:#15977f;
+ --green:#2563EB;
  --mint:#80c9a8;
 }
 body.auth-page{accent-color:#138a78}
@@ -554,10 +554,10 @@ body.auth-page .access-page{
 }
 body.auth-page .access-page:before{background-image:radial-gradient(rgba(128,201,168,.5) .65px,transparent .75px)}
 body.auth-page .access-logo{border-color:rgba(201,155,69,.55);background:linear-gradient(145deg,rgba(201,155,69,.14),rgba(21,151,127,.08))}
-body.auth-page .access-logo i{background:linear-gradient(145deg,#e1c27f,#15977f)}
+body.auth-page .access-logo i{background:linear-gradient(145deg,#e1c27f,#2563EB)}
 body.auth-page .access-submit{
- background:linear-gradient(110deg,#15977f 0%,#0d7565 100%);
- border-color:#0d7565;
+ background:linear-gradient(110deg,#2563EB 0%,#2563EB 100%);
+ border-color:#2563EB;
  box-shadow:0 10px 25px rgba(13,117,101,.2);
 }
 body.auth-page .access-submit:hover{box-shadow:0 13px 30px rgba(13,117,101,.28)}
@@ -581,7 +581,7 @@ body.auth-page .register-home-wordmark .word-care{color:#168b78}
  --line:rgba(174,187,255,.2);
  --text:#f7f8ff;
  --muted:#b0bad2;
- --lime:#f09a83;
+ --lime:#3B82F6;
  --green:#6176e8;
  --mint:#aab7ff;
 }
@@ -620,7 +620,7 @@ body.auth-page .access-input:focus-within{
 }
 body.auth-page input:focus-visible,
 body.auth-page button:focus-visible,
-body.auth-page a:focus-visible{outline-color:#f09a83}
+body.auth-page a:focus-visible{outline-color:#3B82F6}
 body.auth-page .login-community>p{color:#c1caff}
 body.auth-page .register-home-wordmark .word-care{color:#aab7ff}
 body.auth-page .login-community-links>a.whatsapp-community-link{background:#20b968}
