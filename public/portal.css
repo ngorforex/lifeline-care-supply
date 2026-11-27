@@ -2477,3 +2477,103 @@ body[data-portal] input:focus,
 body[data-portal] input:focus-visible,
 body[data-portal] select:focus,
 body[data-portal] textarea:focus{outline:none!important;box-shadow:none!important;border-color:#DBEAFE!important}
+
+
+/* Final consistency pass for the Calm & Professional blue system */
+body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3),
+body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3).active,
+body[data-portal="investor"] .mobile-bottom-nav a[data-tab="investments"]{
+  position:relative!important;
+  transform:translateY(-8px)!important;
+  min-height:60px!important;
+  padding:0 4px!important;
+  gap:3px!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#1D4ED8!important;
+}
+body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3) .ui-icon,
+body[data-portal="investor"] .mobile-bottom-nav a[data-tab="investments"] .ui-icon{
+  display:block!important;
+  width:54px!important;
+  height:54px!important;
+  flex:0 0 54px!important;
+  padding:13px!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:linear-gradient(145deg,#2563EB,#3B82F6)!important;
+  color:#fff!important;
+  stroke:#fff!important;
+  box-shadow:0 7px 18px rgba(37,99,235,.25)!important;
+}
+body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3)>small,
+body[data-portal="investor"] .mobile-bottom-nav a[data-tab="investments"]>small{
+  color:#1D4ED8!important;
+  background:transparent!important;
+  font-size:10px!important;
+  font-weight:750!important;
+}
+body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3) *,
+body[data-portal="investor"] .mobile-bottom-nav a[data-tab="investments"] *{
+  border-radius:initial;
+}
+body[data-portal="investor"] .mobile-bottom-nav a:nth-child(3).active{
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body[data-portal="investor"] .referral-levels>div{
+  background:#EFF6FE!important;
+  border-color:#DBEAFE!important;
+}
+body[data-portal="investor"] .referral-levels span{color:#526B9D!important}
+body[data-portal="investor"] .referral-levels b{color:#2563EB!important}
+body[data-portal="investor"] .referral-levels small{color:#64748B!important}
+body[data-portal="investor"] .referral-highlight{
+  background:linear-gradient(120deg,#DBEAFE,#EFF6FE)!important;
+}
+body[data-portal="investor"] .referral-link-placeholder{
+  border-color:#BFDBFE!important;
+  color:#1E3A8A!important;
+  background:#F8FAFF!important;
+}
+body[data-portal="investor"] .referral-stats b,
+body[data-portal="investor"] .referral-stats strong{color:#1E3A8A!important}
+body[data-portal="investor"] .referral-copy,
+body[data-portal="investor"] .copy-referral,
+body[data-portal="investor"] [data-copy-referral]{
+  background:#2563EB!important;color:#fff!important;border-color:#2563EB!important;
+}
+body[data-portal="investor"] .profile-menu-icon{
+  background:#DBEAFE!important;
+  color:#2563EB!important;
+}
+body[data-portal="investor"] .profile-menu-icon .ui-icon,
+body[data-portal="investor"] .profile-hero-details>.ui-icon{
+  color:#2563EB!important;stroke:#2563EB!important;
+}
+body[data-portal="investor"] .profile-avatar{
+  background:#DBEAFE!important;color:#1D4ED8!important;
+}
+body[data-portal="investor"] .profile-photo{
+  border-color:#BFDBFE!important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.12)!important;
+}
+body[data-portal="investor"] .profile-upload-button,
+body[data-portal="investor"] .profile-edit-button{
+  background:#2563EB!important;color:#fff!important;border-color:#2563EB!important;
+}
+body[data-portal="investor"] .profile-menu-item[aria-expanded="true"] .profile-chevron{
+  color:#2563EB!important;
+}
+body[data-portal="investor"] .profile-status,
+body[data-portal="investor"] .account-status,
+body[data-portal="investor"] .status-active{
+  color:#1D4ED8!important;background:#DBEAFE!important;border-color:#BFDBFE!important;
+}
+body[data-portal="investor"] .referral-levels *,
+body[data-portal="investor"] .profile-menu-icon *{
+  text-shadow:none!important;
+}
