@@ -571,3 +571,57 @@ body.auth-page button:focus-visible,
 body.auth-page a:focus-visible{outline-color:#c9a65f}
 body.auth-page .login-community>p{color:#247d70}
 body.auth-page .register-home-wordmark .word-care{color:#168b78}
+
+
+/* Distinct Lifeline authentication palette v2 — indigo, cobalt and coral */
+:root{
+ --bg:#171f38;
+ --panel:#222d4b;
+ --panel2:#2b385b;
+ --line:rgba(174,187,255,.2);
+ --text:#f7f8ff;
+ --muted:#b0bad2;
+ --lime:#f09a83;
+ --green:#6176e8;
+ --mint:#aab7ff;
+}
+body.auth-page{accent-color:#5268d9}
+body.auth-page .access-page{
+ background:
+  radial-gradient(ellipse at 8% 12%,rgba(82,104,217,.28),transparent 36%),
+  radial-gradient(ellipse at 94% 82%,rgba(237,128,107,.16),transparent 34%),
+  linear-gradient(125deg,#171f38 0%,#222d4b 52%,#19233f 100%);
+}
+body.auth-page .access-page:before{
+ background-image:radial-gradient(rgba(174,187,255,.5) .65px,transparent .75px);
+}
+body.auth-page .access-page:after{
+ border-color:rgba(170,183,255,.16);
+ box-shadow:0 0 0 35px rgba(170,183,255,.035),0 0 0 90px rgba(170,183,255,.025),inset 0 0 100px rgba(82,104,217,.1);
+}
+body.auth-page .access-logo{
+ border-color:rgba(237,128,107,.55);
+ background:linear-gradient(145deg,rgba(237,128,107,.16),rgba(82,104,217,.1));
+}
+body.auth-page .access-logo i{background:linear-gradient(145deg,#ffb19b,#7185f4)}
+body.auth-page .access-submit{
+ background:linear-gradient(110deg,#6176e8 0%,#465bc9 100%);
+ border-color:#465bc9;
+ box-shadow:0 10px 25px rgba(70,91,201,.24);
+}
+body.auth-page .access-submit:hover{box-shadow:0 13px 30px rgba(70,91,201,.32)}
+body.auth-page a{color:#aab7ff}
+body.auth-page .reference-options a,
+body.auth-page .reference-register a,
+body.auth-page .register-signin a{color:#aab7ff}
+body.auth-page .access-input:focus-within{
+ border-color:rgba(113,133,244,.78);
+ box-shadow:0 0 0 3px rgba(82,104,217,.15);
+}
+body.auth-page input:focus-visible,
+body.auth-page button:focus-visible,
+body.auth-page a:focus-visible{outline-color:#f09a83}
+body.auth-page .login-community>p{color:#c1caff}
+body.auth-page .register-home-wordmark .word-care{color:#aab7ff}
+body.auth-page .login-community-links>a.whatsapp-community-link{background:#20b968}
+body.auth-page .login-community-links>a.telegram-community-link{background:#229ed9}
