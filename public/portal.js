@@ -137,7 +137,7 @@ function renderDashboard(data){
   }
  }
  const purchaseDialog=document.createElement("dialog");purchaseDialog.className="payment-dialog";
- purchaseDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" type="button" aria-label="Close dialog">×</button><span class="kicker">INVESTMENT CONFIRMATION</span><h2 data-package-title>Investment package</h2><div data-package-terms></div><div class="purchase-confirm-note"><span aria-hidden="true">✓</span><p>Review the package details and risk disclosure before confirming.</p></div><button class="primary-button" type="submit" data-package-submit>Confirm investment</button><p class="payment-result" role="status" data-package-result></p></form>';
+ purchaseDialog.innerHTML='<form method="dialog" class="payment-dialog-form"><button class="dialog-close" type="button" aria-label="Close dialog">×</button><span class="kicker">INVESTMENT CONFIRMATION</span><h2 data-package-title>Investment package</h2><div data-package-terms></div><button class="primary-button" type="submit" data-package-submit>Confirm investment</button><p class="payment-result" role="status" data-package-result></p></form>';
  document.body.append(purchaseDialog);
  purchaseDialog.querySelector(".dialog-close").addEventListener("click",()=>{if(purchaseDialog.open)purchaseDialog.close("cancel");selectedPackage=null;});
  purchaseDialog.addEventListener("click",event=>{if(event.target===purchaseDialog){purchaseDialog.close("cancel");selectedPackage=null;}});
@@ -151,7 +151,6 @@ function renderDashboard(data){
   const host=purchaseDialog.querySelector("[data-package-terms]");host.replaceChildren();
   const rows=[["Investment amount",Number(pkg.investment_amount)],["Duration",Number(pkg.duration_days)+" days"],["Daily income",Number(terms.daily_income_ugx||0)],["Total projected return",Number(terms.total_return_ugx||0)]];
   for(const [label,value] of rows){const line=document.createElement("p");line.textContent=label+": "+(typeof value==="number"?new Intl.NumberFormat("en-UG").format(value)+" UGX":value);host.append(line);}
-  const risk=document.createElement("p");risk.textContent=pkg.risk_disclosure||"Review the investment risks before proceeding.";host.append(risk);
   purchaseDialog.querySelector("[data-package-result]").textContent="";
   const submit=purchaseDialog.querySelector("[data-package-submit]");submit.disabled=false;submit.textContent="Confirm investment";
   purchaseDialog.showModal();
