@@ -665,7 +665,7 @@ async function authApi(request, env, url) {
       const payoutConfigurationReady=OBPAY_PAYOUTS_ENABLED===true&&payoutFeeModeVerified&&webhookRegistered&&missingWebhookEvents.length===0&&payoutMethodsReady;
       const fundingStatus=balanceStatus!=="available"||balance?.available===null?"unverified":Number(balance.available)<=0?"empty":"funds_present";
       const payoutReadiness=!payoutConfigurationReady?"blocked":fundingStatus==="empty"?"funding_required":fundingStatus==="unverified"?"funding_unverified":"configured";
-      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",accountStatus,accountDetails,accountPayoutFeeMode,merchantPaidFeesConfigured:payoutFeeModeVerified,merchantFeePreferenceSource:"Verified from the ObPay account response when exposed; otherwise requires merchant-dashboard confirmation",webhookRegistered,webhookEvents,missingWebhookEvents,payoutMethodsStatus,payoutMethods,payoutMethodsReady,balanceStatus,balance,fundingStatus,payoutsEnabled:OBPAY_PAYOUTS_ENABLED===true,payoutFeeModeConfigured:OBPAY_PAYOUT_FEE_MODE==="account",payoutFeeModeVerified,payoutWebhookEventsReady:missingWebhookEvents.length===0,payoutConfigurationReady,payoutReadiness,message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
+      return json({configured:true,reachable:true,authenticated:true,provider:"ObPay",webhookUrl:"https://lifeline-care-supply.dailyearnings.workers.dev/obpay/webhook",accountStatus,accountDetails,accountPayoutFeeMode,merchantPaidFeesConfigured:payoutFeeModeVerified,merchantFeePreferenceSource:"ObPay account response when exposed; otherwise merchant dashboard screenshot confirmed 2026-11-27",webhookRegistered,webhookEvents,missingWebhookEvents,payoutMethodsStatus,payoutMethods,payoutMethodsReady,balanceStatus,balance,fundingStatus,payoutsEnabled:OBPAY_PAYOUTS_ENABLED===true,payoutFeeModeConfigured:OBPAY_PAYOUT_FEE_MODE==="account",payoutFeeModeVerified,payoutWebhookEventsReady:missingWebhookEvents.length===0,payoutConfigurationReady,payoutReadiness,message:typeof ping.message==="string"?ping.message.slice(0,120):"ObPay authentication successful."});
     }catch(error){
       console.error("ObPay credential check failed:",error);
       return json({configured:true,reachable:false,authenticated:false,error:"ObPay authentication or connectivity check failed."},502);
@@ -1114,8 +1114,8 @@ async function authApi(request, env, url) {
   }
   if (request.method === "POST" && url.pathname === "/api/investor/withdrawals") {
     const investor=await currentInvestor(request,env); if(!investor)return json({error:"Authentication required."},401);
-    // Do not submit live payouts until ObPay's exact payout request, network code,
-    // recipient-name verification and fee quote have been validated for this merchant.
+    // Account-mode payouts are enabled from the merchant's confirmed preference.
+    // Verify the recipient and reserve funds before submission; reconcile every outcome.
     if(!OBPAY_PAYOUTS_ENABLED||OBPAY_PAYOUT_FEE_MODE!=="account")return json({error:"Automatic ObPay payouts are not enabled for this deployment."},503);
     let data;try{data=await request.json();}catch{return json({error:"Invalid request."},400);}
     const amount=Number(data.amount),phone=typeof data.phone==="string"?(normalizeUgandaPhone(data.phone)||""):investor.phone_e164;
