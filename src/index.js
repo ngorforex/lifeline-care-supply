@@ -805,6 +805,27 @@ async function authApi(request, env, url) {
 
     if (!queries[section]) return json({ error: "Unknown data section." }, 400);
     const result = await env.DB.prepare(queries[section]).bind(pageLimit).all();
+    if (section === "referrals") {
+      const [links, registered, qualified, credited, level1Bps, level2Bps, level3Bps] = await Promise.all([
+        env.DB.prepare("SELECT COUNT(*) AS count FROM referral_codes").first(),
+        env.DB.prepare("SELECT COUNT(*) AS count FROM referrals").first(),
+        env.DB.prepare("SELECT COUNT(*) AS count FROM referrals WHERE status='qualified'").first(),
+        env.DB.prepare("SELECT COALESCE(SUM(amount_minor),0) AS total FROM referral_commissions").first(),
+        setting(env,"referral_level_1_bps","2500"),
+        setting(env,"referral_level_2_bps","200"),
+        setting(env,"referral_level_3_bps","100")
+      ]);
+      return json({
+        section, records: result.results || [], timezone: eat, paymentActions: "read_only",
+        referralStats: {
+          totalLinks: Number(links?.count || 0),
+          registered: Number(registered?.count || 0),
+          qualified: Number(qualified?.count || 0),
+          rewardsCreditedMinor: Number(credited?.total || 0),
+          rates: { level1Bps: Number(level1Bps), level2Bps: Number(level2Bps), level3Bps: Number(level3Bps) }
+        }
+      });
+    }
     return json({ section, records: result.results || [], timezone: eat, paymentActions: "read_only" });
   }
 
