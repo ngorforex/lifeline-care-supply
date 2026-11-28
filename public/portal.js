@@ -10,12 +10,16 @@ function activateTab(tab){
  document.querySelectorAll("a[data-tab]").forEach(item=>item.classList.toggle("active",item.dataset.tab===tab));
  if(title)title.textContent=titles[tab]||"Workspace";
  if(crumb)crumb.textContent=titles[tab]||"Workspace";
+ const activeLink=document.querySelector('a[data-tab="'+tab+'"]');
+ activeLink?.scrollIntoView?.({block:"nearest",inline:"nearest",behavior:"smooth"});
 }
-document.querySelectorAll("[data-tab]").forEach(link=>link.addEventListener("click",event=>{
- const tab=link.dataset.tab;if(!document.getElementById("panel-"+tab))return;
- event.preventDefault();activateTab(tab);history.replaceState(null,"","#"+tab);
-}));
 const initialTab=location.hash.slice(1);if(initialTab&&document.getElementById("panel-"+initialTab))activateTab(initialTab);
+if(!isAdmin){
+ document.querySelectorAll("[data-tab]").forEach(link=>link.addEventListener("click",event=>{
+  const tab=link.dataset.tab;if(!document.getElementById("panel-"+tab))return;
+  event.preventDefault();activateTab(tab);history.replaceState(null,"","#"+tab);
+ }));
+}
 document.querySelectorAll(".year").forEach(item=>item.textContent=String(new Date().getFullYear()));
 function setText(selector,value){document.querySelectorAll(selector).forEach(el=>{el.textContent=value??"—";});}
 function statusKey(value){
@@ -230,6 +234,21 @@ if(isAdmin){
   referrals:[["REFERRER",x=>x.referrer_phone],["REFERRED INVESTOR",x=>x.referred_phone],["REGISTERED (EAT)",x=>adminDate(x.registered_at)],["STATUS",x=>x.status],["QUALIFIED (EAT)",x=>adminDate(x.qualified_at)]],
   audit:[["TIME (EAT)",x=>adminDate(x.created_at)],["ACTOR",x=>x.admin_email||x.investor_phone],["ACTION",x=>x.action],["RECORD",x=>(x.entity_type||"")+" / "+(x.entity_id||"")],["DETAILS",x=>x.reason||x.metadata]]
  };
+ const renderReferralSummary=stats=>{
+  const values={
+   totalLinks:String(stats.totalLinks??0),
+   registered:String(stats.registered??0),
+   qualified:String(stats.qualified??0),
+   rewardsCredited:adminMoney(stats.rewardsCreditedMinor??0,"UGX")
+  };
+  document.querySelectorAll("[data-referral-metric]").forEach(el=>{
+   const value=values[el.dataset.referralMetric];if(value!==undefined)el.textContent=value;
+  });
+  const rates=stats.rates||{};
+  const rateText="L1 "+Number(rates.level1Bps??2500)/100+"%  ·  L2 "+Number(rates.level2Bps??200)/100+"%  ·  L3 "+Number(rates.level3Bps??100)/100+"%";
+  const ratesNode=document.querySelector("[data-referral-rates]");if(ratesNode)ratesNode.textContent=rateText;
+  const pill=document.querySelector("#panel-referrals .panel-head .subtle-tag");if(pill)pill.textContent="Live database data";
+ };
  const renderAdminTable=(tab,records)=>{
   const panel=document.getElementById("panel-"+tab);if(!panel)return;
   let table=panel.querySelector("table");
@@ -289,7 +308,10 @@ if(isAdmin){
      const value=values[el.dataset.overviewMetric];if(value!==undefined)el.textContent=value;
     });
     const pill=document.querySelector(".subtle-tag");if(pill)pill.textContent="Live database data";
-   }else renderAdminTable(section,data.records||[]);
+   }else{
+    renderAdminTable(tab,data.records||[]);
+    if(tab==="referrals")renderReferralSummary(data.referralStats||{});
+   }
   }catch(error){console.error("Administrator data load failed:",error);adminError(error.message||"Administrator data could not be loaded.");}
  };
  fetch("/api/admin/auth/me",{credentials:"same-origin",cache:"no-store",headers:{"Accept":"application/json"}})
@@ -324,7 +346,13 @@ if(isAdmin){
     tools.append(check,runEarnings);overview.prepend(tools);
    }
    const initial=location.hash.slice(1);loadAdminSection(initial&&document.getElementById("panel-"+initial)?initial:"overview");
-   document.querySelectorAll("[data-tab]").forEach(link=>link.addEventListener("click",()=>loadAdminSection(link.dataset.tab)));
+   document.querySelectorAll("[data-tab]").forEach(link=>link.addEventListener("click",event=>{
+    const tab=link.dataset.tab;if(!document.getElementById("panel-"+tab))return;
+    event.preventDefault();activateTab(tab);history.replaceState(null,"","#"+tab);loadAdminSection(tab);
+   }));
+   window.addEventListener("hashchange",()=>{
+    const tab=location.hash.slice(1);if(document.getElementById("panel-"+tab)){activateTab(tab);loadAdminSection(tab);}
+   });
   })
   .catch(error=>{console.error(error);location.replace("/admin/login/");});
 }
