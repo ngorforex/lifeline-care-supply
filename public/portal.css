@@ -3384,3 +3384,11 @@ body[data-portal="investor"] .recent-transaction>div:first-child{
 }
 body[data-portal="investor"] .recent-transaction .recent-status-badge{margin:0}
 body[data-portal="investor"] .recent-transaction .recent-status-badge::before{display:inline-block}
+
+/* Admin navigation: reliable touch scrolling and visible active destination on small screens. */
+body[data-portal="admin"] .main{min-width:0;overflow-x:hidden}
+body[data-portal="admin"] .side-nav{scroll-snap-type:x proximity;touch-action:pan-x;overscroll-behavior-x:contain}
+body[data-portal="admin"] .side-nav a{scroll-snap-align:start;flex:0 0 auto;-webkit-tap-highlight-color:transparent}
+body[data-portal="admin"] .side-nav a:focus-visible{outline:3px solid rgba(37,99,235,.28);outline-offset:2px}
+body[data-portal="admin"] .content,body[data-portal="admin"] .tab-panel{min-width:0}
+body[data-portal="admin"] .referral-disclaimer{line-height:1.65;color:#526B9D;background:#fff;border:1px solid #DBEAFE;border-radius:13px;padding:14px 16px}
