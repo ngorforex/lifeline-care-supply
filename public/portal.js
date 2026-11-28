@@ -240,8 +240,9 @@ if(isAdmin){
   }
   let thead=table.querySelector("thead");if(!thead){thead=document.createElement("thead");table.append(thead);}
   let tbody=table.querySelector("tbody");if(!tbody){tbody=document.createElement("tbody");table.append(tbody);}
-  const defs=columns[tab]||[];
-  const hasActions=["withdrawals","all_withdrawals","packages"].includes(tab);const headRow=document.createElement("tr");defs.forEach(([label])=>{const th=document.createElement("th");th.textContent=label;headRow.append(th);});if(hasActions){const th=document.createElement("th");th.textContent="ACTIONS";headRow.append(th);}thead.replaceChildren(headRow);
+  const columnKey=tab.replaceAll("-","_");
+  const defs=columns[tab]||columns[columnKey]||[];
+  const hasActions=["withdrawals","all_withdrawals","packages"].includes(columnKey);const headRow=document.createElement("tr");defs.forEach(([label])=>{const th=document.createElement("th");th.textContent=label;headRow.append(th);});if(hasActions){const th=document.createElement("th");th.textContent="ACTIONS";headRow.append(th);}thead.replaceChildren(headRow);
   tbody.replaceChildren();
   if(!records?.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=(defs.length||1)+(hasActions?1:0);td.className="empty-cell";td.textContent="No records found.";tr.append(td);tbody.append(tr);return;}
   for(const item of records){
@@ -250,7 +251,7 @@ if(isAdmin){
    if(hasActions){
     const td=document.createElement("td");
     const addAction=(label,url)=>{const b=document.createElement("button");b.type="button";b.className="admin-row-action";b.textContent=label;b.addEventListener("click",async()=>{b.disabled=true;try{const response=await fetch(url,{method:"POST",credentials:"same-origin",headers:{"Accept":"application/json"}});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Action failed.");loadAdminSection(location.hash.slice(1)||"overview");}catch(error){adminError(error.message);}finally{b.disabled=false;}});td.append(b);};
-    if((tab==="withdrawals"||tab==="all_withdrawals")&&item.status==="pending"){
+    if((columnKey==="withdrawals"||columnKey==="all_withdrawals")&&item.status==="pending"){
       const paused=document.createElement("span");paused.className="admin-status-note";paused.textContent="Payout processing paused";td.append(paused);
       addAction("Reject","/api/admin/withdrawals/"+encodeURIComponent(item.id)+"/reject");
     }
